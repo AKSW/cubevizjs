@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+    </head>
+    <body>
+        <script type="text/javascript" src="jquery2.min.js"></script>
+        <script type="text/javascript" src="underscore.min.js"></script>
+
+        <script type="text/javascript" src="cubeviz.js"></script>
+        <script type="text/javascript">
+            console.log(CubeViz);
+            var cubeviz = new CubeViz.Application({
+                "sparqlEndpoint": "http://localhost:8890/sparql"
+            });
+            cubeviz.add("CubeViz.View.HeaderView", "#cubeViz-headerView")
+            console.log('cubeviz:');
+            console.log(cubeviz);
+
+            cubeviz.triggerEvent('onStart_application');
+        </script>
+
+
+        <div id="cubeViz-headerView"></div>
+    </body>
+</html>
