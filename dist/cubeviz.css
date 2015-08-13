@@ -1,0 +1,26 @@
+#cubeViz-dataSelection {
+
+}
+
+/*
+ * model selection
+ */
+#cubeViz-modelSelection {
+    min-width: 300px;
+    width: 25%;
+}
+
+.cubeViz-modelSelection-li {
+    list-style-type: none;
+}
+
+.cubeViz-modelSelection-ul {
+    padding-left: 10px;
+}
+
+/*
+ * visualization
+ */
+#cubeViz-visualization {
+
+}

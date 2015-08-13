@@ -44,7 +44,6 @@ namespace CubeViz
         /**
          * Binds events to DOM elements (using $.proxy!)
          *
-         * @return void
          * @throws Error
          */
         public bindUserInterfaceEvents(events?:any) : void
@@ -76,6 +75,12 @@ namespace CubeViz
             });
         }
 
+        public compileTemplate(tplHtml:string, data:any)
+        {
+            var template = Handlebars.compile(tplHtml);
+            return template(data);
+        }
+
         /**
          * Unbind all events, empty (empty it, delete all of its elements) element and
          * reset its collection .
@@ -96,7 +101,8 @@ namespace CubeViz
             } else if (true === el.is("select")) {
                 el.find("option").remove();
             }
-            // TODO what is with other types?
+
+            // TODO what is with other HTML types?
         }
 
         /**
@@ -105,11 +111,6 @@ namespace CubeViz
         public triggerGlobalEvent(eventName:string, data?:any) : void
         {
             this.app.triggerEvent(eventName, data);
-        }
-
-        public initialize()
-        {
-            throw new Error('Implement initialize');
         }
 
         public render()

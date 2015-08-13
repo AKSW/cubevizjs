@@ -25,6 +25,10 @@ var CubeViz;
                 $(selector).on(eventName, $.proxy(method, self));
             });
         };
+        AbstractView.prototype.compileTemplate = function (tplHtml, data) {
+            var template = Handlebars.compile(tplHtml);
+            return template(data);
+        };
         AbstractView.prototype.destroy = function () {
             var el = $(this.attachedTo);
             el.off();
@@ -37,9 +41,6 @@ var CubeViz;
         };
         AbstractView.prototype.triggerGlobalEvent = function (eventName, data) {
             this.app.triggerEvent(eventName, data);
-        };
-        AbstractView.prototype.initialize = function () {
-            throw new Error('Implement initialize');
         };
         AbstractView.prototype.render = function () {
             throw new Error('Implement render');
@@ -54,9 +55,9 @@ var CubeViz;
         function Application(configuration) {
             // TODO add checks
             this.configuration = {};
-            this.eventHandlers = [];
-            this.renderedViews = [];
-            this.viewInstances = [];
+            this.eventHandlers = {};
+            this.renderedViews = {};
+            this.viewInstances = {};
             this.configuration = configuration;
         }
         Application.prototype.add = function (id, attachedTo) {
@@ -108,6 +109,28 @@ var CubeViz;
     })();
     CubeViz.Application = Application;
 })(CubeViz || (CubeViz = {}));
+var CubeViz;
+(function (CubeViz) {
+    var SparqlHandler = (function () {
+        function SparqlHandler(sparqlEndpointUrl) {
+            this.sparqlEndpointUrl = '';
+            this.sparqlEndpointUrl = sparqlEndpointUrl;
+        }
+        SparqlHandler.prototype.sendQuery = function (query, doneCallee, failCallee) {
+            $.ajax(this.sparqlEndpointUrl, {
+                cache: false,
+                dataType: 'json',
+                data: {
+                    query: query
+                }
+            })
+                .done(doneCallee)
+                .fail(failCallee);
+        };
+        return SparqlHandler;
+    })();
+    CubeViz.SparqlHandler = SparqlHandler;
+})(CubeViz || (CubeViz = {}));
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -121,7 +144,7 @@ var CubeViz;
         var HeaderView = (function (_super) {
             __extends(HeaderView, _super);
             function HeaderView(attachedTo, app) {
-                _super.call(this, 'View_IndexAction_Header', attachedTo, app);
+                _super.call(this, 'HeaderView', attachedTo, app);
                 this.bindGlobalEvents([
                     {
                         name: "onStart_application",
@@ -135,5 +158,45 @@ var CubeViz;
             return HeaderView;
         })(CubeViz.AbstractView);
         View.HeaderView = HeaderView;
+    })(View = CubeViz.View || (CubeViz.View = {}));
+})(CubeViz || (CubeViz = {}));
+var CubeViz;
+(function (CubeViz) {
+    var View;
+    (function (View) {
+        var ModelSelectionView = (function (_super) {
+            __extends(ModelSelectionView, _super);
+            function ModelSelectionView(attachedTo, app) {
+                _super.call(this, 'ModelSelectionView', attachedTo, app);
+                this.bindGlobalEvents([
+                    {
+                        name: "onStart_application",
+                        handler: this.onStart_application
+                    }
+                ]);
+            }
+            ModelSelectionView.prototype.onStart_application = function () {
+                this.destroy();
+                this.render();
+            };
+            ModelSelectionView.prototype.render = function () {
+                var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+                sparqlHandler.sendQuery("SELECT ?g WHERE { GRAPH ?g { ?s ?p ?o }}", function (data) {
+                    var graphs = {};
+                    _.each(data.results.bindings, function (entry) {
+                        graphs[entry.value] = entry.value;
+                    });
+                    self.showGraphs(graphs);
+                }, function (data) {
+                    console.log("error");
+                    console.log(data);
+                });
+            };
+            ModelSelectionView.prototype.showGraphs = function (graphs) {
+                $(this.attachedTo).html(this.compileTemplate("<ul class=\"cubeViz-modelSelection-ul\">\n                    {{#each graphs}}\n                        <li class=\"cubeViz-modelSelection-li\">{{this}}</li>\n                    {{/each}}\n                </ul>", { graphs: graphs }));
+            };
+            return ModelSelectionView;
+        })(CubeViz.AbstractView);
+        View.ModelSelectionView = ModelSelectionView;
     })(View = CubeViz.View || (CubeViz.View = {}));
 })(CubeViz || (CubeViz = {}));

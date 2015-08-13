@@ -13,17 +13,17 @@ namespace CubeViz
         /**
          *
          */
-        protected eventHandlers:any = [];
+        protected eventHandlers:any = {};
 
         /**
          *
          */
-        protected renderedViews:any = [];
+        protected renderedViews:any = {};
 
         /**
          *
          */
-        protected viewInstances:any = [];
+        protected viewInstances:any = {};
 
         /**
          *

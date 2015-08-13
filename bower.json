@@ -1,0 +1,19 @@
+{
+    "name": "cubeviz",
+    "version": "0.1",
+    "homepage": "https://github.com/AKSW/CubeViz",
+    "authors": [
+        "Konrad Abicht <hi@inspirito.de>"
+    ],
+    "description": "",
+    "main": "dist/cubeviz.js",
+    "dependencies": {
+        "handlebars": "*",
+        "jquery": "*",
+        "underscore": "*",
+        "underscore.string": "*"
+    },
+    "keywords": [
+    ],
+    "license": ""
+}
