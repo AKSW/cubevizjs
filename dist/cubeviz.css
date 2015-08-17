@@ -1,21 +1,48 @@
+/**
+ *
+ */
 #cubeViz-dataSelection {
 
 }
 
+#cubeViz-dataSelection li{
+    cursor: pointer;
+    list-style-type: none;
+    margin: 5px;
+}
+
+#cubeViz-dataSelection ul{
+    padding: 0px;
+}
+
 /*
- * model selection
+ *
  */
-#cubeViz-modelSelection {
+#cubeViz-infoHeader {
+}
+
+#cubeViz-infoHeader-headline {
+    font-size: 21px;
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+/*
+ * graph selection
+ */
+#cubeViz-graphSelection {
     min-width: 300px;
     width: 25%;
 }
 
-.cubeViz-modelSelection-li {
+#cubeViz-graphSelection li {
+    cursor: pointer;
     list-style-type: none;
+    margin: 5px;
 }
 
-.cubeViz-modelSelection-ul {
-    padding-left: 10px;
+#cubeViz-graphSelection ul {
+    padding-left: 0px;
 }
 
 /*

@@ -18,6 +18,11 @@ namespace CubeViz
         /**
          *
          */
+        protected helperInstances:any = {};
+
+        /**
+         *
+         */
         protected renderedViews:any = {};
 
         /**
@@ -33,6 +38,8 @@ namespace CubeViz
             // TODO add checks
 
             this.configuration = configuration;
+
+            this.setupHelpers();
         }
 
         /**
@@ -104,17 +111,6 @@ namespace CubeViz
         }
 
         /**
-         * Gets a particular view.
-         *
-         * @param id ID of the view.
-         * @return CubeViz_View_Abstract|bool View instance, if found, false otherwise.
-         */
-        public getView(id:string) : any
-        {
-            return this.viewInstances[id];
-        }
-
-        /**
          * Removes an view instance.
          *
          * @param id ID of the view to remove.
@@ -125,36 +121,9 @@ namespace CubeViz
             delete this.viewInstances[id];
         }
 
-        /**
-         * Renders all views
-         *
-         * @return CubeViz_View_Application Itself
-         */
-        public renderAll() : void
+        public setupHelpers() : void
         {
-            var self = this;
-            _.each(this.viewInstances, function(view:any){
-                self.renderView(view.id, view.attachedTo);
-            });
-        }
-
-        /**
-         * Re-initialize and render a particular view, if it exists.
-         *
-         * @param id ID of the view.
-         * @param attachedTo ID or class of a DOM element
-         * @return CubeViz_View_Application Itself
-         */
-        public renderView(id:string, attachedTo?:string) : void
-        {
-            // add view to list if it does not exist yet
-            this.add(id, attachedTo);
-
-            // ... if view was already rendered, destroy old instance and ...
-            this.destroyView(id);
-
-            // ... initialize view (with initialize it, you render it)
-            this.getView(id).instance.initialize();
+            this.helperInstances['DataCubeInfoHelper'] = new DataCubeInfoHelper(this);
         }
 
         /**

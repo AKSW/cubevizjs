@@ -17,9 +17,12 @@
         "./declaration/DefinitelyTyped/underscore/underscore.d.ts",
         "./src/CubeViz/AbstractView.ts",
         "./src/CubeViz/Application.ts",
+        "./src/CubeViz/DataCubeInfoHelper.ts",
         "./src/CubeViz/SparqlHandler.ts",
         "./src/CubeViz/View.ts",
-        "./src/CubeViz/View/HeaderView.ts",
-        "./src/CubeViz/View/ModelSelectionView.ts"
+        "./src/CubeViz/View/DataSelectionView.ts",
+        "./src/CubeViz/View/DataSetAnalyzerView.ts",
+        "./src/CubeViz/View/GraphSelectionView.ts",
+        "./src/CubeViz/View/InfoHeaderView.ts"
     ]
 }

@@ -2,11 +2,12 @@
     <head>
         <meta charset="utf-8">
         <title></title>
+        <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.min.css" media="screen" title="no title" charset="utf-8">
         <link rel="stylesheet" href="cubeviz.css" media="screen" title="no title" charset="utf-8">
     </head>
     <body>
         <script type="text/javascript" src="vendor/handlebars/handlebars.min.js"></script>
-        <script type="text/javascript" src="vendor/jquery/jquery.min.js"></script>
+        <script type="text/javascript" src="vendor/jquery/dist/jquery.min.js"></script>
         <script type="text/javascript" src="vendor/bluebird/js/browser/bluebird.js"></script>
         <script type="text/javascript" src="vendor/underscore/underscore.js"></script>
         <script type="text/javascript" src="vendor/underscore.string/dist/underscore.string.min.js"></script>
@@ -16,8 +17,10 @@
             var cubeviz = new CubeViz.Application({
                 "sparqlEndpointUrl": "http://localhost/CubeVizEndpoint"
             });
-            cubeviz.add("CubeViz.View.HeaderView", "#cubeViz-headerView");
-            cubeviz.add("CubeViz.View.ModelSelectionView", "#cubeViz-modelSelection");
+            cubeviz.add("CubeViz.View.DataSelectionView", "cubeViz-dataSelection");
+            cubeviz.add("CubeViz.View.DataSetAnalyzerView", "cubeViz-dataSetAnalyzer");
+            cubeviz.add("CubeViz.View.GraphSelectionView", "cubeViz-graphSelection");
+            cubeviz.add("CubeViz.View.InfoHeaderView", "cubeViz-infoHeader");
             console.log('cubeviz:');
             console.log(cubeviz);
 
@@ -28,23 +31,41 @@
         </script>
 
 
-        <div id="cubeViz-headerView"></div>
+        <div class="row" style="margin-left: 50px;">
+            <div class="col-lg-4">
+                <h3>Data Selection</h3>
+                <!-- After choosing a graph, you can configure the dataset and its components here -->
+                <div id="cubeViz-dataSelection"></div>
 
-        <table>
-            <tr>
-                <td>
-                    <div id="cubeViz-dataSelection">1</div>
-                </td>
-                <td rowspan="2" style="vertical-align: top;">
-                    <div id="cubeViz-visualization">2</div>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <h3>Available Graphs:</h3>
-                    <div id="cubeViz-modelSelection"></div>
-                </td>
-            </tr>
-        </table>
+                <br/>
+
+                <h3>Available Graphs:</h3>
+                <!-- List of available graphs -->
+                <div id="cubeViz-graphSelection"></div>
+            </div>
+
+            <div class="col-lg-8">
+                <div class="row">
+                    <div class="col-lg-5">
+                        <!-- Info header containing information about the chosen graph -->
+                        <div id="cubeViz-infoHeader"></div>
+                    </div>
+                    <div class="col-lg-5">
+                        <!-- Selector to choose between available visualizations -->
+                        <div id="cubeViz-visualizationSelector"></div>
+                    </div>
+                </div>
+
+                <br/>
+                <h4>DataSet Analyzer</h4>
+                <div id="cubeViz-dataSetAnalyzer"></div>
+
+                <!-- Visualization of the observations -->
+                <br/>
+                <br/>
+                <h4>Visualization</h4>
+                <div id="cubeViz-visualization"></div>
+            </div>
+        </div>
     </body>
 </html>
