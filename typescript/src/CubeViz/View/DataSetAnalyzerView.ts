@@ -66,45 +66,69 @@ namespace CubeViz.View
 
         public showAttributes(attributes:any)
         {
-            $('#' + this.attachedTo + '-attributes').html(this.compileTemplate(`
-                Available attributes:
-                <ul>
-                    {{#each attributes}}
-                    <li>{{__cv_niceLabel}}</li>
-                    {{/each}}
-                </ul>
-            `, {attributes: attributes}));
+            if (0 == _.keys(attributes).length) {
+                $('#' + this.attachedTo + '-attributes').html(
+                    'Available attributes: <strong>No attributes found</strong>'
+                );
+            } else {
+                $('#' + this.attachedTo + '-attributes').html(this.compileTemplate(`
+                    Available attributes:
+                    <ul>
+                        {{#each attributes}}
+                        <li>{{__cv_niceLabel}}</li>
+                        {{/each}}
+                    </ul>
+                `, {attributes: attributes}));
+            }
         }
 
         public showDataSet(dataSet:any)
         {
-            $('#' + this.attachedTo + '-dataSet').html(this.compileTemplate(`
-                Selected DataSet: <strong>{{dataSetUri}}</strong>
-            `, {dataSetUri: dataSet.uri}));
+            if (0 == _.keys(dataSet).length) {
+                $('#' + this.attachedTo + '-dataSet').html(
+                    'Selected DataSet: <strong>No dataset found</strong>'
+                );
+            } else {
+                $('#' + this.attachedTo + '-dataSet').html(this.compileTemplate(`
+                    Selected DataSet: <strong>{{__cv_niceLabel}}</strong>
+                `, dataSet));
+            }
         }
 
         public showDimensions(dimensions:any)
         {
-            $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate(`
-                Available dimensions:
-                <ul>
-                    {{#each dimensions}}
-                    <li>{{__cv_niceLabel}}</li>
-                    {{/each}}
-                </ul>
-            `, {dimensions: dimensions}));
+            if (0 == _.keys(dimensions).length) {
+                $('#' + this.attachedTo + '-dataSet').html(
+                    'Available dimensions: <strong>No dimensions found</strong>'
+                );
+            } else {
+                $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate(`
+                    Available dimensions:
+                    <ul>
+                        {{#each dimensions}}
+                        <li>{{__cv_niceLabel}}</li>
+                        {{/each}}
+                    </ul>
+                `, {dimensions: dimensions}));
+            }
         }
 
         public showMeasures(measures:any)
         {
-            $('#' + this.attachedTo + '-measures').html(this.compileTemplate(`
-                Available measures:
-                <ul>
-                    {{#each measures}}
-                    <li>{{__cv_niceLabel}}</li>
-                    {{/each}}
-                </ul>
-            `, {measures: measures}));
+            if (0 == _.keys(measures).length) {
+                $('#' + this.attachedTo + '-dataSet').html(
+                    'Available measures: <strong>No measures found</strong>'
+                );
+            } else {
+                $('#' + this.attachedTo + '-measures').html(this.compileTemplate(`
+                    Available measures:
+                    <ul>
+                        {{#each measures}}
+                        <li>{{__cv_niceLabel}}</li>
+                        {{/each}}
+                    </ul>
+                `, {measures: measures}));
+            }
         }
     }
 }

@@ -46,11 +46,19 @@ namespace CubeViz.View
 
             // add click event to each graph list entry
             $('#' + this.attachedTo + ' li').click(function(event:JQueryEventObject){
-                // set selected graph (this one will be used for later queries)
-                self.app.configuration.selectedGraphUri = $(this).attr("uri");
+                var $clickedElement = $(this);
 
-                // trigger global event, so that other views can react o
-                self.app.triggerEvent('onSelect_graph', {uri: $(this).attr("uri")});
+                // set selected graph (this one will be used for later queries)
+                _.each(self.app.data.received.graphs, function(graph:any){
+                    if ($clickedElement.attr('uri') == graph.__cv_uri) {
+                        self.app.data.selected.graph = graph;
+
+                        // trigger global event, so that other views can react o
+                        self.app.triggerEvent('onSelect_graph', graph);
+
+                        $clickedElement.css('background-color', '#CCCCFF');
+                    }
+                });
             });
         }
     }

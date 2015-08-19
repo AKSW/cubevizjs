@@ -21,10 +21,10 @@ namespace CubeViz.View
             ]);
         }
 
-        public onSelect_graph(event:JQueryEventObject, data:any)
+        public onSelect_graph(event:JQueryEventObject, graph:any)
         {
             $('#' + this.attachedTo).html(`
-                <div id="` + this.attachedTo + `-headline">` + data.uri + `</div>
+                <div id="` + this.attachedTo + `-headline">` + graph.__cv_uri + `</div>
             `);
         }
     }

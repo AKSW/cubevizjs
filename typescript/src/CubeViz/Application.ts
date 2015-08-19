@@ -26,6 +26,11 @@ namespace CubeViz
         protected renderedViews:any = {};
 
         /**
+         * Contains received data and also selected data.
+         */
+        public data:any = {};
+
+        /**
          *
          */
         protected viewInstances:any = {};
@@ -38,6 +43,20 @@ namespace CubeViz
             // TODO add checks
 
             this.configuration = configuration;
+            this.data = {
+                received:{
+                    attributes: {},
+                    dataSets: {},
+                    dimensions: {},
+                    measures: {},
+                },
+                selected: {
+                    attributes: {},
+                    dataSet: {},
+                    dimensions: {},
+                    measures: {},
+                }
+            };
 
             this.setupHelpers();
         }
@@ -108,6 +127,19 @@ namespace CubeViz
         public destroyView(id:string) : void
         {
             this.viewInstances.get(id).instance.destroy();
+        }
+
+        /**
+         *
+         */
+        public getDimensionElement(dimensionElmementUri:string, dimensionUri:string)
+        {
+            if (false == _.isUndefined(
+                this.data.received.dimensions[dimensionUri].__cv_elements[dimensionElmementUri])) {
+                return this.data.received.dimensions[dimensionUri].__cv_elements[dimensionElmementUri];
+            }
+
+            return null;
         }
 
         /**

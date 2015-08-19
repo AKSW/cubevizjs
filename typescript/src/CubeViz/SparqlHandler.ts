@@ -16,18 +16,27 @@ namespace CubeViz
          * @param string   query
          * @param function doneCallee
          * @param function failCallee
+         * @return JQueryXHR|null
          */
-        public sendQuery(query:string, doneCallee:any, failCallee:any)
+        public sendQuery(query:string, doneCallee?:any, failCallee?:any) : any
         {
-            $.ajax(this.sparqlEndpointUrl, {
+            var xhr:JQueryXHR = $.ajax(this.sparqlEndpointUrl, {
                 cache: false,
                 dataType: 'json',
                 data : {
                     query: query
                 }
-            })
-            .done(doneCallee)
-            .fail(failCallee);
+            });
+
+            if (false == _.isUndefined(doneCallee)){
+                xhr.done(doneCallee);
+            } else if (false == _.isUndefined(failCallee)){
+                xhr.fail(failCallee);
+
+            // if both callee's are undefined, return xhr.
+            } else if (_.isUndefined(doneCallee) && _.isUndefined(failCallee)) {
+                return xhr;
+            }
         }
     }
 }

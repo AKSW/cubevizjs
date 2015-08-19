@@ -15,6 +15,16 @@
     padding: 0px;
 }
 
+.cubeViz-dataSelection-dimensions-li{
+    cursor: pointer;
+    list-style-type: none;
+    margin: 5px;
+}
+
+.cubeViz-dataSelection-dimensions-ul{
+    padding: 0px;
+}
+
 /*
  *
  */
