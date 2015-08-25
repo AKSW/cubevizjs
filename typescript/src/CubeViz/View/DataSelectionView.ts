@@ -140,6 +140,7 @@ namespace CubeViz.View
          */
         public showDimensions(dimensions:any)
         {
+            // show dimensions + for each dimension their related elements
             $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate(`
                 <ul class="` + this.attachedTo + '-ul' + `">
                     {{#each dimensions}}
@@ -180,9 +181,10 @@ namespace CubeViz.View
                     // get the URI of the related dimension
                     dimensionUri:string = $(_.first($($clickedElement.parent()).parent().children())).attr('uri');
 
-                var dimensionElement = self.app.getDimensionElement($clickedElement.attr('uri'), dimensionUri);
-
-                self.app.triggerEvent('onSelect_dimensionElement', dimensionElement);
+                self.app.triggerEvent(
+                    'onSelect_dimensionElement',
+                    self.app.getDimensionElement($clickedElement.attr('uri'), dimensionUri)
+                );
 
                 $clickedElement.css('background-color', '#CCCCFF');
             });

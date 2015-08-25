@@ -140,6 +140,10 @@ var CubeViz;
                     handler: this.onSelect_dimension
                 },
                 {
+                    name: 'onSelect_dimensionElement',
+                    handler: this.onSelect_dimensionElement
+                },
+                {
                     name: 'onSelect_graph',
                     handler: this.onSelect_graph
                 },
@@ -186,7 +190,7 @@ var CubeViz;
             });
             return enrichedData;
         };
-        DataCubeInfoHelper.prototype.loadAvailableAttributes = function (dataSetUri) {
+        DataCubeInfoHelper.prototype.loadAttributes = function (dataSetUri) {
             var self = this;
             this.loadComponents(this.app.data.selected.dataSet.__cv_uri, 'qb:attribute', this.app.data.selected.graph.__cv_uri, function (data) {
                 self.app.data.selected.attributes = self.enrichData(data.results.bindings, {
@@ -199,7 +203,15 @@ var CubeViz;
                 console.log(data);
             });
         };
-        DataCubeInfoHelper.prototype.loadAvailableDimensions = function (dataSetUri) {
+        DataCubeInfoHelper.prototype.loadComponents = function (dsUri, componentTypePrefixedUri, graphUri, onSuccess, onError) {
+            var sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?component ?p ?o ?componentSpecification\n                FROM <" + graphUri + ">\n                WHERE {\n                    <" + dsUri + "> qb:structure ?dsd.\n                    ?dsd qb:component ?componentSpecification.\n                    ?componentSpecification a qb:ComponentSpecification.\n                    ?componentSpecification " + componentTypePrefixedUri + " ?component.\n                    ?component ?p ?o.\n                }", onSuccess, onError);
+        };
+        DataCubeInfoHelper.prototype.loadComponentElements = function (dataSetUri, componentUri, graphUri) {
+            var sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+            return sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri\n                FROM <" + graphUri + ">\n                WHERE {\n                    {\n                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                        ?observation qb:dataSet <" + dataSetUri + ">.\n                        ?observation <" + componentUri + "> ?componentElementUri.\n                        ?observation ?componentUri ?componentElementUri.\n                        OPTIONAL {\n                            ?componentElementUri ?p ?o.\n                        }\n                    }\n                    UNION\n                    {\n                        ?componentElementUri a ?componentUri.\n                        ?componentElementUri a <" + componentUri + ">.\n                        ?componentElementUri ?p ?o.\n                    }\n                }");
+        };
+        DataCubeInfoHelper.prototype.loadDimensions = function (dataSetUri) {
             var self = this;
             this.loadComponents(this.app.data.selected.dataSet.__cv_uri, 'qb:dimension', this.app.data.selected.graph.__cv_uri, function (data) {
                 self.app.data.received.dimensions = self.enrichData(data.results.bindings, {
@@ -208,7 +220,7 @@ var CubeViz;
                 });
                 var responseObjects = [];
                 _.each(self.app.data.received.dimensions, function (dimension) {
-                    responseObjects.push(self.loadAvailableComponentElements(self.app.data.selected.dataSet.__cv_uri, dimension.__cv_uri, self.app.data.selected.graph.__cv_uri));
+                    responseObjects.push(self.loadComponentElements(self.app.data.selected.dataSet.__cv_uri, dimension.__cv_uri, self.app.data.selected.graph.__cv_uri));
                 });
                 $.when.apply(null, responseObjects).done(function () {
                     if (_.isArray(arguments[0])) {
@@ -231,11 +243,7 @@ var CubeViz;
                 console.log(data);
             });
         };
-        DataCubeInfoHelper.prototype.loadAvailableComponentElements = function (dataSetUri, componentUri, graphUri) {
-            var sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
-            return sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri\n                FROM <" + graphUri + ">\n                WHERE {\n                    {\n                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                        ?observation qb:dataSet <" + dataSetUri + ">.\n                        ?observation <" + componentUri + "> ?componentElementUri.\n                        ?observation ?componentUri ?componentElementUri.\n                        OPTIONAL {\n                            ?componentElementUri ?p ?o.\n                        }\n                    }\n                    UNION\n                    {\n                        ?componentElementUri a ?componentUri.\n                        ?componentElementUri a <" + componentUri + ">.\n                        ?componentElementUri ?p ?o.\n                    }\n                }");
-        };
-        DataCubeInfoHelper.prototype.loadAvailableMeasures = function (dataSetUri) {
+        DataCubeInfoHelper.prototype.loadMeasures = function (dataSetUri) {
             var self = this;
             this.loadComponents(this.app.data.selected.dataSet.__cv_uri, 'qb:measure', this.app.data.selected.graph.__cv_uri, function (data) {
                 self.app.data.received.measures = self.enrichData(data.results.bindings, {
@@ -248,13 +256,18 @@ var CubeViz;
                 console.log(data);
             });
         };
-        DataCubeInfoHelper.prototype.loadComponents = function (dsUri, componentTypePrefixedUri, graphUri, onSuccess, onError) {
-            var sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
-            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?component ?p ?o ?componentSpecification\n                FROM <" + graphUri + ">\n                WHERE {\n                    <" + dsUri + "> qb:structure ?dsd.\n                    ?dsd qb:component ?componentSpecification.\n                    ?componentSpecification a qb:ComponentSpecification.\n                    ?componentSpecification " + componentTypePrefixedUri + " ?component.\n                    ?component ?p ?o.\n                }", onSuccess, onError);
-        };
-        DataCubeInfoHelper.prototype.onFound_dataCubeInformation = function (event, data) {
+        DataCubeInfoHelper.prototype.loadNumberOfObservations = function (dsUri, graphUri) {
             var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
-            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?ds ?p ?o\n                FROM <" + this.app.data.selected.graph.__cv_uri + ">\n                WHERE {\n                    ?ds a qb:DataSet.\n                    ?ds ?p ?o.\n                }", function (data) {
+            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT DISTINCT COUNT (?observation)\n                FROM <" + graphUri + ">\n                WHERE {\n                    ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                    ?observation qb:dataSet <" + dsUri + ">.\n                }", function (data) {
+                self.app.triggerEvent('onLoad_numberOfObservations', data.results.bindings[0]['callret-0'].value);
+            }, function (data) {
+                console.log('error');
+                console.log(data);
+            });
+        };
+        DataCubeInfoHelper.prototype.onFound_dataCubeInformation = function (event, dataSetUri) {
+            var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?ds ?p ?o\n                FROM <" + dataSetUri + ">\n                WHERE {\n                    ?ds a qb:DataSet.\n                    ?ds ?p ?o.\n                }", function (data) {
                 self.app.data.received.dataSets = self.enrichData(data.results.bindings, { __cv_uri: 'ds' });
                 self.app.triggerEvent('onLoad_dataSets', self.app.data.received.dataSets);
             }, function (data) {
@@ -263,17 +276,21 @@ var CubeViz;
             });
         };
         DataCubeInfoHelper.prototype.onSelect_dataSet = function (event, dataSet) {
-            this.loadAvailableAttributes(dataSet.__cv_uri);
-            this.loadAvailableDimensions(dataSet.__cv_uri);
-            this.loadAvailableMeasures(dataSet.__cv_uri);
+            this.loadAttributes(dataSet.__cv_uri);
+            this.loadDimensions(dataSet.__cv_uri);
+            this.loadMeasures(dataSet.__cv_uri);
+            this.loadNumberOfObservations(dataSet.__cv_uri, this.app.data.selected.graph.__cv_uri);
         };
         DataCubeInfoHelper.prototype.onSelect_dimension = function (event, dimension) {
             var clonedDimension = JSON.parse(JSON.stringify(dimension));
             clonedDimension.__cv_elements = {};
             this.app.data.selected.dimensions[clonedDimension.__cv_uri] = clonedDimension;
         };
-        DataCubeInfoHelper.prototype.onSelect_dimensionElement = function (event, data) {
-            console.log(data);
+        DataCubeInfoHelper.prototype.onSelect_dimensionElement = function (event, dimensionElement) {
+            var clonedDimensionElement = JSON.parse(JSON.stringify(dimensionElement));
+            this.app.data.selected
+                .dimensions[dimensionElement.__cv_component]
+                .__cv_elements[dimensionElement.__cv_uri] = clonedDimensionElement;
         };
         DataCubeInfoHelper.prototype.onSelect_graph = function (event, graph) {
             if (_.isUndefined(graph))
@@ -281,7 +298,7 @@ var CubeViz;
             var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
             sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                ASK FROM <" + graph.__cv_uri + ">\n                {\n                    ?obs a qb:Observation .\n                    ?obs qb:dataSet ?dataset .\n                    ?obs ?dimension ?dimelement .\n                    ?obs ?measure ?value .\n                    ?ds a qb:DataSet .\n                    ?ds qb:structure ?dsd .\n                    ?dsd a qb:DataStructureDefinition .\n                    ?dsd qb:component ?dimspec .\n                    ?dsd qb:component ?measspec .\n                    ?dimspec a qb:ComponentSpecification .\n                    ?dimspec qb:dimension ?dimension .\n                    ?measspec a qb:ComponentSpecification .\n                    ?measspec qb:measure ?measure .\n                }", function (data) {
                 if (true == data.boolean) {
-                    self.app.triggerEvent('onFound_dataCubeInformation');
+                    self.app.triggerEvent('onFound_dataCubeInformation', graph.__cv_uri);
                 }
             }, function (data) {
                 console.log('error');
@@ -439,8 +456,7 @@ var CubeViz;
                 });
                 $('.' + this.attachedTo + '-dimensions-dimensionElement').click(function (event) {
                     var $clickedElement = $(this), dimensionUri = $(_.first($($clickedElement.parent()).parent().children())).attr('uri');
-                    var dimensionElement = self.app.getDimensionElement($clickedElement.attr('uri'), dimensionUri);
-                    self.app.triggerEvent('onSelect_dimensionElement', dimensionElement);
+                    self.app.triggerEvent('onSelect_dimensionElement', self.app.getDimensionElement($clickedElement.attr('uri'), dimensionUri));
                     $clickedElement.css('background-color', '#CCCCFF');
                 });
             };
@@ -484,6 +500,10 @@ var CubeViz;
                         handler: this.onLoad_measures
                     },
                     {
+                        name: 'onLoad_numberOfObservations',
+                        handler: this.onLoad_numberOfObservations
+                    },
+                    {
                         name: 'onSelect_dataSet',
                         handler: this.onSelect_dataSet
                     }
@@ -498,12 +518,15 @@ var CubeViz;
             DataSetAnalyzerView.prototype.onLoad_measures = function (event, measures) {
                 this.showMeasures(measures);
             };
+            DataSetAnalyzerView.prototype.onLoad_numberOfObservations = function (event, numberOfObservations) {
+                this.showNumberOfObservations(numberOfObservations);
+            };
             DataSetAnalyzerView.prototype.onSelect_dataSet = function (event, dataSet) {
                 this.render();
                 this.showDataSet(dataSet);
             };
             DataSetAnalyzerView.prototype.render = function () {
-                $('#' + this.attachedTo).html("\n                <div id=\"" + this.attachedTo + "-dataSet\"></div>\n                <div id=\"" + this.attachedTo + "-measures\"></div>\n                <div id=\"" + this.attachedTo + "-attributes\"></div>\n                <div id=\"" + this.attachedTo + "-dimensions\"></div>\n            ");
+                $('#' + this.attachedTo).html("\n                <div id=\"" + this.attachedTo + "-dataSet\"></div>\n                <div id=\"" + this.attachedTo + "-measures\"></div>\n                <div id=\"" + this.attachedTo + "-attributes\"></div>\n                <div id=\"" + this.attachedTo + "-dimensions\"></div>\n                <div id=\"" + this.attachedTo + "-numberOfObservations\"></div>\n            ");
             };
             DataSetAnalyzerView.prototype.showAttributes = function (attributes) {
                 if (0 == _.keys(attributes).length) {
@@ -536,6 +559,9 @@ var CubeViz;
                 else {
                     $('#' + this.attachedTo + '-measures').html(this.compileTemplate("\n                    Available measures:\n                    <ul>\n                        {{#each measures}}\n                        <li>{{__cv_niceLabel}}</li>\n                        {{/each}}\n                    </ul>\n                ", { measures: measures }));
                 }
+            };
+            DataSetAnalyzerView.prototype.showNumberOfObservations = function (numberOfObservations) {
+                $('#' + this.attachedTo + '-numberOfObservations').html(this.compileTemplate("\n                Number of observations: <strong>{{numberOfObservations}}</strong>\n            ", { numberOfObservations: numberOfObservations }));
             };
             return DataSetAnalyzerView;
         })(CubeViz.AbstractView);

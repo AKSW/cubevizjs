@@ -134,8 +134,7 @@ namespace CubeViz
          */
         public getDimensionElement(dimensionElmementUri:string, dimensionUri:string)
         {
-            if (false == _.isUndefined(
-                this.data.received.dimensions[dimensionUri].__cv_elements[dimensionElmementUri])) {
+            if (false == _.isUndefined(this.data.received.dimensions[dimensionUri].__cv_elements[dimensionElmementUri])) {
                 return this.data.received.dimensions[dimensionUri].__cv_elements[dimensionElmementUri];
             }
 

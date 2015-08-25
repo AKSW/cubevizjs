@@ -27,6 +27,10 @@ namespace CubeViz.View
                     handler: this.onLoad_measures
                 },
                 {
+                    name:    'onLoad_numberOfObservations',
+                    handler: this.onLoad_numberOfObservations
+                },
+                {
                     name:    'onSelect_dataSet',
                     handler: this.onSelect_dataSet
                 }
@@ -48,6 +52,11 @@ namespace CubeViz.View
             this.showMeasures(measures);
         }
 
+        public onLoad_numberOfObservations(event:JQueryEventObject, numberOfObservations:number)
+        {
+            this.showNumberOfObservations(numberOfObservations);
+        }
+
         public onSelect_dataSet(event:JQueryEventObject, dataSet:any) : void
         {
             this.render();
@@ -61,6 +70,7 @@ namespace CubeViz.View
                 <div id="` + this.attachedTo + `-measures"></div>
                 <div id="` + this.attachedTo + `-attributes"></div>
                 <div id="` + this.attachedTo + `-dimensions"></div>
+                <div id="` + this.attachedTo + `-numberOfObservations"></div>
             `);
         }
 
@@ -137,6 +147,13 @@ namespace CubeViz.View
                     </ul>
                 `, {measures: measures}));
             }
+        }
+
+        public showNumberOfObservations(numberOfObservations:number)
+        {
+            $('#' + this.attachedTo + '-numberOfObservations').html(this.compileTemplate(`
+                Number of observations: <strong>{{numberOfObservations}}</strong>
+            `, {numberOfObservations: numberOfObservations}));
         }
     }
 }

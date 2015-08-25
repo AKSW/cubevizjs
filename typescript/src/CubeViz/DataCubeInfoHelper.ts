@@ -28,6 +28,10 @@ namespace CubeViz
                     handler: this.onSelect_dimension
                 },
                 {
+                    name: 'onSelect_dimensionElement',
+                    handler: this.onSelect_dimensionElement
+                },
+                {
                     name: 'onSelect_graph',
                     handler: this.onSelect_graph
                 },
@@ -116,7 +120,7 @@ namespace CubeViz
             return enrichedData;
         }
 
-        protected loadAvailableAttributes(dataSetUri:string) : void
+        protected loadAttributes(dataSetUri:string) : void
         {
             var self:DataCubeInfoHelper = this;
 
@@ -144,7 +148,71 @@ namespace CubeViz
             );
         }
 
-        protected loadAvailableDimensions(dataSetUri:string) : void
+        /**
+         * Loads components of a certain dataset such as dimensions, measures and attributes.
+         *
+         * @param string dsUri
+         * @param string componentTypePrefixedUri
+         * @param string graphUri
+         * @param any    onSuccess
+         * @param any    onError
+         */
+        protected loadComponents(
+            dsUri:string,
+            componentTypePrefixedUri:string,
+            graphUri:string,
+            onSuccess:any,
+            onError:any
+        ) : void {
+            var sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+
+            sparqlHandler.sendQuery(
+                `PREFIX qb: <http://purl.org/linked-data/cube#>
+                SELECT ?component ?p ?o ?componentSpecification
+                FROM <` + graphUri + `>
+                WHERE {
+                    <` + dsUri + `> qb:structure ?dsd.
+                    ?dsd qb:component ?componentSpecification.
+                    ?componentSpecification a qb:ComponentSpecification.
+                    ?componentSpecification ` + componentTypePrefixedUri + ` ?component.
+                    ?component ?p ?o.
+                }`,
+                onSuccess,
+                onError
+            );
+        }
+
+        protected loadComponentElements(dataSetUri:string, componentUri:string, graphUri:string) : JQueryXHR
+        {
+            var sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+
+            // that query does not only say, give me all elements of a cetain component, but also
+            // forces a connection between the dataset and that component.
+            return sparqlHandler.sendQuery(
+                `PREFIX qb: <http://purl.org/linked-data/cube#>
+                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri
+                FROM <` + graphUri + `>
+                WHERE {
+                    {
+                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.
+                        ?observation qb:dataSet <` + dataSetUri + `>.
+                        ?observation <` + componentUri + `> ?componentElementUri.
+                        ?observation ?componentUri ?componentElementUri.
+                        OPTIONAL {
+                            ?componentElementUri ?p ?o.
+                        }
+                    }
+                    UNION
+                    {
+                        ?componentElementUri a ?componentUri.
+                        ?componentElementUri a <` + componentUri + `>.
+                        ?componentElementUri ?p ?o.
+                    }
+                }`
+            );
+        }
+
+        protected loadDimensions(dataSetUri:string) : void
         {
             var self:DataCubeInfoHelper = this;
 
@@ -172,7 +240,7 @@ namespace CubeViz
                      * if all are finished.
                      */
                     _.each(self.app.data.received.dimensions, function(dimension:any){
-                        responseObjects.push(self.loadAvailableComponentElements(
+                        responseObjects.push(self.loadComponentElements(
                             self.app.data.selected.dataSet.__cv_uri,
                             dimension.__cv_uri,
                             self.app.data.selected.graph.__cv_uri
@@ -220,37 +288,8 @@ namespace CubeViz
             );
         }
 
-        protected loadAvailableComponentElements(dataSetUri:string, componentUri:string, graphUri:string) : JQueryXHR
-        {
-            var sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
 
-            // that query does not only say, give me all elements of a cetain component, but also
-            // forces a connection between the dataset and that component.
-            return sparqlHandler.sendQuery(
-                `PREFIX qb: <http://purl.org/linked-data/cube#>
-                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri
-                FROM <` + graphUri + `>
-                WHERE {
-                    {
-                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.
-                        ?observation qb:dataSet <` + dataSetUri + `>.
-                        ?observation <` + componentUri + `> ?componentElementUri.
-                        ?observation ?componentUri ?componentElementUri.
-                        OPTIONAL {
-                            ?componentElementUri ?p ?o.
-                        }
-                    }
-                    UNION
-                    {
-                        ?componentElementUri a ?componentUri.
-                        ?componentElementUri a <` + componentUri + `>.
-                        ?componentElementUri ?p ?o.
-                    }
-                }`
-            );
-        }
-
-        protected loadAvailableMeasures(dataSetUri:string) : void
+        protected loadMeasures(dataSetUri:string) : void
         {
             var self:DataCubeInfoHelper = this;
 
@@ -278,44 +317,39 @@ namespace CubeViz
             );
         }
 
-        /**
-         * Loads components of a certain dataset such as dimensions, measures and attributes.
-         *
-         * @param string dsUri
-         * @param string componentTypePrefixedUri
-         * @param string graphUri
-         * @param any    onSuccess
-         * @param any    onError
-         */
-        public loadComponents(
-            dsUri:string,
-            componentTypePrefixedUri:string,
-            graphUri:string,
-            onSuccess:any,
-            onError:any
-        ) : void {
-            var sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+        public loadNumberOfObservations(dsUri:string, graphUri:string)
+        {
+            var self:DataCubeInfoHelper = this,
+                sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
 
             sparqlHandler.sendQuery(
+                // get the number of all observations
                 `PREFIX qb: <http://purl.org/linked-data/cube#>
-                SELECT ?component ?p ?o ?componentSpecification
+                SELECT DISTINCT COUNT (?observation)
                 FROM <` + graphUri + `>
                 WHERE {
-                    <` + dsUri + `> qb:structure ?dsd.
-                    ?dsd qb:component ?componentSpecification.
-                    ?componentSpecification a qb:ComponentSpecification.
-                    ?componentSpecification ` + componentTypePrefixedUri + ` ?component.
-                    ?component ?p ?o.
+                    ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.
+                    ?observation qb:dataSet <` + dsUri + `>.
                 }`,
-                onSuccess,
-                onError
+                // on success
+                function(data:any) {
+                    self.app.triggerEvent(
+                        'onLoad_numberOfObservations',
+                        data.results.bindings[0]['callret-0'].value
+                    );
+                },
+                // on error
+                function(data:any){
+                    console.log('error');
+                    console.log(data);
+                }
             );
         }
 
         /**
          * Loads dataset information from the selected graph to provide it to other views.
          */
-        public onFound_dataCubeInformation(event:JQueryEventObject, data:any)
+        public onFound_dataCubeInformation(event:JQueryEventObject, dataSetUri:string)
         {
             var self:DataCubeInfoHelper = this,
                 sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
@@ -324,7 +358,7 @@ namespace CubeViz
                 // get all datasets
                 `PREFIX qb: <http://purl.org/linked-data/cube#>
                 SELECT ?ds ?p ?o
-                FROM <` + this.app.data.selected.graph.__cv_uri + `>
+                FROM <` + dataSetUri + `>
                 WHERE {
                     ?ds a qb:DataSet.
                     ?ds ?p ?o.
@@ -346,9 +380,10 @@ namespace CubeViz
         public onSelect_dataSet(event:JQueryEventObject, dataSet:any) : void
         {
             // fill the rest of the data selection depending on the selected dataset
-            this.loadAvailableAttributes(dataSet.__cv_uri);
-            this.loadAvailableDimensions(dataSet.__cv_uri);
-            this.loadAvailableMeasures(dataSet.__cv_uri);
+            this.loadAttributes(dataSet.__cv_uri);
+            this.loadDimensions(dataSet.__cv_uri);
+            this.loadMeasures(dataSet.__cv_uri);
+            this.loadNumberOfObservations(dataSet.__cv_uri, this.app.data.selected.graph.__cv_uri);
         }
 
         /**
@@ -373,12 +408,17 @@ namespace CubeViz
          * Checks, if the selected graph contains datacube informaton
          *
          * @param JQueryEventObject event
-         * @param any               data Contains dimension and dimensionElement keys of the selected
-         *                               dimension element and the according dimension.
+         * @param any               dimensionElement Contains dimensionElement
          */
-        public onSelect_dimensionElement(event:JQueryEventObject, data:any) : void
+        public onSelect_dimensionElement(event:JQueryEventObject, dimensionElement:any) : void
         {
-            console.log(data);
+            // create a deep copy of the selected dimension
+            var clonedDimensionElement = JSON.parse(JSON.stringify(dimensionElement));
+
+            // store selected dimension elment in its according selected dimension
+            this.app.data.selected
+                .dimensions[dimensionElement.__cv_component]
+                .__cv_elements[dimensionElement.__cv_uri] = clonedDimensionElement;
         }
 
         /**
@@ -417,7 +457,7 @@ namespace CubeViz
                 function(data:any) {
                     // if datacube information were found
                     if (true == data.boolean) {
-                        self.app.triggerEvent('onFound_dataCubeInformation');
+                        self.app.triggerEvent('onFound_dataCubeInformation', graph.__cv_uri);
                     }
                 },
                 // on error
