@@ -51,6 +51,7 @@ namespace CubeViz
         {
             var enrichedData:any = {},
                 entryUri:string = '',
+                // be aware, that sometimes property and object might not be set
                 mapping:any = $.extend({}, mapping, {property: 'p', object: 'o'}),
                 object:any,
                 // contains all possible mapping keys which are for optional mappings and keys that are only
@@ -66,10 +67,12 @@ namespace CubeViz
                 // set important variables for later use
                 entryUri = entry[mapping.__cv_uri].value;
 
+                // property
                 if (false == _.isUndefined(entry[mapping.property])) {
                     property = entry[mapping.property].value;
                 }
 
+                // object
                 if (false == _.isUndefined(entry[mapping.object])) {
                     object = entry[mapping.object].value;
                 }
@@ -179,46 +182,29 @@ namespace CubeViz
                     // will collect all XHR objects and call the done function if everyone of the AJAX calls is
                     // done.
                     $.when.apply(null, responseObjects).done(function() {
-                        // if first argument is an object, it means that only one dimension was used to get all
-                        // of its elements.
-                        if (_.isObject(arguments[0])) {
-                            var componentUri:string = '',
-                                dimensionElements:any[] = self.enrichData(
-                                    arguments[0].results.bindings,
-                                    {
-                                        __cv_component: 'component',
-                                        __cv_uri: 'componentElement'
-                                    }
+                        // we have at least two dimensions
+                        if (_.isArray(arguments[0])) {
+                            // each entry of arguments contains an array which represents all parameters of the
+                            // JQueryXHR.done
+                            _.each(arguments, function(argumentArray:any){
+                                self.app.data.received.dimensions = self.storeDimensionElmementsInDimension(
+                                    self.app.data.received.dimensions,
+                                    argumentArray[0].results.bindings
                                 );
-
-                            _.each(dimensionElements, function(dimensionElement){
-                                componentUri = dimensionElement.__cv_component;
-
-                                // init entries list
-                                if (_.isUndefined(self.app.data.received.dimensions[componentUri].__cv_elements)) {
-                                        self.app.data.received.dimensions[componentUri].__cv_elements = {};
-                                }
-
-                                // add dimension element to __cv_elements list of the according dimension
-                                // received
-                                self.app.data.received.dimensions[componentUri]
-                                    .__cv_elements[dimensionElement.__cv_uri] = dimensionElement;
-                                // selected
-                                /*if (false !== _.isUndefined(self.app.data.selected.dimensions[componentUri])) {
-                                    self.app.data.selected.dimensions[componentUri].__cv_elements[componentUri]
-                                        = dimensionElement;
-                                }*/
                             });
 
                             self.app.triggerEvent('onLoad_dimensions', self.app.data.received.dimensions);
 
-                        // we have at least two dimensions
-                        } else if (_.isArray(arguments[0])) {
-                            // each entry of arguments contains an array which represents all parameters of the
-                            // JQueryXHR.done
-                            _.each(arguments, function(argumentArray:any){
-                                console.log(self.enrichData(argumentArray[0].results.bindings, {__cv_uri: 'componentElement'}));
-                            });
+                        // if first argument is an object, it means that only one dimension was used to get all
+                        // of its elements.
+                        } else if (_.isObject(arguments[0])) {
+                            // enrich existing dimensions with their according dimension elements
+                            self.app.data.received.dimensions = self.storeDimensionElmementsInDimension(
+                                self.app.data.received.dimensions,
+                                arguments[0][0].results.bindings
+                            );
+
+                            self.app.triggerEvent('onLoad_dimensions', self.app.data.received.dimensions);
 
                         } else {
                             console.log('loadAvailableDimensions -> Unknown case happen:');
@@ -242,16 +228,24 @@ namespace CubeViz
             // forces a connection between the dataset and that component.
             return sparqlHandler.sendQuery(
                 `PREFIX qb: <http://purl.org/linked-data/cube#>
-                SELECT ?componentElement ?p ?o ?component
+                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri
                 FROM <` + graphUri + `>
                 WHERE {
-                    <` + dataSetUri + `> a qb:DataSet;
-                        qb:component ?componentSpecification.
-                    ?componentSpecification qb:dimension <` + componentUri + `>.
-                    ?componentSpecification qb:dimension ?component.
-                    <` + componentUri + `> a qb:DimensionProperty.
-                    ?componentElement a <` + componentUri + `>.
-                    ?componentElement ?p ?o.
+                    {
+                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.
+                        ?observation qb:dataSet <` + dataSetUri + `>.
+                        ?observation <` + componentUri + `> ?componentElementUri.
+                        ?observation ?componentUri ?componentElementUri.
+                        OPTIONAL {
+                            ?componentElementUri ?p ?o.
+                        }
+                    }
+                    UNION
+                    {
+                        ?componentElementUri a ?componentUri.
+                        ?componentElementUri a <` + componentUri + `>.
+                        ?componentElementUri ?p ?o.
+                    }
                 }`
             );
         }
@@ -463,6 +457,38 @@ namespace CubeViz
                     console.log(data);
                 }
             );
+        }
+
+        /**
+         * @param any predefinedDimensions
+         * @param any resultBindings
+         */
+        public storeDimensionElmementsInDimension(predefinedDimensions:any, resultBindings:any)
+        {
+            var componentUri:string = '',
+                dimensionElements:any[] = this.enrichData(
+                    resultBindings,
+                    {
+                        __cv_uri: 'componentElementUri',
+                        __cv_component: 'componentUri'
+                    }
+                ),
+                self:DataCubeInfoHelper = this;
+
+            // go through all received dimension elements
+            _.each(dimensionElements, function(dimensionElement){
+                componentUri = dimensionElement.__cv_component;
+
+                // init entries list
+                if (_.isUndefined(predefinedDimensions[componentUri].__cv_elements)) {
+                    predefinedDimensions[componentUri].__cv_elements = {};
+                }
+
+                // add dimension element to __cv_elements list of the according dimension received
+                predefinedDimensions[componentUri].__cv_elements[dimensionElement.__cv_uri] = dimensionElement;
+            });
+
+            return predefinedDimensions;
         }
     }
 }

@@ -5,24 +5,23 @@
 
 }
 
-#cubeViz-dataSelection li{
+.cubeViz-dataSelection-li{
     cursor: pointer;
     list-style-type: none;
     margin: 5px;
 }
 
-#cubeViz-dataSelection ul{
+.cubeViz-dataSelection-ul{
     padding: 0px;
 }
 
-.cubeViz-dataSelection-dimensions-li{
+.cubeViz-dataSelection-subLi{
     cursor: pointer;
     list-style-type: none;
-    margin: 5px;
 }
 
-.cubeViz-dataSelection-dimensions-ul{
-    padding: 0px;
+.cubeViz-dataSelection-subUl{
+    padding-left: 10px;
 }
 
 /*
@@ -45,13 +44,13 @@
     width: 25%;
 }
 
-#cubeViz-graphSelection li {
+.cubeViz-graphSelection-li {
     cursor: pointer;
     list-style-type: none;
     margin: 5px;
 }
 
-#cubeViz-graphSelection ul {
+.cubeViz-graphSelection-ul {
     padding-left: 0px;
 }
 

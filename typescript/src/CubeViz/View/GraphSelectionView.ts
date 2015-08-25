@@ -34,9 +34,9 @@ namespace CubeViz.View
         public showGraphs(graphs:any)
         {
             $('#' + this.attachedTo).html(this.compileTemplate(
-                `<ul>
+                `<ul class="` + this.attachedTo + `-ul">
                     {{#each graphs}}
-                        <li uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
+                        <li class="` + this.attachedTo + `-li" uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
                     {{/each}}
                 </ul>`,
                 {graphs: graphs}

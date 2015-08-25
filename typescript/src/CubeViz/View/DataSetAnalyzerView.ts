@@ -106,7 +106,15 @@ namespace CubeViz.View
                     Available dimensions:
                     <ul>
                         {{#each dimensions}}
-                        <li>{{__cv_niceLabel}}</li>
+                        <li>
+                            {{__cv_niceLabel}}
+                            <ul class="` + this.attachedTo + '-subUl' + `">
+                                {{#each __cv_elements}}
+                                <li class="` + this.attachedTo + `-dimensions-dimensionElement ` + this.attachedTo + `-subLi"
+                                    uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
+                                {{/each}}
+                            </ul>
+                        </li>
                         {{/each}}
                     </ul>
                 `, {dimensions: dimensions}));

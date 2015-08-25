@@ -74,9 +74,9 @@ namespace CubeViz.View
         public showAttributes(attributes:any)
         {
             $('#' + this.attachedTo + '-attributes').html(this.compileTemplate(`
-                <ul>
+                <ul class="cubeViz-dataSelection-ul">
                     {{#each attributes}}
-                    <li uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
+                    <li uri="{{__cv_uri}}" class="cubeViz-dataSelection-li">{{__cv_niceLabel}}</li>
                     {{/each}}
                 </ul>
             `, {attributes: attributes}));
@@ -105,9 +105,9 @@ namespace CubeViz.View
         public showDataSets(dataSets:any[])
         {
             $('#' + this.attachedTo + '-dataSets').html(this.compileTemplate(
-                `<ul>
+                `<ul  class="cubeViz-dataSelection-ul">
                     {{#each dataSets}}
-                        <li uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
+                        <li uri="{{__cv_uri}}" class="cubeViz-dataSelection-li">{{__cv_niceLabel}}</li>
                     {{/each}}
                 </ul>`,
                 {dataSets: dataSets}
@@ -141,14 +141,14 @@ namespace CubeViz.View
         public showDimensions(dimensions:any)
         {
             $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate(`
-                <ul class="` + this.attachedTo + '-dimensions-ul' + `">
+                <ul class="` + this.attachedTo + '-ul' + `">
                     {{#each dimensions}}
-                    <li class="` + this.attachedTo + '-dimensions-li' + `">
+                    <li class="` + this.attachedTo + '-li' + `">
                         <div class="` + this.attachedTo + '-dimensions-dimension' + `" uri="{{__cv_uri}}">
                             {{__cv_niceLabel}}</div>
-                        <ul class="` + this.attachedTo + '-dimensions-ul' + `">
+                        <ul class="` + this.attachedTo + '-subUl' + `">
                             {{#each __cv_elements}}
-                            <li class="` + this.attachedTo + `-dimensions-dimensionElement"
+                            <li class="` + this.attachedTo + `-dimensions-dimensionElement ` + this.attachedTo + `-subLi"
                                 uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
                             {{/each}}
                         </ul>
@@ -191,9 +191,9 @@ namespace CubeViz.View
         public showMeasures(measures:any)
         {
             $('#' + this.attachedTo + '-measures').html(this.compileTemplate(`
-                <ul>
+                <ul class="` + this.attachedTo + '-ul' + `">
                     {{#each measures}}
-                    <li uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
+                    <li class="` + this.attachedTo + '-li' + `" uri="{{__cv_uri}}">{{__cv_niceLabel}}</li>
                     {{/each}}
                 </ul>
             `, {measures: measures}));

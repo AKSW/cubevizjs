@@ -211,25 +211,15 @@ var CubeViz;
                     responseObjects.push(self.loadAvailableComponentElements(self.app.data.selected.dataSet.__cv_uri, dimension.__cv_uri, self.app.data.selected.graph.__cv_uri));
                 });
                 $.when.apply(null, responseObjects).done(function () {
-                    if (_.isObject(arguments[0])) {
-                        var componentUri = '', dimensionElements = self.enrichData(arguments[0].results.bindings, {
-                            __cv_component: 'component',
-                            __cv_uri: 'componentElement'
-                        });
-                        _.each(dimensionElements, function (dimensionElement) {
-                            componentUri = dimensionElement.__cv_component;
-                            if (_.isUndefined(self.app.data.received.dimensions[componentUri].__cv_elements)) {
-                                self.app.data.received.dimensions[componentUri].__cv_elements = {};
-                            }
-                            self.app.data.received.dimensions[componentUri]
-                                .__cv_elements[dimensionElement.__cv_uri] = dimensionElement;
+                    if (_.isArray(arguments[0])) {
+                        _.each(arguments, function (argumentArray) {
+                            self.app.data.received.dimensions = self.storeDimensionElmementsInDimension(self.app.data.received.dimensions, argumentArray[0].results.bindings);
                         });
                         self.app.triggerEvent('onLoad_dimensions', self.app.data.received.dimensions);
                     }
-                    else if (_.isArray(arguments[0])) {
-                        _.each(arguments, function (argumentArray) {
-                            console.log(self.enrichData(argumentArray[0].results.bindings, { __cv_uri: 'componentElement' }));
-                        });
+                    else if (_.isObject(arguments[0])) {
+                        self.app.data.received.dimensions = self.storeDimensionElmementsInDimension(self.app.data.received.dimensions, arguments[0][0].results.bindings);
+                        self.app.triggerEvent('onLoad_dimensions', self.app.data.received.dimensions);
                     }
                     else {
                         console.log('loadAvailableDimensions -> Unknown case happen:');
@@ -243,7 +233,7 @@ var CubeViz;
         };
         DataCubeInfoHelper.prototype.loadAvailableComponentElements = function (dataSetUri, componentUri, graphUri) {
             var sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
-            return sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?componentElement ?p ?o ?component\n                FROM <" + graphUri + ">\n                WHERE {\n                    <" + dataSetUri + "> a qb:DataSet;\n                        qb:component ?componentSpecification.\n                    ?componentSpecification qb:dimension <" + componentUri + ">.\n                    ?componentSpecification qb:dimension ?component.\n                    <" + componentUri + "> a qb:DimensionProperty.\n                    ?componentElement a <" + componentUri + ">.\n                    ?componentElement ?p ?o.\n                }");
+            return sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT DISTINCT ?componentElementUri ?p ?o ?componentUri\n                FROM <" + graphUri + ">\n                WHERE {\n                    {\n                        ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                        ?observation qb:dataSet <" + dataSetUri + ">.\n                        ?observation <" + componentUri + "> ?componentElementUri.\n                        ?observation ?componentUri ?componentElementUri.\n                        OPTIONAL {\n                            ?componentElementUri ?p ?o.\n                        }\n                    }\n                    UNION\n                    {\n                        ?componentElementUri a ?componentUri.\n                        ?componentElementUri a <" + componentUri + ">.\n                        ?componentElementUri ?p ?o.\n                    }\n                }");
         };
         DataCubeInfoHelper.prototype.loadAvailableMeasures = function (dataSetUri) {
             var self = this;
@@ -311,6 +301,20 @@ var CubeViz;
                 console.log('error');
                 console.log(data);
             });
+        };
+        DataCubeInfoHelper.prototype.storeDimensionElmementsInDimension = function (predefinedDimensions, resultBindings) {
+            var componentUri = '', dimensionElements = this.enrichData(resultBindings, {
+                __cv_uri: 'componentElementUri',
+                __cv_component: 'componentUri'
+            }), self = this;
+            _.each(dimensionElements, function (dimensionElement) {
+                componentUri = dimensionElement.__cv_component;
+                if (_.isUndefined(predefinedDimensions[componentUri].__cv_elements)) {
+                    predefinedDimensions[componentUri].__cv_elements = {};
+                }
+                predefinedDimensions[componentUri].__cv_elements[dimensionElement.__cv_uri] = dimensionElement;
+            });
+            return predefinedDimensions;
         };
         return DataCubeInfoHelper;
     })();
@@ -395,7 +399,7 @@ var CubeViz;
                 $('#' + this.attachedTo).html("\n                <strong>DataSets</strong>\n                <div id=\"" + this.attachedTo + "-dataSets\"></div>\n                <br/>\n                <strong>Measures</strong>\n                <div id=\"" + this.attachedTo + "-measures\"></div>\n                <br/>\n                <strong>Attributes</strong>\n                <div id=\"" + this.attachedTo + "-attributes\"></div>\n                <br/>\n                <strong>Dimensions</strong>\n                <div id=\"" + this.attachedTo + "-dimensions\"></div>\n            ");
             };
             DataSelectionView.prototype.showAttributes = function (attributes) {
-                $('#' + this.attachedTo + '-attributes').html(this.compileTemplate("\n                <ul>\n                    {{#each attributes}}\n                    <li uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>\n            ", { attributes: attributes }));
+                $('#' + this.attachedTo + '-attributes').html(this.compileTemplate("\n                <ul class=\"cubeViz-dataSelection-ul\">\n                    {{#each attributes}}\n                    <li uri=\"{{__cv_uri}}\" class=\"cubeViz-dataSelection-li\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>\n            ", { attributes: attributes }));
                 var self = this;
                 $('#' + this.attachedTo + ' li').click(function (event) {
                     _.each(self.app.data.received.attributes, function (attribute) {
@@ -408,7 +412,7 @@ var CubeViz;
                 });
             };
             DataSelectionView.prototype.showDataSets = function (dataSets) {
-                $('#' + this.attachedTo + '-dataSets').html(this.compileTemplate("<ul>\n                    {{#each dataSets}}\n                        <li uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>", { dataSets: dataSets }));
+                $('#' + this.attachedTo + '-dataSets').html(this.compileTemplate("<ul  class=\"cubeViz-dataSelection-ul\">\n                    {{#each dataSets}}\n                        <li uri=\"{{__cv_uri}}\" class=\"cubeViz-dataSelection-li\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>", { dataSets: dataSets }));
                 var self = this;
                 $('#' + this.attachedTo + ' li').click(function (event) {
                     var $clickedElement = $(this);
@@ -422,7 +426,7 @@ var CubeViz;
                 });
             };
             DataSelectionView.prototype.showDimensions = function (dimensions) {
-                $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate("\n                <ul class=\"" + this.attachedTo + '-dimensions-ul' + "\">\n                    {{#each dimensions}}\n                    <li class=\"" + this.attachedTo + '-dimensions-li' + "\">\n                        <div class=\"" + this.attachedTo + '-dimensions-dimension' + "\" uri=\"{{__cv_uri}}\">\n                            {{__cv_niceLabel}}</div>\n                        <ul class=\"" + this.attachedTo + '-dimensions-ul' + "\">\n                            {{#each __cv_elements}}\n                            <li class=\"" + this.attachedTo + "-dimensions-dimensionElement\"\n                                uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                            {{/each}}\n                        </ul>\n                    </li>\n                    {{/each}}\n                </ul>\n            ", { dimensions: dimensions }));
+                $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate("\n                <ul class=\"" + this.attachedTo + '-ul' + "\">\n                    {{#each dimensions}}\n                    <li class=\"" + this.attachedTo + '-li' + "\">\n                        <div class=\"" + this.attachedTo + '-dimensions-dimension' + "\" uri=\"{{__cv_uri}}\">\n                            {{__cv_niceLabel}}</div>\n                        <ul class=\"" + this.attachedTo + '-subUl' + "\">\n                            {{#each __cv_elements}}\n                            <li class=\"" + this.attachedTo + "-dimensions-dimensionElement " + this.attachedTo + "-subLi\"\n                                uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                            {{/each}}\n                        </ul>\n                    </li>\n                    {{/each}}\n                </ul>\n            ", { dimensions: dimensions }));
                 var self = this;
                 $('.' + this.attachedTo + '-dimensions-dimension').click(function (event) {
                     var $clickedElement = $(this);
@@ -441,7 +445,7 @@ var CubeViz;
                 });
             };
             DataSelectionView.prototype.showMeasures = function (measures) {
-                $('#' + this.attachedTo + '-measures').html(this.compileTemplate("\n                <ul>\n                    {{#each measures}}\n                    <li uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>\n            ", { measures: measures }));
+                $('#' + this.attachedTo + '-measures').html(this.compileTemplate("\n                <ul class=\"" + this.attachedTo + '-ul' + "\">\n                    {{#each measures}}\n                    <li class=\"" + this.attachedTo + '-li' + "\" uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>\n            ", { measures: measures }));
                 var self = this;
                 $('#' + this.attachedTo + ' li').click(function (event) {
                     _.each(self.app.data.received.measures, function (measure) {
@@ -522,7 +526,7 @@ var CubeViz;
                     $('#' + this.attachedTo + '-dataSet').html('Available dimensions: <strong>No dimensions found</strong>');
                 }
                 else {
-                    $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate("\n                    Available dimensions:\n                    <ul>\n                        {{#each dimensions}}\n                        <li>{{__cv_niceLabel}}</li>\n                        {{/each}}\n                    </ul>\n                ", { dimensions: dimensions }));
+                    $('#' + this.attachedTo + '-dimensions').html(this.compileTemplate("\n                    Available dimensions:\n                    <ul>\n                        {{#each dimensions}}\n                        <li>\n                            {{__cv_niceLabel}}\n                            <ul class=\"" + this.attachedTo + '-subUl' + "\">\n                                {{#each __cv_elements}}\n                                <li class=\"" + this.attachedTo + "-dimensions-dimensionElement " + this.attachedTo + "-subLi\"\n                                    uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                                {{/each}}\n                            </ul>\n                        </li>\n                        {{/each}}\n                    </ul>\n                ", { dimensions: dimensions }));
                 }
             };
             DataSetAnalyzerView.prototype.showMeasures = function (measures) {
@@ -558,7 +562,7 @@ var CubeViz;
                 this.showGraphs(graphs);
             };
             GraphSelectionView.prototype.showGraphs = function (graphs) {
-                $('#' + this.attachedTo).html(this.compileTemplate("<ul>\n                    {{#each graphs}}\n                        <li uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>", { graphs: graphs }));
+                $('#' + this.attachedTo).html(this.compileTemplate("<ul class=\"" + this.attachedTo + "-ul\">\n                    {{#each graphs}}\n                        <li class=\"" + this.attachedTo + "-li\" uri=\"{{__cv_uri}}\">{{__cv_niceLabel}}</li>\n                    {{/each}}\n                </ul>", { graphs: graphs }));
                 var self = this;
                 $('#' + this.attachedTo + ' li').click(function (event) {
                     var $clickedElement = $(this);
