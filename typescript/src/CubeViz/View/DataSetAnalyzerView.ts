@@ -19,6 +19,10 @@ namespace CubeViz.View
                     handler: this.onLoad_attributes
                 },
                 {
+                    name:    'onLoad_checkConstraint',
+                    handler: this.onLoad_checkConstraint
+                },
+                {
                     name:    'onLoad_dimensions',
                     handler: this.onLoad_dimensions
                 },
@@ -40,6 +44,25 @@ namespace CubeViz.View
         public onLoad_attributes(event:JQueryEventObject, attributes:any) : void
         {
             this.showAttributes(attributes);
+        }
+
+        public onLoad_checkConstraint(event:JQueryEventObject, data:any) : void
+        {
+            var content = '';
+            // when result is true, something went wrong
+            // the specification said: "If the ASK query is applied to an RDF graph then it will return true if that
+            //                          graph contains one or more Data Cube instances which violate the corresponding
+            //                          constraint."
+            if (data.result) {
+                content = '<strong>ASK query lead to true, so integrity problem!</strong>';
+            } else {
+                content = '<strong>OK!</strong>';
+            }
+
+            $('#' + this.attachedTo + `-checkConstraints-id` + data.key).html(
+                data.id + ` - ` + data.title + ': ' + content + '<br>' +
+                '<small>' + data.description + '</small>'
+            );
         }
 
         public onLoad_dimensions(event:JQueryEventObject, dimensions:any) : void
@@ -65,13 +88,27 @@ namespace CubeViz.View
 
         public render()
         {
+            var self:DataSetAnalyzerView = this;
+
             $('#' + this.attachedTo).html(`
                 <div id="` + this.attachedTo + `-dataSet"></div>
                 <div id="` + this.attachedTo + `-measures"></div>
                 <div id="` + this.attachedTo + `-attributes"></div>
                 <div id="` + this.attachedTo + `-dimensions"></div>
                 <div id="` + this.attachedTo + `-numberOfObservations"></div>
+                <br/>
+                <br/>
+                <strong>Check constraints</strong>
+                <div id="` + this.attachedTo + `-checkConstraints"></div>
             `);
+
+            // add check constraint container for later use
+            _.times(19, function(n){
+                $('#' + self.attachedTo + '-checkConstraints').append(
+                    `<div class="` + self.attachedTo + `-checkConstraints-entry"
+                          id="` + self.attachedTo + `-checkConstraints-id` + n + `"></div>`
+                );
+            });
         }
 
         public showAttributes(attributes:any)

@@ -2,7 +2,15 @@ namespace CubeViz
 {
     export class DataCubeInfoHelper
     {
+        /**
+         * @var Application
+         */
         protected app:Application;
+
+        /**
+         * @var array
+         */
+        protected checkConstraints:any[];
 
         /**
          * @param Application app
@@ -118,6 +126,281 @@ namespace CubeViz
             });
 
             return enrichedData;
+        }
+
+        protected executeCheckConstraints(dataSetUri:string, graphUri:string)
+        {
+            // init check constraints
+            this.initCheckConstraints(dataSetUri, graphUri);
+
+            var self:DataCubeInfoHelper = this,
+                sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl);
+
+            _.each(this.checkConstraints, function(checkConstraint, key){
+                sparqlHandler.sendQuery(
+                    checkConstraint.sparqlQuery,
+                    // on success
+                    function(data:any) {
+                        self.app.triggerEvent(
+                            'onLoad_checkConstraint',
+                            // attach check constraint information to the received result
+                            {
+                                description: checkConstraint.description,
+                                key: key,
+                                id: checkConstraint.id,
+                                result: data.boolean,
+                                title: checkConstraint.title
+                            }
+                        );
+                    },
+                    // on error
+                    function(data:any){
+                        console.log('error');
+                        console.log(data);
+                    }
+                );
+            });
+        }
+
+        protected initCheckConstraints(dataSetUri:string, graphUri:string)
+        {
+            this.checkConstraints = [
+                {
+                    description: 'Every qb:Observation has exactly one associated qb:DataSet.',
+                    id: 'ic-1',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {{
+                            ?obs a qb:Observation .
+                            FILTER NOT EXISTS { ?obs qb:dataSet ?dataset1 . }
+                        } UNION {
+                            ?obs a qb:Observation ;
+                            qb:dataSet ?dataset1, ?dataset2 .
+                            FILTER (?dataset1 != ?dataset2)
+                        }}`,
+                    title: 'Unique DataSet'
+                }, {
+                    description: 'Every qb:DataSet has exactly one associated qb:DataStructureDefinition.',
+                    id: 'ic-2',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {{
+                            # Check dataset has a dsd
+                            ?dataset a qb:DataSet .
+                            FILTER NOT EXISTS { ?dataset qb:structure ?dsd . }
+                        } UNION {
+                            # Check has just one dsd
+                            ?dataset a qb:DataSet ;
+                               qb:structure ?dsd1, ?dsd2 .
+                            FILTER (?dsd1 != ?dsd2)
+                        }}`,
+                    title: 'Unique DSD'
+                }, {
+                    description: 'Every qb:DataStructureDefinition must include at least one declared measure.',
+                    id: 'ic-3',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?dsd a qb:DataStructureDefinition .
+                            FILTER NOT EXISTS { ?dsd qb:component [qb:componentProperty [a qb:MeasureProperty]] }
+                        }`,
+                    title: 'DSD includes measure'
+                }, {
+                    description: 'Every dimension declared in a qb:DataStructureDefinition must have a declared rdfs:range.',
+                    id: 'ic-4',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                          ?dim a qb:DimensionProperty .
+                          FILTER NOT EXISTS { ?dim rdfs:range [] }
+                        }`,
+                    title: 'Dimensions have range'
+                }, {
+                    description: 'Every dimension with range skos:Concept must have a qb:codeList.',
+                    id: 'ic-5',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?dsd a qb:DataStructureDefinition .
+                            FILTER NOT EXISTS { ?dsd qb:component [qb:componentProperty [a qb:MeasureProperty]] }
+                        }`,
+                    title: 'Concept dimensions have code lists'
+                }, {
+                    description: 'The only components of a qb:DataStructureDefinition that may be marked as optional, using qb:componentRequired are attributes.',
+                    id: 'ic-6',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?dsd qb:component ?componentSpec .
+                            ?componentSpec qb:componentRequired "false"^^xsd:boolean ;
+                                qb:componentProperty ?component .
+                            FILTER NOT EXISTS { ?component a qb:AttributeProperty }
+                        }`,
+                    title: 'Only attributes may be optional'
+                }, {
+                    description: 'Every qb:SliceKey must be associated with a qb:DataStructureDefinition.',
+                    id: 'ic-7',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?sliceKey a qb:SliceKey .
+                            FILTER NOT EXISTS { [a qb:DataStructureDefinition] qb:sliceKey ?sliceKey }
+                        }`,
+                    title: 'Slice Keys must be declared'
+                }, {
+                    description: 'Every qb:componentProperty on a qb:SliceKey must also be declared as a qb:component of the associated qb:DataStructureDefinition.',
+                    id: 'ic-8',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?slicekey a qb:SliceKey;
+                            qb:componentProperty ?prop .
+                            ?dsd qb:sliceKey ?slicekey .
+                            FILTER NOT EXISTS { ?dsd qb:component [qb:componentProperty ?prop] }
+                        }`,
+                    title: 'Slice Keys consistent with DSD'
+                }, {
+                    description: 'Each qb:Slice must have exactly one associated qb:sliceStructure.',
+                    id: 'ic-9',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {{
+                            # Slice has a key
+                            ?slice a qb:Slice .
+                            FILTER NOT EXISTS { ?slice qb:sliceStructure ?key }
+                        } UNION {
+                            # Slice has just one key
+                            ?slice a qb:Slice ;
+                            qb:sliceStructure ?key1, ?key2;
+                            FILTER (?key1 != ?key2)
+                        }}`,
+                    title: 'Unique slice structure'
+                }, {
+                    description: 'Every qb:Slice must have a value for every dimension declared in its qb:sliceStructure.',
+                    id: 'ic-10',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?slice qb:sliceStructure [qb:componentProperty ?dim] .
+                            FILTER NOT EXISTS { ?slice ?dim [] }
+                        }`,
+                    title: 'Slice dimensions complete'
+                }, {
+                    description: 'Every qb:Observation has a value for each dimension declared in its associated qb:DataStructureDefinition.',
+                    id: 'ic-11',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?obs qb:dataSet/qb:structure/qb:component/qb:componentProperty ?dim .
+                            ?dim a qb:DimensionProperty;
+                            FILTER NOT EXISTS { ?obs ?dim [] }
+                        }`,
+                    title: 'All dimensions required'
+                }, {
+                    description: 'No two qb:Observations in the same qb:DataSet may have the same value for all dimensions.',
+                    id: 'ic-12',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            FILTER( ?allEqual )
+                            {
+                                # For each pair of observations test if all the dimension values are the same
+                                SELECT (MIN(?equal) AS ?allEqual) WHERE {
+                                    ?obs1 qb:dataSet ?dataset .
+                                    ?obs2 qb:dataSet ?dataset .
+                                    FILTER (?obs1 != ?obs2)
+                                    ?dataset qb:structure/qb:component/qb:componentProperty ?dim .
+                                    ?dim a qb:DimensionProperty .
+                                    ?obs1 ?dim ?value1 .
+                                    ?obs2 ?dim ?value2 .
+                                    BIND( ?value1 = ?value2 AS ?equal)
+                                } GROUP BY ?obs1 ?obs2
+                            }
+                        }`,
+                    title: 'No duplicate observations'
+                }, {
+                    description: 'Every qb:Observation has a value for each declared attribute that is marked as required.',
+                    id: 'ic-13',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?obs qb:dataSet/qb:structure/qb:component ?component .
+                            ?component qb:componentRequired "true"^^xsd:boolean ;
+                                       qb:componentProperty ?attr .
+                            FILTER NOT EXISTS { ?obs ?attr [] }
+                        }`,
+                    title: 'Required attributes'
+                }, {
+                    description: 'In a qb:DataSet which does not use a Measure dimension then each individual qb:Observation must have a value for every declared measure.',
+                    id: 'ic-14',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            # Observation in a non-measureType cube
+                            ?obs qb:dataSet/qb:structure ?dsd .
+                            FILTER NOT EXISTS { ?dsd qb:component/qb:componentProperty qb:measureType }
+
+                            # verify every measure is present
+                            ?dsd qb:component/qb:componentProperty ?measure .
+                            ?measure a qb:MeasureProperty.
+                            FILTER NOT EXISTS { ?obs ?measure [] }
+                        }`,
+                    title: 'All measures present'
+                }, {
+                    description: 'In a qb:DataSet which uses a Measure dimension then each qb:Observation must have a value for the measure corresponding to its given qb:measureType',
+                    id: 'ic-15',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            # Observation in a measureType-cube
+                            ?obs qb:dataSet/qb:structure ?dsd ;
+                                 qb:measureType ?measure .
+                            ?dsd qb:component/qb:componentProperty qb:measureType .
+                            # Must have value for its measureType
+                            FILTER NOT EXISTS { ?obs ?measure [] }
+                        }`,
+                    title: 'Measure dimension consistent'
+                }, {
+                    description: 'In a qb:DataSet which uses a Measure dimension then each qb:Observation must only have a value for one measure (by IC-15 this will be the measure corresponding to its qb:measureType).',
+                    id: 'ic-16',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            # Observation with measureType
+                            ?obs qb:dataSet/qb:structure ?dsd ;
+                                 qb:measureType ?measure ;
+                                 ?omeasure [] .
+                            # Any measure on the observation
+                            ?dsd qb:component/qb:componentProperty qb:measureType ;
+                                 qb:component/qb:componentProperty ?omeasure .
+                            ?omeasure a qb:MeasureProperty .
+                            # Must be the same as the measureType
+                            FILTER (?omeasure != ?measure)
+                        }`,
+                    title: 'Single measure on measure dimension observation'
+                }, {
+                    description: 'If a qb:DataSet D has a qb:slice S, and S has an qb:observation O, then the qb:dataSet corresponding to O must be D.',
+                    id: 'ic-18',
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?dataset qb:slice       ?slice .
+                            ?slice   qb:observation ?obs .
+                            FILTER NOT EXISTS { ?obs qb:dataSet ?dataset . }
+                        }`,
+                    title: 'Consistent data set links'
+                }, {
+                    description: `If a dimension property has a qb:codeList, then the value of the dimension property on
+                                  every qb:Observation must be in the code list.
+                                  The following integrity check queries must be applied to an RDF graph which contains
+                                  the definition of the code list as well as the Data Cube to be checked.
+                                  In the case of a skos:ConceptScheme then each concept must be linked to the scheme using
+                                  skos:inScheme. In the case of a skos:Collection then the collection must link to each
+                                  concept (or to nested collections) using skos:member. If the collection uses skos:memberList
+                                  then the entailment of skos:member values defined by S36 in [SKOS-REFERENCE] must be
+                                  materialized before this check is applied.`,
+                    id: 'ic-19',
+                    // TODO check merged ASK query; there are usually two ASK queries
+                    sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
+                        ASK FROM <` + graphUri + `> {
+                            ?obs qb:dataSet/qb:structure/qb:component/qb:componentProperty ?dim .
+                            ?dim a qb:DimensionProperty ;
+                                qb:codeList ?list .
+                            {
+                                ?list a skos:ConceptScheme .
+                            } UNION {
+                                ?list a skos:Collection .
+                            }
+                            ?obs ?dim ?v .
+                            FILTER NOT EXISTS { ?v a skos:Concept ; skos:inScheme ?list }
+                            FILTER NOT EXISTS { ?v a skos:Concept . ?list skos:member+ ?v }
+                        }`,
+                    title: 'Codes from code list'
+                }
+            ];
         }
 
         protected loadAttributes(dataSetUri:string) : void
@@ -384,6 +667,10 @@ namespace CubeViz
             this.loadDimensions(dataSet.__cv_uri);
             this.loadMeasures(dataSet.__cv_uri);
             this.loadNumberOfObservations(dataSet.__cv_uri, this.app.data.selected.graph.__cv_uri);
+
+            // executes all check constrains against the selected dataset. their purpose is to validate the
+            // cube and exploit errors.
+            this.executeCheckConstraints(dataSet.__cv_uri, this.app.data.selected.graph.__cv_uri);
         }
 
         /**

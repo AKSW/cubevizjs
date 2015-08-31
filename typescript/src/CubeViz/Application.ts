@@ -130,7 +130,10 @@ namespace CubeViz
         }
 
         /**
+         * Helper function to easier extract data. That is usually used by View's.
          *
+         * @param string dimensionElmementUri
+         * @param string dimensionUri
          */
         public getDimensionElement(dimensionElmementUri:string, dimensionUri:string)
         {
