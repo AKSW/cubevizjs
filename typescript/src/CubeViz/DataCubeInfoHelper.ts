@@ -65,6 +65,7 @@ namespace CubeViz
                 entryUri:string = '',
                 // be aware, that sometimes property and object might not be set
                 mapping:any = $.extend({}, mapping, {property: 'p', object: 'o'}),
+                niceLabel:string = '',
                 object:any,
                 // contains all possible mapping keys which are for optional mappings and keys that are only
                 // used in certain use cases.
@@ -89,11 +90,14 @@ namespace CubeViz
                     object = entry[mapping.object].value;
                 }
 
+                // get a nice label for that entry
+                niceLabel = _.last(entryUri.split('/'));
+
                 // if there are no information about that resource
                 if (_.isUndefined(enrichedData[entryUri])) {
                     enrichedData[entryUri] = {
                         // TODO use title helper implementation to get nice labels here
-                        __cv_niceLabel: entryUri.substr(0, 55) + ' ...',
+                        __cv_niceLabel: niceLabel,
                         __cv_uri: entryUri,
                     };
                 }
@@ -262,7 +266,7 @@ namespace CubeViz
                         } UNION {
                             # Slice has just one key
                             ?slice a qb:Slice ;
-                            qb:sliceStructure ?key1, ?key2;
+                            qb:sliceStructure ?key1, ?key2.
                             FILTER (?key1 != ?key2)
                         }}`,
                     title: 'Unique slice structure'
@@ -281,7 +285,7 @@ namespace CubeViz
                     sparqlQuery: `PREFIX qb:<http://purl.org/linked-data/cube#>
                         ASK FROM <` + graphUri + `> {
                             ?obs qb:dataSet/qb:structure/qb:component/qb:componentProperty ?dim .
-                            ?dim a qb:DimensionProperty;
+                            ?dim a qb:DimensionProperty .
                             FILTER NOT EXISTS { ?obs ?dim [] }
                         }`,
                     title: 'All dimensions required'
@@ -590,6 +594,10 @@ namespace CubeViz
                         }
                     );
 
+                    // pre-set first received measure as selected one.
+                    var firstMeasureKey = Object.keys(self.app.data.received.measures)[0];
+                    self.app.data.selected.measure = self.app.data.received.measures[firstMeasureKey];
+
                     self.app.triggerEvent('onLoad_measures', self.app.data.received.measures);
                 },
                 // on error
@@ -620,6 +628,55 @@ namespace CubeViz
                         'onLoad_numberOfObservations',
                         data.results.bindings[0]['callret-0'].value
                     );
+                },
+                // on error
+                function(data:any){
+                    console.log('error');
+                    console.log(data);
+                }
+            );
+        }
+
+        public loadObservations(graphUri:string, dataSetUri:string, selectedDimensions:any)
+        {
+            var self:DataCubeInfoHelper = this,
+                sparqlHandler:SparqlHandler = new SparqlHandler(this.app.configuration.sparqlEndpointUrl),
+                sparqlDimensionString:string = '';
+
+            // go through all selected dimensions and build a substring which contains their URIs as properties.
+            // the reason for that is to only select observations which are related to at least on the of the
+            // selected dimensions
+            _.each(selectedDimensions, function(dimension:any){
+                if ('' != sparqlDimensionString) {
+                    sparqlDimensionString += ' UNION ';
+                }
+                sparqlDimensionString += `{?observation <` + dimension.__cv_uri + `> ?o.}`;
+            });
+
+            sparqlHandler.sendQuery(
+                // get related observations
+                `PREFIX qb: <http://purl.org/linked-data/cube#>
+                SELECT ?observation ?p ?o
+                FROM <` + graphUri + `>
+                WHERE {
+                    ?observation ?p ?o.
+                    {
+                        SELECT ?observation
+                        FROM <` + graphUri + `>
+                        WHERE {
+                            ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.
+                            ?observation qb:dataSet <` + dataSetUri + `>.
+                            ` + sparqlDimensionString + `
+                       }
+                    }
+                }`,
+                // on success
+                function(data:any) {
+                    // store received observations
+                    self.app.data.received.observations = self.enrichData(data.results.bindings, {__cv_uri: 'observation'});
+
+                    // trigger application wide event that observations where loaded.
+                    self.app.triggerEvent('onLoad_observations', self.app.data.received.observations);
                 },
                 // on error
                 function(data:any){
@@ -706,6 +763,13 @@ namespace CubeViz
             this.app.data.selected
                 .dimensions[dimensionElement.__cv_component]
                 .__cv_elements[dimensionElement.__cv_uri] = clonedDimensionElement;
+
+            // trigger loading of observations
+            this.loadObservations(
+                this.app.data.selected.graph.__cv_uri,
+                this.app.data.selected.dataSet.__cv_uri,
+                this.app.data.selected.dimensions
+            );
         }
 
         /**

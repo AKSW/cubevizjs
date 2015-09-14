@@ -63,7 +63,10 @@
 
 /*
  * visualization
+ * generally the visualization is located in the cubeViz-visualization div, but there can be libraries which need to
+ * generate further HTML elements, such as canvas elements.
  */
-#cubeViz-visualization {
-
+#cubeViz-visualization, #cubeViz-visualization-chart {
+    height: 350px;
+    width: 700px;
 }

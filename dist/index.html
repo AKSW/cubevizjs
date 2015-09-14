@@ -6,9 +6,10 @@
         <link rel="stylesheet" href="cubeviz.css" media="screen" title="no title" charset="utf-8">
     </head>
     <body>
+        <script type="text/javascript" src="vendor/bluebird/js/browser/bluebird.js"></script>
+        <script type="text/javascript" src="vendor/Chart.js/Chart.min.js"></script>
         <script type="text/javascript" src="vendor/handlebars/handlebars.min.js"></script>
         <script type="text/javascript" src="vendor/jquery/dist/jquery.min.js"></script>
-        <script type="text/javascript" src="vendor/bluebird/js/browser/bluebird.js"></script>
         <script type="text/javascript" src="vendor/underscore/underscore.js"></script>
         <script type="text/javascript" src="vendor/underscore.string/dist/underscore.string.min.js"></script>
 
@@ -21,6 +22,7 @@
             cubeviz.add("CubeViz.View.DataSetAnalyzerView", "cubeViz-dataSetAnalyzer");
             cubeviz.add("CubeViz.View.GraphSelectionView", "cubeViz-graphSelection");
             cubeviz.add("CubeViz.View.InfoHeaderView", "cubeViz-infoHeader");
+            cubeviz.add("CubeViz.View.VisualizationView", "cubeViz-visualization");
             console.log('cubeviz:');
             console.log(cubeviz);
 
@@ -58,7 +60,7 @@
 
                 <br/>
                 <h4>DataSet Analyzer</h4>
-                <div id="cubeViz-dataSetAnalyzer"></div>
+                <div id="cubeViz-dataSetAnalyzer" style="max-height: 300px; overflow: auto;"></div>
 
                 <!-- Visualization of the observations -->
                 <br/>

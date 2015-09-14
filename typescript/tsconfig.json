@@ -6,12 +6,14 @@
         "sourceMap": false
     },
     "filesGlob": [
+        "./declaration/DefinitelyTyped/chartjs/chart.d.ts",
         "./declaration/DefinitelyTyped/handlebars/handlebars.d.ts",
         "./declaration/DefinitelyTyped/jquery/jquery.d.ts",
         "./declaration/DefinitelyTyped/underscore/underscore.d.ts",
         "./src/CubeViz/**/*.ts"
     ],
     "files": [
+        "./declaration/DefinitelyTyped/chartjs/chart.d.ts",
         "./declaration/DefinitelyTyped/handlebars/handlebars.d.ts",
         "./declaration/DefinitelyTyped/jquery/jquery.d.ts",
         "./declaration/DefinitelyTyped/underscore/underscore.d.ts",
@@ -23,6 +25,9 @@
         "./src/CubeViz/View/DataSelectionView.ts",
         "./src/CubeViz/View/DataSetAnalyzerView.ts",
         "./src/CubeViz/View/GraphSelectionView.ts",
-        "./src/CubeViz/View/InfoHeaderView.ts"
+        "./src/CubeViz/View/InfoHeaderView.ts",
+        "./src/CubeViz/View/VisualizationView.ts",
+        "./src/CubeViz/VisualizationHandler/AbstractVisualizationHandler.ts",
+        "./src/CubeViz/VisualizationHandler/Chartjs.ts"
     ]
 }

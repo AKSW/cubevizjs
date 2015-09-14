@@ -9,6 +9,7 @@
     "main": "dist/cubeviz.js",
     "dependencies": {
         "bootstrap": "*",
+        "Chart.js": "*",
         "handlebars": "*",
         "jquery": "*",
         "underscore": "*",

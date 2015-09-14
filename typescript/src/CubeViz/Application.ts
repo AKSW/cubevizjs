@@ -54,7 +54,7 @@ namespace CubeViz
                     attributes: {},
                     dataSet: {},
                     dimensions: {},
-                    measures: {},
+                    measure: {},
                 }
             };
 

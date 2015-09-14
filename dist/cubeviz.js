@@ -72,7 +72,7 @@ var CubeViz;
                     attributes: {},
                     dataSet: {},
                     dimensions: {},
-                    measures: {}
+                    measure: {}
                 }
             };
             this.setupHelpers();
@@ -154,7 +154,7 @@ var CubeViz;
             ], this);
         }
         DataCubeInfoHelper.prototype.enrichData = function (data, mapping) {
-            var enrichedData = {}, entryUri = '', mapping = $.extend({}, mapping, { property: 'p', object: 'o' }), object, possibleMappingKeys = [
+            var enrichedData = {}, entryUri = '', mapping = $.extend({}, mapping, { property: 'p', object: 'o' }), niceLabel = '', object, possibleMappingKeys = [
                 '__cv_component', '__cv_componentSpecification'
             ], property = '';
             _.each(data, function (entry) {
@@ -165,9 +165,10 @@ var CubeViz;
                 if (false == _.isUndefined(entry[mapping.object])) {
                     object = entry[mapping.object].value;
                 }
+                niceLabel = _.last(entryUri.split('/'));
                 if (_.isUndefined(enrichedData[entryUri])) {
                     enrichedData[entryUri] = {
-                        __cv_niceLabel: entryUri.substr(0, 55) + ' ...',
+                        __cv_niceLabel: niceLabel,
                         __cv_uri: entryUri
                     };
                 }
@@ -253,7 +254,7 @@ var CubeViz;
                 }, {
                     description: 'Each qb:Slice must have exactly one associated qb:sliceStructure.',
                     id: 'ic-9',
-                    sparqlQuery: "PREFIX qb:<http://purl.org/linked-data/cube#>\n                        ASK FROM <" + graphUri + "> {{\n                            # Slice has a key\n                            ?slice a qb:Slice .\n                            FILTER NOT EXISTS { ?slice qb:sliceStructure ?key }\n                        } UNION {\n                            # Slice has just one key\n                            ?slice a qb:Slice ;\n                            qb:sliceStructure ?key1, ?key2;\n                            FILTER (?key1 != ?key2)\n                        }}",
+                    sparqlQuery: "PREFIX qb:<http://purl.org/linked-data/cube#>\n                        ASK FROM <" + graphUri + "> {{\n                            # Slice has a key\n                            ?slice a qb:Slice .\n                            FILTER NOT EXISTS { ?slice qb:sliceStructure ?key }\n                        } UNION {\n                            # Slice has just one key\n                            ?slice a qb:Slice ;\n                            qb:sliceStructure ?key1, ?key2.\n                            FILTER (?key1 != ?key2)\n                        }}",
                     title: 'Unique slice structure'
                 }, {
                     description: 'Every qb:Slice must have a value for every dimension declared in its qb:sliceStructure.',
@@ -263,7 +264,7 @@ var CubeViz;
                 }, {
                     description: 'Every qb:Observation has a value for each dimension declared in its associated qb:DataStructureDefinition.',
                     id: 'ic-11',
-                    sparqlQuery: "PREFIX qb:<http://purl.org/linked-data/cube#>\n                        ASK FROM <" + graphUri + "> {\n                            ?obs qb:dataSet/qb:structure/qb:component/qb:componentProperty ?dim .\n                            ?dim a qb:DimensionProperty;\n                            FILTER NOT EXISTS { ?obs ?dim [] }\n                        }",
+                    sparqlQuery: "PREFIX qb:<http://purl.org/linked-data/cube#>\n                        ASK FROM <" + graphUri + "> {\n                            ?obs qb:dataSet/qb:structure/qb:component/qb:componentProperty ?dim .\n                            ?dim a qb:DimensionProperty .\n                            FILTER NOT EXISTS { ?obs ?dim [] }\n                        }",
                     title: 'All dimensions required'
                 }, {
                     description: 'No two qb:Observations in the same qb:DataSet may have the same value for all dimensions.',
@@ -363,6 +364,8 @@ var CubeViz;
                     __cv_componentSpecification: 'componentSpecification',
                     __cv_uri: 'component'
                 });
+                var firstMeasureKey = Object.keys(self.app.data.received.measures)[0];
+                self.app.data.selected.measure = self.app.data.received.measures[firstMeasureKey];
                 self.app.triggerEvent('onLoad_measures', self.app.data.received.measures);
             }, function (data) {
                 console.log('error');
@@ -373,6 +376,22 @@ var CubeViz;
             var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl);
             sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT DISTINCT COUNT (?observation)\n                FROM <" + graphUri + ">\n                WHERE {\n                    ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                    ?observation qb:dataSet <" + dsUri + ">.\n                }", function (data) {
                 self.app.triggerEvent('onLoad_numberOfObservations', data.results.bindings[0]['callret-0'].value);
+            }, function (data) {
+                console.log('error');
+                console.log(data);
+            });
+        };
+        DataCubeInfoHelper.prototype.loadObservations = function (graphUri, dataSetUri, selectedDimensions) {
+            var self = this, sparqlHandler = new CubeViz.SparqlHandler(this.app.configuration.sparqlEndpointUrl), sparqlDimensionString = '';
+            _.each(selectedDimensions, function (dimension) {
+                if ('' != sparqlDimensionString) {
+                    sparqlDimensionString += ' UNION ';
+                }
+                sparqlDimensionString += "{?observation <" + dimension.__cv_uri + "> ?o.}";
+            });
+            sparqlHandler.sendQuery("PREFIX qb: <http://purl.org/linked-data/cube#>\n                SELECT ?observation ?p ?o\n                FROM <" + graphUri + ">\n                WHERE {\n                    ?observation ?p ?o.\n                    {\n                        SELECT ?observation\n                        FROM <" + graphUri + ">\n                        WHERE {\n                            ?observation <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> qb:Observation.\n                            ?observation qb:dataSet <" + dataSetUri + ">.\n                            " + sparqlDimensionString + "\n                       }\n                    }\n                }", function (data) {
+                self.app.data.received.observations = self.enrichData(data.results.bindings, { __cv_uri: 'observation' });
+                self.app.triggerEvent('onLoad_observations', self.app.data.received.observations);
             }, function (data) {
                 console.log('error');
                 console.log(data);
@@ -405,6 +424,7 @@ var CubeViz;
             this.app.data.selected
                 .dimensions[dimensionElement.__cv_component]
                 .__cv_elements[dimensionElement.__cv_uri] = clonedDimensionElement;
+            this.loadObservations(this.app.data.selected.graph.__cv_uri, this.app.data.selected.dataSet.__cv_uri, this.app.data.selected.dimensions);
         };
         DataCubeInfoHelper.prototype.onSelect_graph = function (event, graph) {
             if (_.isUndefined(graph))
@@ -761,4 +781,102 @@ var CubeViz;
         })(CubeViz.AbstractView);
         View.InfoHeaderView = InfoHeaderView;
     })(View = CubeViz.View || (CubeViz.View = {}));
+})(CubeViz || (CubeViz = {}));
+var CubeViz;
+(function (CubeViz) {
+    var View;
+    (function (View) {
+        var VisualizationView = (function (_super) {
+            __extends(VisualizationView, _super);
+            function VisualizationView(attachedTo, app) {
+                _super.call(this, 'VisualizationView', attachedTo, app);
+                this.bindGlobalEvents([
+                    {
+                        name: "onLoad_observations",
+                        handler: this.onLoad_observations
+                    }
+                ]);
+            }
+            VisualizationView.prototype.onLoad_observations = function (event, observations) {
+                var observationsToVisualize = {}, self = this, visualizationHandler;
+                _.each(observations, function (observation) {
+                    _.each(self.app.data.selected.dimensions, function (dimension) {
+                        if (false == _.isUndefined(dimension.__cv_elements[observation[dimension.__cv_uri]])) {
+                            observationsToVisualize[observation.__cv_uri] = observation;
+                        }
+                    });
+                });
+                console.log(observationsToVisualize);
+                visualizationHandler = CubeViz.VisualizationHandler.AbstractVisualizationHandler
+                    .instantiateHandler('Chartjs');
+                visualizationHandler.render(observationsToVisualize, this.app.data.selected.dimensions, this.app.data.selected.measure, this.attachedTo);
+            };
+            return VisualizationView;
+        })(CubeViz.AbstractView);
+        View.VisualizationView = VisualizationView;
+    })(View = CubeViz.View || (CubeViz.View = {}));
+})(CubeViz || (CubeViz = {}));
+var CubeViz;
+(function (CubeViz) {
+    var VisualizationHandler;
+    (function (VisualizationHandler) {
+        var AbstractVisualizationHandler = (function () {
+            function AbstractVisualizationHandler() {
+            }
+            AbstractVisualizationHandler.instantiateHandler = function (name) {
+                switch (name) {
+                    case 'Chartjs':
+                        return new VisualizationHandler.Chartjs();
+                    default:
+                        throw new Error('Unknown name given: ' + name);
+                }
+            };
+            AbstractVisualizationHandler.prototype.render = function (observations, selectedDimensions, selectedMeasure, renderTo) {
+                throw Error('Implement render method.');
+            };
+            return AbstractVisualizationHandler;
+        })();
+        VisualizationHandler.AbstractVisualizationHandler = AbstractVisualizationHandler;
+    })(VisualizationHandler = CubeViz.VisualizationHandler || (CubeViz.VisualizationHandler = {}));
+})(CubeViz || (CubeViz = {}));
+var CubeViz;
+(function (CubeViz) {
+    var VisualizationHandler;
+    (function (VisualizationHandler) {
+        var Chartjs = (function (_super) {
+            __extends(Chartjs, _super);
+            function Chartjs() {
+                _super.apply(this, arguments);
+            }
+            Chartjs.prototype.render = function (observations, selectedDimensions, selectedMeasure, renderTo) {
+                var chartName = renderTo + '-chart';
+                $('#' + renderTo).html("\n                <canvas id=\"" + chartName + "\"></canvas>\n            ");
+                var canvas = $('#' + chartName).get(0);
+                var data = [];
+                _.each(observations, function (observation) {
+                    data.push(observation[selectedMeasure.__cv_uri]);
+                });
+                var labels = [];
+                console.log(selectedDimensions[Object.keys(selectedDimensions)[0]]);
+                _.each(selectedDimensions[Object.keys(selectedDimensions)[0]].__cv_elements, function (dimensionElement) {
+                    labels.push(dimensionElement.__cv_niceLabel);
+                });
+                var myNewChart = new Chart(canvas.getContext("2d")).Bar({
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: "dataset",
+                            fillColor: "rgba(220,220,220,0.5)",
+                            strokeColor: "rgba(220,220,220,0.8)",
+                            highlightFill: "rgba(220,220,220,0.75)",
+                            highlightStroke: "rgba(220,220,220,1)",
+                            data: data
+                        }
+                    ]
+                });
+            };
+            return Chartjs;
+        })(VisualizationHandler.AbstractVisualizationHandler);
+        VisualizationHandler.Chartjs = Chartjs;
+    })(VisualizationHandler = CubeViz.VisualizationHandler || (CubeViz.VisualizationHandler = {}));
 })(CubeViz || (CubeViz = {}));
