@@ -22,9 +22,10 @@ namespace CubeViz
         {
             var xhr:JQueryXHR = $.ajax(this.sparqlEndpointUrl, {
                 cache: false,
-                dataType: 'json',
+                dataType: 'jsonp',
                 data : {
-                    query: query
+                    query: query,
+                    format: 'json'
                 }
             });
 
