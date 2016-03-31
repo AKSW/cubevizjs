@@ -1,0 +1,37 @@
+{
+  "name": "Project",
+  "version": "1.0.0",
+  "description": "No description yet",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test",
+    "lint": "gulp lint",
+    "start": "gulp",
+    "build": "gulp build",
+    "deploy": "gulp deploy"
+  },
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "ecc-messagebus": "*",
+    "ecc-mixins": "*",
+    "ecc-resparqler": "*",
+    "ecc-store-sparql": "*",
+    "funcy": "*",
+    "intl": "*",
+    "material-ui": "*",
+    "react": "*",
+    "react-bootstrap": "^0.28.3",
+    "react-d3": "*",
+    "react-d3-basic": "^1.6.11",
+    "react-tap-event-plugin": "^0.2.2",
+    "rx": "*",
+    "specification": "*",
+    "underscore": "*"
+  },
+  "devDependencies": {
+    "ecc-gulp-tasks": "*",
+    "ecc-test-helpers": "*",
+    "gulp": "*"
+  }
+}
