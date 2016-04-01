@@ -31,6 +31,11 @@ const GridInstance = React.createClass({
         this.setState({facets: cubeViz.displayConfigureDimensions(Input)});
     },
     handleOnStart(settings) {
+
+        // if (_.chain(settings).values().contains(-1)) {
+        //     return;
+        // }
+
         const result = cubeViz.determineVisuals(Input, cubeViz.Complexes[0], settings);
         const list = _.map(result.visuals, (v) => {
             return v.visual.name;
@@ -57,7 +62,7 @@ const GridInstance = React.createClass({
                         })}
                       </Menu>
                     </Col>
-                    <Col lg={4} lgOffset={2}>
+                    <Col lg={9} lgOffset={1}>
                         {this.state.chart}
                     </Col>
                   </Row>

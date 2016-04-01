@@ -5,27 +5,39 @@ const Result = {
     obs: [
         {
             country: 'England',
-            year: 2009,
+            year: '2009',
             unit: 'straight deaths',
             value: 861000
         },
         {
             country: 'Germany',
-            year: 2009,
+            year: '2009',
             unit: 'straight deaths',
             value: 902000
         },
         {
             country: 'Poland',
-            year: 2009,
+            year: '2009',
             unit: 'straight deaths',
             value: 100000
         },
         {
             country: 'Germany',
-            year: 2008,
+            year: '2008',
             unit: 'straight deaths',
             value: 79000
+        },
+        {
+            country: 'England',
+            year: '2008',
+            unit: 'straight deaths',
+            value: 861000
+        },
+        {
+            country: 'Poland',
+            year: '2008',
+            unit: 'straight deaths',
+            value: 100000
         }]
 };
 

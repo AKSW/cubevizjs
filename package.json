@@ -18,6 +18,7 @@
     "ecc-resparqler": "*",
     "ecc-store-sparql": "*",
     "funcy": "*",
+    "highcharts": "^4.2.3",
     "intl": "*",
     "material-ui": "*",
     "react": "*",

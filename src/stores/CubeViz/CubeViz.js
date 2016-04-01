@@ -12,12 +12,10 @@ const comparison = {
 
         const results = {complex: this.name, visuals: []};
 
-        const inHeatmapRange = new Rules.InRange(2, 20); //type Obs
-        const isEqualHeatmapDim = new Rules.IsEqual(2); //type Dim
+        const heatmapRule = Rules.HeatmapRule(dataCube);
 
-        if (inHeatmapRange.isSatisfiedBy(dataCube.obs.length) &&
-            isEqualHeatmapDim.isSatisfiedBy(dataCube.dimensions.length)) {
-            results.visuals.push({rank: 1, visual: {name: 'heatmap'}});
+        if (_.first(heatmapRule)) {
+            results.visuals.push({rank: 1, visual: _.extend({name: 'heatmap'}, _.last(heatmapRule))});
         }
 
         // jedes DimensionsElement auf 1 nur eine Dimension darf mehrere Elemente haben
@@ -64,7 +62,7 @@ function facetting(dataCube, facets) {
 export function determineVisuals(dataCube, context, settings) {
 
 /*eslint-enable */
-    const facets = {year: [2009], country: ['England', 'Germany', 'Poland']};
+    const facets = {year: ['2008', '2009'], country: ['England', 'Germany', 'Poland']};
     const facetCube = {obs: facetting(dataCube, facets)};
     facetCube.dimensions = dataCube.dimensions;
     _.extend(facetCube, facets);

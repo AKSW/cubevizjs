@@ -49,7 +49,7 @@ const NavBar = React.createClass({
             <Row>
               <Input ref="input" type="select" label="Choose Facet..." onChange={this.handleFacetChange} multiple>
                 {this.props.facets.map(function(f, i) {
-                    return(<option key={i} value={i}>{f}</option>);
+                    return(<option key={i} value={f}>{f}</option>);
                 })}
               </Input>
             </Row>
