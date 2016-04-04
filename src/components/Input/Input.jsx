@@ -1,7 +1,7 @@
 const Result = {
     dimensions: ['country', 'year'],
     country: ['England', 'Germany', 'Poland'],
-    year: [2009, 2008],
+    year: ['2009', '2008'],
     obs: [
         {
             country: 'England',

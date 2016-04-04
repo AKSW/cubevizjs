@@ -52,20 +52,52 @@ const testContext = {
 export const Complexes = [testContext];
 
 //facets: {dim0: [dimEl0, dimEl1], dim1 ...}
+// Discards every observation point not in facets
 function facetting(dataCube, facets) {
     return _.filter(dataCube.obs, obs => {
         return _.every(dataCube.dimensions, dim => { return _.contains(facets[dim], obs[dim]); });
     });
 }
 
+// Returns dimension for dimension element
+function getDimension(dimEl, dataCube) {
+    return _.chain(dataCube.dimensions)
+        .map(dim => {
+            if (_.contains(dataCube[dim], dimEl)) {
+                return dim;
+            }
+            return null;
+        })
+        .filter(kv => {return !_.isNull(kv);})
+        .first()
+        .value();
+}
+
+// Returns facets ({dim0: [dimEl0, dimEl1], dim1 ...}) for selected dimension elements
+function enrichFacets(dimEls, dataCube) {
+    return _.chain(dimEls)
+        .map(dimEl => { return {[getDimension(dimEl, dataCube)]: dimEl}; })
+        .reduce((obj, kv) => {
+            const key = _.first(_.keys(kv)); //_.contains(_.keys(obj), key)
+            const value = _.first(_.values(kv));
+            if (obj[key]) {
+                const el = obj[key];
+                el.push(value);
+                obj[key] = el;
+                return obj;
+            }
+            return _.extend(obj, {[key]: [value]});
+        }, {})
+        .value();
+}
+
 /*eslint-disable */
 export function determineVisuals(dataCube, context, settings) {
-
 /*eslint-enable */
-    const facets = {year: ['2008', '2009'], country: ['England', 'Germany', 'Poland']};
-    const facetCube = {obs: facetting(dataCube, facets)};
-    facetCube.dimensions = dataCube.dimensions;
-    _.extend(facetCube, facets);
+    const facets = enrichFacets(settings.facets, dataCube);
+    const facetObs = {obs: facetting(dataCube, facets)};
+    facetObs.dimensions = dataCube.dimensions;
+    const facetCube = _.extend(facetObs, facets);
 
     const results = _.chain(context.complexes)
         .map(c => { return c.eval(facetCube); })

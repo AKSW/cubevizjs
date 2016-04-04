@@ -10,16 +10,15 @@ import {Grid, Row, Input} from 'react-bootstrap';
 
 const NavBar = React.createClass({
     getInitialState() {
-        return {facet: -1,
+        return {facets: null,
                 context: -1};
     },
     /*eslint-disable */
     handleContextChange(event, index, value) {
         this.setState({context: value});
     },
-    handleFacetChange() {
-        console.log(this.refs.input.getValue());
-        // this.setState({facet :value});
+    handleFacetsChange() {
+        this.setState({facets :this.refs.input.getValue()});
     },
         /*eslint-enable */
     handleStart() {
@@ -47,7 +46,7 @@ const NavBar = React.createClass({
               </Toolbar>
             </Row>
             <Row>
-              <Input ref="input" type="select" label="Choose Facet..." onChange={this.handleFacetChange} multiple>
+              <Input ref="input" type="select" label="Choose Facets..." onChange={this.handleFacetsChange} multiple>
                 {this.props.facets.map(function(f, i) {
                     return(<option key={i} value={f}>{f}</option>);
                 })}
