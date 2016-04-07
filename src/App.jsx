@@ -8,7 +8,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 import * as cubeViz from './stores/CubeViz/CubeViz.js';
 import Input from './components/Input/input.jsx';
 import NavBar from './components/NavBar/NavBar.jsx';
-// import {PieChart} from 'react-d3';
+
 import Menu from 'material-ui/lib/menus/menu';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 import _ from 'underscore';
@@ -53,7 +53,12 @@ const GridInstance = React.createClass({
     },
     render() {
         return (<Grid>
-                  <NavBar onStart={this.handleOnStart} complexes={cubeViz.Complexes} facets={this.state.facets}/>
+                  <Row>
+                  <Col lg={12}>Info:</Col>
+                  </Row>
+                  <Row>
+                    <NavBar onStart={this.handleOnStart} complexes={cubeViz.Complexes} facets={this.state.facets}/>
+                  </Row>
                   <Row>
                     <Col lg={2}>
                       <Menu onChange={this.handleVisualSelect}>

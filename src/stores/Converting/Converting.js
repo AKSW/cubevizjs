@@ -1,10 +1,13 @@
 /*eslint func-style: [2, "declaration"]*/
 /*eslint react/no-multi-comp: 0*/
+/*eslint no-debugger:0*/
+/*eslint no-unused-vars:0*/
 
 import _ from 'underscore';
 import React from 'react';
 import {PieChart} from 'react-d3';
 import Heatmap from '../../components/Heatmap/Heatmap.js';
+import GroupedStackedBar from '../../components/GroupedStackedBar/GroupedStackedBar.js';
 
 //TODO refactor to util components
 // function dimElementCount(dim, obs) {
@@ -37,6 +40,7 @@ function convertDataCube(visual, dataCube) {
                 dimEls.push(o.value);
                 return dimEls;
             });
+
             //TODO axis
             return(<Heatmap container="chart" data={data}/>);
         },
@@ -56,9 +60,9 @@ function convertDataCube(visual, dataCube) {
                       title="Pie Chart"
                       />);
         },
-        // barStackChart(v, dc) {
-        //     throw new Error('barStackChart');
-        // }
+        groupedStackedBar(v, dc) {
+            return(<GroupedStackedBar container="chart" />);
+        }
     };
 
     if (converter[visual.name]) {
