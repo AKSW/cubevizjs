@@ -1,5 +1,6 @@
 /*eslint func-style: [2, "declaration"]*/
 /*eslint complexity: [2, 4]*/
+/*eslint no-debugger:0*/
 
 import _ from 'underscore';
 import * as Rules from '../../rules/Rules.js';
@@ -12,33 +13,38 @@ const comparison = {
 
         const results = {complex: this.name, visuals: []};
 
-        const heatmapRule = Rules.HeatmapRule(dataCube);
+        const heatmapRule = new Rules.HeatmapRule(2, 20, 2);
+        const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
 
-        if (_.first(heatmapRule)) {
-            results.visuals.push({rank: 1, visual: _.extend({name: 'heatmap'}, _.last(heatmapRule))});
+        if (_.first(isSatisfiedHeatmap)) {
+            results.visuals.push({rank: 1, visual: _.extend({name: 'heatmap'}, _.last(isSatisfiedHeatmap))});
         }
 
-        // jedes DimensionsElement auf 1 nur eine Dimension darf mehrere Elemente haben
-        // und Obs. Punkte 5 - 10
-        //TODO consider dimension element count, because ratio matters
+        const pieChartRule = new Rules.PieChartRule(2, 10);
+        const isSatisfiedPie = pieChartRule.isSatisfiedBy(dataCube);
+        if (_.first(isSatisfiedPie)) {
+            results.visuals.push({rank: 2, visual: _.extend({name: 'pieChart'}, _.last(isSatisfiedPie))});
+        }
 
-        const piaChartRule = Rules.PiaChartRule(dataCube);
-        const inPieChartRange = new Rules.InRange(2, 10);
+        const groupedStackedBarRule = new Rules.GroupedStackedBarRule(20);
+        const isSatisfiedGStackedBar = groupedStackedBarRule.isSatisfiedBy(dataCube);
 
-        if (inPieChartRange.isSatisfiedBy(dataCube.obs.length) && _.first(piaChartRule)) {
-            results.visuals.push({rank: 2, visual: _.extend({name: 'pieChart'}, _.last(piaChartRule))});
+        if (_.first(isSatisfiedGStackedBar)) {
+            results.visuals.push({rank: 0,
+                visual: _.extend({name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar))});
         }
 
         return results;
     }
 };
 
-// const maxNumber = {
-//     name: 'maxNumber',
-//     eval(dataCube) {
-//         return dataCube;
-//     }
-// };
+const maxNumber = {
+    name: 'maxNumber',
+
+    eval(dataCube) {
+        return dataCube;
+    }
+};
 
 // Contexts
 
@@ -46,7 +52,7 @@ const testContext = {
     id: 0,
     name: 'Test Context',
     description: 'Test context. Contains multiple complexes.',
-    complexes: [comparison]
+    complexes: [comparison, maxNumber]
 };
 
 export const Complexes = [testContext];
