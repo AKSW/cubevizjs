@@ -1,25 +1,69 @@
+/*eslint no-unused-vars: 0*/
+
 import React from 'react';
-import DropDownMenu from 'material-ui/lib/DropDownMenu';
-import MenuItem from 'material-ui/lib/menus/menu-item';
+import Toolbar from 'material-ui/lib/toolbar/toolbar';
+import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
+import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
+import RaisedButton from 'material-ui/lib/raised-button';
+import Popover from 'material-ui/lib/popover/popover';
 
-const ContextDropDownMenu = React.createClass({
+import Facets from './Facets.jsx';
+//TODO: Implement Input
+import Input from '../Input/Input.jsx';
+
+import {facetsSettingsChannel} from '../../stores/SettingsStore.js';
+import {chartListChannel} from '../../stores/ChartListStore.js';
+
+const Settings = React.createClass({
+
     getInitialState() {
-        return {value: 0};
+        return {
+            facets: [],
+            open: false,
+        };
     },
+    componentWillMount() {
 
-    /*eslint-disable */
-    handleChange(event, index, value) {
-        this.setState({value});
+        facetsSettingsChannel
+            .request({topic: 'settings.facets.init', data: Input})
+            .subscribe(facets => {
+                this.setState({facets});
+            });
     },
-    /*eslint-enable */
+    handleTouchTap(event) {
+        this.setState({
+            open: true,
+            anchorEl: event.currentTarget,
+        });
+    },
+    handleRequestClose() {
+        this.setState({
+            open: false,
+        });
+    },
+    onFacetsChange(facets) {
+        chartListChannel
+            .subject('chartList.determineVisuals')
+            .onNext({facets, input: Input});
+    },
     render() {
-        return (
-            <DropDownMenu value={this.state.value} onChange={this.handleChange}>
-              <MenuItem value={1} primaryText="Softwareentwicklung"/>
-              <MenuItem value={2} primaryText="Personen"/>
-            </DropDownMenu>
-      );
+        return(
+          <Toolbar>
+              <ToolbarGroup float="left">
+                  <ToolbarTitle text="CubeViz Settings" />
+                  <RaisedButton label="Choose Facets" primary={true} onTouchTap={this.handleTouchTap}/>
+              </ToolbarGroup>
+              <Popover
+                  open={this.state.open}
+                  anchorEl={this.state.anchorEl}
+                  anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
+                  targetOrigin={{horizontal: 'left', vertical: 'top'}}
+                  onRequestClose={this.handleRequestClose}>
+                  <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>
+              </Popover>
+          </Toolbar>
+        );
     }
 });
 
-export {ContextDropDownMenu};
+export default Settings;

@@ -28,7 +28,9 @@
     "react-tap-event-plugin": "^0.2.2",
     "rx": "*",
     "specification": "*",
-    "underscore": "*"
+    "underscore": "*",
+    "flux": "*",
+    "keymirror": "*"
   },
   "devDependencies": {
     "ecc-gulp-tasks": "*",

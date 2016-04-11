@@ -17,21 +17,20 @@ const comparison = {
         const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
 
         if (_.first(isSatisfiedHeatmap)) {
-            results.visuals.push({rank: 1, visual: _.extend({name: 'heatmap'}, _.last(isSatisfiedHeatmap))});
+            results.visuals.push(_.extend({rank: 1, name: 'heatmap'}, _.last(isSatisfiedHeatmap)));
         }
 
         const pieChartRule = new Rules.PieChartRule(2, 10);
         const isSatisfiedPie = pieChartRule.isSatisfiedBy(dataCube);
         if (_.first(isSatisfiedPie)) {
-            results.visuals.push({rank: 2, visual: _.extend({name: 'pieChart'}, _.last(isSatisfiedPie))});
+            results.visuals.push(_.extend({rank: 2, name: 'pieChart'}, _.last(isSatisfiedPie)));
         }
 
         const groupedStackedBarRule = new Rules.GroupedStackedBarRule(20);
         const isSatisfiedGStackedBar = groupedStackedBarRule.isSatisfiedBy(dataCube);
 
         if (_.first(isSatisfiedGStackedBar)) {
-            results.visuals.push({rank: 0,
-                visual: _.extend({name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar))});
+            results.visuals.push(_.extend({rank: 0, name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar)));
         }
 
         return results;
@@ -42,7 +41,17 @@ const maxNumber = {
     name: 'maxNumber',
 
     eval(dataCube) {
-        return dataCube;
+
+        const results = {complex: this.name, visuals: []};
+
+        const heatmapRule = new Rules.HeatmapRule(2, 10, 2);
+        const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
+
+        if (_.first(isSatisfiedHeatmap)) {
+            results.visuals.push(_.extend({rank: 2, name: 'heatmap'}, _.last(isSatisfiedHeatmap)));
+        }
+
+        return results;
     }
 };
 
@@ -100,18 +109,14 @@ function enrichFacets(dimEls, dataCube) {
 /*eslint-disable */
 export function determineVisuals(dataCube, context, settings) {
 /*eslint-enable */
-    const facets = enrichFacets(settings.facets, dataCube);
+    const facets = enrichFacets(settings, dataCube);
     const facetObs = {obs: facetting(dataCube, facets)};
     facetObs.dimensions = dataCube.dimensions;
     const facetCube = _.extend(facetObs, facets);
 
-    const results = _.chain(context.complexes)
-        .map(c => { return c.eval(facetCube); })
-        .sortBy('rank') //FIXME not working, map return nested array
-        .first() //FIXME see above
-        .value();
+    const results = _.map(context.complexes, c => { return c.eval(facetCube); });
 
-    return _.extend(results, {facetCube}); //TODO for all visual results
+    return _.extend(results, {facetCube});
 }
 /*eslint-disable */
 export function displayChart(visual, dataCube) {
