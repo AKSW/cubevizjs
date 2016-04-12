@@ -20,10 +20,11 @@ const comparison = {
             results.visuals.push(_.extend({rank: 1, name: 'heatmap'}, _.last(isSatisfiedHeatmap)));
         }
 
-        const pieChartRule = new Rules.PieChartRule(2, 10);
-        const isSatisfiedPie = pieChartRule.isSatisfiedBy(dataCube);
+        const selectedDimensionRule = new Rules.SelectedDimensionRule(2, 10);
+        const isSatisfiedPie = selectedDimensionRule.isSatisfiedBy(dataCube);
         if (_.first(isSatisfiedPie)) {
             results.visuals.push(_.extend({rank: 2, name: 'pieChart'}, _.last(isSatisfiedPie)));
+            results.visuals.push(_.extend({rank: 2, name: 'barChart'}, _.last(isSatisfiedPie)));
         }
 
         const groupedStackedBarRule = new Rules.GroupedStackedBarRule(20);

@@ -5,9 +5,9 @@
 
 import _ from 'underscore';
 import React from 'react';
-import {PieChart} from 'react-d3';
-import Heatmap from '../../components/Heatmap/Heatmap.js';
-import GroupedStackedBar from '../../components/GroupedStackedBar/GroupedStackedBar.js';
+import {PieChart, BarChart} from 'react-d3';
+import Heatmap from '../../components/Charts/Heatmap.js';
+import GroupedStackedBar from '../../components/Charts/GroupedStackedBar.js';
 
 //TODO refactor to util components
 // function dimElementCount(dim, obs) {
@@ -61,7 +61,32 @@ function convertDataCube(visual, dataCube) {
                       />);
         },
         groupedStackedBar(v, dc) {
+            debugger;
             return(<GroupedStackedBar container="chart" />);
+        },
+
+        barChart(v, dc) {
+            const yAxisLabel = dc.obs[0].unit;
+            const xAxisLabel = v.selectedDim + ' (10^3) ';
+
+            const data = _.map(dc.obs, o => {
+                return {x: o[v.selectedDim], y: (o.value / 1000)};
+            });
+
+            const barData = [
+                {name: 'Series A', values: data}
+            ];
+
+            return(
+                <BarChart
+                data={barData}
+                width={400}
+                height={400}
+                fill={'#3182bd'}
+                yAxisLabel={yAxisLabel}
+                xAxisLabel={xAxisLabel}
+                />
+            );
         }
     };
 

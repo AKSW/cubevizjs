@@ -10,7 +10,7 @@ import _ from 'underscore';
 
 import {chartListChannel} from '../stores/ChartListStore.js';
 import {chartChannel} from '../stores/ChartStore.js';
-import {newLog} from '../stores/LogBoxStore.js';
+import {newLog, logDimEls} from '../stores/LogBoxStore.js';
 
 const ChartList = React.createClass({
     getInitialState() {
@@ -21,7 +21,10 @@ const ChartList = React.createClass({
         chartListChannel
             .subject('chartList.loaded')
             .subscribe(charts => {
-                newLog(JSON.stringify(charts));
+
+                newLog('Selected:');
+                logDimEls(charts.facetCube);
+
                 this.setState({charts});
             });
     },

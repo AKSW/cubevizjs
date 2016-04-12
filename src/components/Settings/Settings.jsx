@@ -1,4 +1,5 @@
 /*eslint no-unused-vars: 0*/
+/*eslint no-debugger:0*/
 
 import React from 'react';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
@@ -13,6 +14,7 @@ import Input from '../Input/Input.jsx';
 
 import {facetsSettingsChannel} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
+import {newLog} from '../../stores/LogBoxStore.js';
 
 const Settings = React.createClass({
 
@@ -23,6 +25,10 @@ const Settings = React.createClass({
         };
     },
     componentWillMount() {
+
+        newLog('Input: ');
+        newLog('Dimensions: ' + Input.dimensions);
+        newLog('Obs: ' + Input.obs.length);
 
         facetsSettingsChannel
             .request({topic: 'settings.facets.init', data: Input})
@@ -42,6 +48,7 @@ const Settings = React.createClass({
         });
     },
     onFacetsChange(facets) {
+
         chartListChannel
             .subject('chartList.determineVisuals')
             .onNext({facets, input: Input});

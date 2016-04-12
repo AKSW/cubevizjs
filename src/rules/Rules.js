@@ -1,5 +1,6 @@
 /*eslint func-style: [2, "declaration"]*/
 /*eslint max-params: 0*/
+/*eslint no-debugger:0*/
 import {SpecificationSync as Specification} from 'specification';
 import _ from 'underscore';
 
@@ -70,7 +71,7 @@ HeatmapRule.prototype.isSatisfiedBy = function(dataCube) {
     return [false];
 };
 
-export function PieChartRule(a, b) {
+export function SelectedDimensionRule(a, b) {
     this.a = a;
     this.b = b;
 }
@@ -78,26 +79,28 @@ export function PieChartRule(a, b) {
 // jedes DimensionsElement auf 1 nur eine Dimension darf mehrere Elemente haben
 // und Obs. Punkte 5 - 10
 //TODO consider dimension element count, because ratio matters
-PieChartRule.prototype = Object.create(Specification);
-PieChartRule.prototype.isSatisfiedBy = function(dataCube) {
+SelectedDimensionRule.prototype = Object.create(Specification);
+SelectedDimensionRule.prototype.isSatisfiedBy = function(dataCube) {
     const counts =
         _.chain(dataCube.dimensions)
           .map(dim => {
+              // counts dimEl and maps them to dim
               return {[dim]: _.keys(dimElementCount(dim, dataCube.obs)).length};
           })
+          // reduces to single object from array
           .reduce((obj, c) => { return _.extend(obj, c); }, {})
           .value();
 
     const max = _.max(counts);
-    const isOnlyMax = _.countBy(counts)[max] === 1;// das ist eine regel
-    const isValid = _.chain(counts)// das ist eine regel
+    const isOnlyMax = _.countBy(counts)[max] === 1;
+    const isValid = _.chain(counts)
         .filter(c => { return c < max; })
         .every(c => { return c === 1; })
         .value();
 
-    const inPieChartRange = new InRange(this.a, this.b);
+    const inRange = new InRange(this.a, this.b);
 
-    if (isOnlyMax && isValid && inPieChartRange.isSatisfiedBy(dataCube.obs.length)) {
+    if (isOnlyMax && isValid && inRange.isSatisfiedBy(dataCube.obs.length)) {
         const selectedDim = _.findKey(counts, value => { return value === max; });
         const fixedDims = _.filter(dataCube.dimensions, dim => { return dim !== selectedDim; });
 
@@ -106,6 +109,23 @@ PieChartRule.prototype.isSatisfiedBy = function(dataCube) {
 
     return [false];
 };
+
+// export function BarChartRule(a, b) {
+//     this.a = a;
+//     this.b = b;
+// }
+//
+// BarChartRule.prototype = Object.create(Specification);
+// BarChartRule.prototype.isSatisfiedBy = function(dataCube) {
+//     const selectedDimensionRule = new SelectedDimensionRule(this.a, this.b);
+//     const isSatisfied = selectedDimensionRule.isSatisfiedBy(dataCube);
+//
+//     if (_.first(isSatisfied)) {
+//
+//     }
+//
+//     return [false];
+// }
 
 // n: valid observation count
 export function GroupedStackedBarRule(n) {

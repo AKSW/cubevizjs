@@ -11,7 +11,7 @@ const options = {
         },
 
         xAxis: {
-            categories: ['Apples', 'Oranges', 'Pears', 'Grapes', 'Bananas']
+            categories: ['2009', '2010']
         },
 
         yAxis: {
@@ -37,21 +37,17 @@ const options = {
         },
 
         series: [{
-            name: 'John',
-            data: [5, 3, 4, 7, 2],
-            stack: 'male'
+            name: 'England',
+            data: [5, 3],
+            stack: 'country'
         }, {
-            name: 'Joe',
-            data: [3, 4, 4, 2, 5],
-            stack: 'male'
+            name: 'Germany',
+            data: [3, 4],
+            stack: 'country'
         }, {
-            name: 'Jane',
-            data: [2, 5, 6, 2, 1],
-            stack: 'female'
-        }, {
-            name: 'Janet',
-            data: [3, 0, 4, 4, 3],
-            stack: 'female'
+            name: 'Poland',
+            data: [2, 5],
+            stack: 'country'
         }]
     };
     /*eslint-enable */

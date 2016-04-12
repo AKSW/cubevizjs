@@ -6,7 +6,7 @@ import {Grid, Row, Col} from 'react-bootstrap';
 
 import Settings from './Settings/Settings.jsx';
 import ChartList from './ChartList.jsx';
-import Chart from './Chart.jsx';
+import Chart from './Chart.jsx'; //FIXME does not rerender after new facet selection
 import LogBox from './LogBox.jsx';
 
 const CubeVizApp = React.createClass({
@@ -21,10 +21,10 @@ const CubeVizApp = React.createClass({
                       <Col md={2}>
                           <ChartList />
                       </Col>
-                      <Col md={8}>
+                      <Col md={5} mdOffset={2}>
                           <Chart />
                       </Col>
-                      <Col md={2}>
+                      <Col md={3}>
                           <LogBox />
                       </Col>
                   </Row>
