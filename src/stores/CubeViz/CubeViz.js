@@ -1,9 +1,14 @@
 /*eslint func-style: [2, "declaration"]*/
 /*eslint complexity: [2, 4]*/
 /*eslint no-debugger:0*/
+/*eslint no-unused-vars: 0*/
+/*eslint no-console: 0*/
+/*eslint max-nested-callbacks: [2, 4]*/
 
+import Immutable from 'immutable';
 import _ from 'underscore';
 import * as Rules from '../../rules/Rules.js';
+import * as Util from '../../Util.js';
 import {convert} from '../Converting/Converting.js';
 
 const comparison = {
@@ -70,54 +75,61 @@ export const Complexes = [testContext];
 //facets: {dim0: [dimEl0, dimEl1], dim1 ...}
 // Discards every observation point not in facets
 function facetting(dataCube, facets) {
-    return _.filter(dataCube.obs, obs => {
-        return _.every(dataCube.dimensions, dim => { return _.contains(facets[dim], obs[dim]); });
+    //TODO: use some or every? means: use oberservation point if contains some dimensions
+    //in selected Data or every dimension
+    const t = dataCube.get('obs').filter(obs => {
+        return dataCube.get('dimensions').every(dim => {
+            const dimElUris = dim.get('dimensionElements').map(dimEl => dimEl.get('cvUri'));
+            const facetdimElUris = facets.reduce((list, f) => {
+                const s = f.get('dimensionElements').map(dimEl => dimEl.get('cvUri'));
+                return list.push(s);
+            }, Immutable.List()).flatten(true);
+            return dimElUris.some(dimEL => facetdimElUris.contains(dimEL));
+            // return !_.isUndefined(facets.find(f => {}));
+            //FIXME do not check for equel dimension check if dimensionelement
+            //from obs point is contained by dimensionelements from facets
+        });
     });
-}
 
-// Returns dimension for dimension element
-function getDimension(dimEl, dataCube) {
-    return _.chain(dataCube.dimensions)
-        .map(dim => {
-            if (_.contains(dataCube[dim], dimEl)) {
-                return dim;
-            }
-            return null;
-        })
-        .filter(kv => {return !_.isNull(kv);})
-        .first()
-        .value();
+    debugger;
+    // return _.filter(dataCube.obs, obs => {
+    //     return _.every(dataCube.dimensions, dim => { return _.contains(facets[dim], obs[dim]); });
+    // });
 }
 
 // Returns facets ({dim0: [dimEl0, dimEl1], dim1 ...}) for selected dimension elements
 function enrichFacets(dimEls, dataCube) {
-    return _.chain(dimEls)
-        .map(dimEl => { return {[getDimension(dimEl, dataCube)]: dimEl}; })
-        .reduce((obj, kv) => {
-            const key = _.first(_.keys(kv)); //_.contains(_.keys(obj), key)
-            const value = _.first(_.values(kv));
-            if (obj[key]) {
-                const el = obj[key];
-                el.push(value);
-                obj[key] = el;
-                return obj;
-            }
-            return _.extend(obj, {[key]: [value]});
-        }, {})
-        .value();
+
+    return dimEls.map(dimEl => { // maps selcted dimEl to dim
+        const dim = Util.getDimension(dimEl, dataCube);
+        return dim.remove('dimensionElements').set('dimensionElements', Immutable.List([dimEl]));
+    }).reduce((list, dim) => { // combines multiple dimEls to according dim
+        const index = list.findIndex(d=> d.get('cvUri') === dim.get('cvUri'));
+        if (index !== -1) {
+            const concat = list.get(index).get('dimensionElements').concat(dim.get('dimensionElements'));
+            return list.update(index, d => {
+                return d.remove('dimensionElements').set('dimensionElements', concat);
+            });
+        }
+        return list.push(dim);
+    }, Immutable.List());
 }
 
-/*eslint-disable */
-export function determineVisuals(dataCube, context, settings) {
-/*eslint-enable */
-    const facets = enrichFacets(settings, dataCube);
+function createDataCube(selections, dataCube) {
+    const facets = enrichFacets(selections, dataCube);
     const facetObs = {obs: facetting(dataCube, facets)};
     facetObs.dimensions = dataCube.dimensions;
     const facetCube = _.extend(facetObs, facets);
+}
 
-    const results = _.map(context.complexes, c => { return c.eval(facetCube); });
+/*eslint-disable */
+export function determineVisuals(dataCube, context, selections) {
+/*eslint-enable */
 
-    return _.extend(results, {facetCube});
+    const selectionCube = createDataCube(selections, dataCube);
+    const results = _.map(context.complexes, c => { return c.eval(selectionCube); });
+
+    return _.extend(results, {selectionCube});
 }
 /*eslint-disable */
 export function displayChart(visual, dataCube) {
@@ -127,7 +139,20 @@ export function displayChart(visual, dataCube) {
 
 export function displayConfigureDimensions(dataCube) {
 
-    return _.chain(dataCube.dimensions).map(dim => { return dataCube[dim]; })
-        .flatten()
-        .value();
+    return dataCube.get('dimensions')
+        .flatMap(dim => { return Util.getDimensionElements(dim, dataCube).flatten(true); });
 }
+
+// // Returns dimension for dimension element
+// function getDimension(dimEl, dataCube) {
+//     return _.chain(dataCube.dimensions)
+//         .map(dim => {
+//             if (_.contains(dataCube[dim], dimEl)) {
+//                 return dim;
+//             }
+//             return null;
+//         })
+//         .filter(kv => {return !_.isNull(kv);})
+//         .first()
+//         .value();
+// }

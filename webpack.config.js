@@ -4,7 +4,7 @@ module.exports = {
     devtool: 'inline-source-map',
     debug: true,
     context: path.resolve(__dirname),
-    entry: './src/app.jsx',
+    entry: './src/App.jsx',
     output: {
         path: path.join(__dirname, 'dist'),
         filename: 'app.min.js',

@@ -61,7 +61,6 @@ function convertDataCube(visual, dataCube) {
                       />);
         },
         groupedStackedBar(v, dc) {
-            debugger;
             return(<GroupedStackedBar container="chart" />);
         },
 

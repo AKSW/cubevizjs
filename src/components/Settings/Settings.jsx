@@ -12,9 +12,8 @@ import Facets from './Facets.jsx';
 //TODO: Implement Input
 import Input from '../Input/Input.jsx';
 
-import {facetsSettingsChannel} from '../../stores/SettingsStore.js';
+import {facetsSettingsChannel, getSelections} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
-import {newLog} from '../../stores/LogBoxStore.js';
 
 const Settings = React.createClass({
 
@@ -26,17 +25,15 @@ const Settings = React.createClass({
     },
     componentWillMount() {
 
-        newLog('Input: ');
-        newLog('Dimensions: ' + Input.dimensions);
-        newLog('Obs: ' + Input.obs.length);
-
         facetsSettingsChannel
             .request({topic: 'settings.facets.init', data: Input})
             .subscribe(facets => {
+
                 this.setState({facets});
             });
     },
     handleTouchTap(event) {
+
         this.setState({
             open: true,
             anchorEl: event.currentTarget,
@@ -49,9 +46,11 @@ const Settings = React.createClass({
     },
     onFacetsChange(facets) {
 
+        const selections = getSelections(facets);
+
         chartListChannel
             .subject('chartList.determineVisuals')
-            .onNext({facets, input: Input});
+            .onNext({selections, input: Input});
     },
     render() {
         return(

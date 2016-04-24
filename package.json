@@ -21,7 +21,7 @@
     "highcharts": "^4.2.3",
     "intl": "*",
     "material-ui": "*",
-    "react": "*",
+    "react": "^0.14.*",
     "react-bootstrap": "^0.28.3",
     "react-d3": "*",
     "react-d3-basic": "^1.6.11",
@@ -30,6 +30,7 @@
     "specification": "*",
     "underscore": "*",
     "flux": "*",
+    "immutable": "*",
     "keymirror": "*"
   },
   "devDependencies": {

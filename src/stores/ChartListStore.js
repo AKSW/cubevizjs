@@ -10,9 +10,9 @@ export const chartListChannel = Rxmq.channel('chartList');
 
 chartListChannel
 .subject('chartList.determineVisuals')
-.subscribe(({facets, input}) => {
+.subscribe(({selections, input}) => {
 
-    const results = CubeViz.determineVisuals(input, CubeViz.Complexes[0], facets);
+    const results = CubeViz.determineVisuals(input, CubeViz.Complexes[0], selections);
     const list =
         _.chain(results)
         .map(r => {

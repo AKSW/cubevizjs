@@ -1,44 +1,94 @@
-const Result = {
-    dimensions: ['country', 'year'],
-    country: ['England', 'Germany', 'Poland'],
-    year: ['2009', '2008'],
+/*eslint no-debugger: 0*/
+
+import Immutable from 'immutable';
+
+const Result = Immutable.fromJS({
+    dimensions: [
+        {
+            cvUri: 'http://dim/1',
+            dimensionElements: [
+                {
+                    cvUri: 'http://dim/1/element/1',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'germany'
+                },
+                {
+                    cvUri: 'http://dim/1/element/2',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'england'
+                }
+            ]
+        },
+        {
+            cvUri: 'http://dim/2',
+            dimensionElements: [
+                {
+                    cvUri: 'http://dim/2/element/1',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2001'
+                }
+            ]
+        },
+    ],
+    measures: [
+        {
+            cvUri: 'http://measure/1',
+            cvNiceLabel: 'number of deaths'
+        },
+        {
+            cvUri: 'http://measure/2',
+            cvNiceLabel: 'number of births'
+        }
+    ],
     obs: [
         {
-            country: 'England',
-            year: '2009',
-            unit: 'straight deaths',
-            value: 861000
+            cvDimensions: [
+                {
+                    cvUri: 'http://dim/2/element/1',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2001'
+                },
+                {
+                    cvUri: 'http://dim/1/element/2',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'england'
+                }
+            ],
+            cvMeasures: [
+                {
+                    cvAccordingMeasurement: 'http://measure/1',
+                    cvValue: '80.000'
+                },
+                {
+                    cvAccordingMeasurement: 'http://measure/2',
+                    cvValue: '30.000'
+                }
+            ]
         },
         {
-            country: 'Germany',
-            year: '2009',
-            unit: 'straight deaths',
-            value: 902000
+            cvDimensions: [
+                {
+                    cvUri: 'http://dim/2/element/1',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2001'
+                },
+                {
+                    cvUri: 'http://dim/1/element/2',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'deutschland'
+                }
+            ],
+            cvMeasures: [
+                {
+                    cvAccordingMeasurement: 'http://measure/1',
+                    cvValue: '10.000'
+                },
+                //
+                // Lücken mit leerwerten füllen ?
+                //
+            ]
         },
-        {
-            country: 'Poland',
-            year: '2009',
-            unit: 'straight deaths',
-            value: 100000
-        },
-        {
-            country: 'Germany',
-            year: '2008',
-            unit: 'straight deaths',
-            value: 79000
-        },
-        {
-            country: 'England',
-            year: '2008',
-            unit: 'straight deaths',
-            value: 861000
-        },
-        {
-            country: 'Poland',
-            year: '2008',
-            unit: 'straight deaths',
-            value: 100000
-        }]
-};
+    ]
+});
 
 export default Result;
