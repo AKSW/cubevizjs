@@ -1,5 +1,5 @@
 npm-debug.log*
-app.min.js
+dist/app.min.js
 
 # Dependency directories
 node_modules
