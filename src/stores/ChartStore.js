@@ -3,14 +3,16 @@
 /*eslint no-debugger: 0*/
 
 import Rxmq from 'ecc-messagebus';
+import Immutable from 'immutable';
+
 import * as CubeViz from './CubeViz/CubeViz.js';
 
 export const chartChannel = Rxmq.channel('chart');
 
 chartChannel
 .subject('chart.convertToChart')
-.subscribe(chart => {
-
-    const chartReact = CubeViz.displayChart(chart, chart.facetCube);
+.subscribe(data => {
+    const converted = Immutable.fromJS(data);
+    const chartReact = CubeViz.displayChart(converted.get('chart'), converted.get('selectionCube'));
     chartChannel.subject('chart.display').onNext(chartReact);
 });

@@ -6,6 +6,7 @@ const Result = Immutable.fromJS({
     dimensions: [
         {
             cvUri: 'http://dim/1',
+            cvNiceLabel: 'country',
             dimensionElements: [
                 {
                     cvUri: 'http://dim/1/element/1',
@@ -21,11 +22,17 @@ const Result = Immutable.fromJS({
         },
         {
             cvUri: 'http://dim/2',
+            cvNiceLabel: 'year',
             dimensionElements: [
                 {
                     cvUri: 'http://dim/2/element/1',
                     cvAccordingDimension: 'http://dim/2',
                     cvNiceLabel: '2001'
+                },
+                {
+                    cvUri: 'http://dim/2/element/2',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2002'
                 }
             ]
         },
@@ -57,11 +64,35 @@ const Result = Immutable.fromJS({
             cvMeasures: [
                 {
                     cvAccordingMeasurement: 'http://measure/1',
-                    cvValue: '80.000'
+                    cvValue: '80000'
                 },
                 {
                     cvAccordingMeasurement: 'http://measure/2',
-                    cvValue: '30.000'
+                    cvValue: '30000'
+                }
+            ]
+        },
+        {
+            cvDimensions: [
+                {
+                    cvUri: 'http://dim/2/element/2',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2002'
+                },
+                {
+                    cvUri: 'http://dim/1/element/2',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'england'
+                }
+            ],
+            cvMeasures: [
+                {
+                    cvAccordingMeasurement: 'http://measure/1',
+                    cvValue: '80000'
+                },
+                {
+                    cvAccordingMeasurement: 'http://measure/2',
+                    cvValue: '30000'
                 }
             ]
         },
@@ -73,7 +104,7 @@ const Result = Immutable.fromJS({
                     cvNiceLabel: '2001'
                 },
                 {
-                    cvUri: 'http://dim/1/element/2',
+                    cvUri: 'http://dim/1/element/1',
                     cvAccordingDimension: 'http://dim/1',
                     cvNiceLabel: 'deutschland'
                 }
@@ -81,7 +112,7 @@ const Result = Immutable.fromJS({
             cvMeasures: [
                 {
                     cvAccordingMeasurement: 'http://measure/1',
-                    cvValue: '10.000'
+                    cvValue: '10000'
                 },
                 //
                 // Lücken mit leerwerten füllen ?

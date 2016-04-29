@@ -6,26 +6,23 @@ import React from 'react';
 import Menu from 'material-ui/lib/menus/menu';
 import MenuItem from 'material-ui/lib/menus/menu-item';
 
-import _ from 'underscore';
-
 import {chartListChannel} from '../stores/ChartListStore.js';
 import {chartChannel} from '../stores/ChartStore.js';
 import {newLog, logDimEls} from '../stores/LogBoxStore.js';
 
 const ChartList = React.createClass({
     getInitialState() {
-        return {charts: []};
+        return {
+            charts: [],
+            selectionCube: {}
+        };
     },
     componentWillMount() {
 
         chartListChannel
             .subject('chartList.loaded')
-            .subscribe(charts => {
-
-                newLog('Selected:');
-                logDimEls(charts.facetCube);
-
-                this.setState({charts});
+            .subscribe(data => {
+                this.setState({charts: data.list, selectionCube: data.selectionCube});
             });
     },
     onChartSelect(event, value) {
@@ -33,7 +30,10 @@ const ChartList = React.createClass({
         chartChannel
         .subject('chart.convertToChart')
         .onNext(
-            _.extend(this.state.charts[value], {facetCube: this.state.charts.facetCube})
+            {
+                chart: this.state.charts[value],
+                selectionCube: this.state.selectionCube
+            }
         );
     },
     render() {

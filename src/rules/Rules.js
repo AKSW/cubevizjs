@@ -1,11 +1,27 @@
 /*eslint func-style: [2, "declaration"]*/
 /*eslint max-params: 0*/
 /*eslint no-debugger:0*/
+/*eslint no-unused-vars: 0*/
+
 import {SpecificationSync as Specification} from 'specification';
 import _ from 'underscore';
+import Immutable from 'immutable';
+import {keep} from '../Util.js';
+
+function dimElsFromObsForDim(dim, obs) {
+    return obs.reduce((list, o) => {
+        const dimEls = keep(o.get('cvDimensions'), el => {
+            if (el.get('cvAccordingDimension') === dim.get('cvUri')) {
+                return el;
+            }
+        });
+        return list.push(dimEls);
+    }, Immutable.List()).flatten(true);
+}
 
 function dimElementCount(dim, obs) {
-    return _.countBy(obs, o => { return o[dim]; });
+    const dimEls = dimElsFromObsForDim(dim, obs);
+    return dimEls.countBy(dimEl => dimEl.get('cvUri'));
 }
 
 export function IsEqual(num) {
@@ -36,13 +52,14 @@ function IsEvenlyDistributed() {
 
 IsEvenlyDistributed.prototype = Object.create(Specification);
 IsEvenlyDistributed.prototype.isSatisfiedBy = function(dataCube) {
-    const isEvenlyDistributed = _.chain(dataCube.dimensions)
-        .map(dim => {
-            const counts = dimElementCount(dim, dataCube.obs);
-            const isUniq = _.uniq(_.values(counts)).length === 1;
 
-            return isUniq;
-        }).every(u => { return u; }).value();
+    const isEvenlyDistributed = dataCube.get('dimensions')
+    .map(dim => {
+        const counts = dimElementCount(dim, dataCube.get('obs'));
+        const isUniq = _.uniq(_.values(counts.toJS())).length === 1; //TODO implement in Immutable js
+        return isUniq;
+    })
+    .every(u => u);
     return isEvenlyDistributed;
 };
 
@@ -62,13 +79,13 @@ HeatmapRule.prototype.isSatisfiedBy = function(dataCube) {
     const isEvenlyDistributed = new IsEvenlyDistributed();
 
   // das ist eine regel
-    if (inHeatmapRange.isSatisfiedBy(dataCube.obs.length) &&
-        isEqualHeatmapDim.isSatisfiedBy(dataCube.dimensions.length) &&
+    if (inHeatmapRange.isSatisfiedBy(dataCube.get('obs').size) &&
+        isEqualHeatmapDim.isSatisfiedBy(dataCube.get('dimensions').size) &&
         isEvenlyDistributed.isSatisfiedBy(dataCube)) {
-        return [true, {fixedDims: dataCube.dimensions}];
+        return Immutable.fromJS([true, {fixedDims: dataCube.get('dimensions')}]);
     }
 
-    return [false];
+    return Immutable.List(false);
 };
 
 export function SelectedDimensionRule(a, b) {
@@ -81,51 +98,35 @@ export function SelectedDimensionRule(a, b) {
 //TODO consider dimension element count, because ratio matters
 SelectedDimensionRule.prototype = Object.create(Specification);
 SelectedDimensionRule.prototype.isSatisfiedBy = function(dataCube) {
-    const counts =
-        _.chain(dataCube.dimensions)
-          .map(dim => {
-              // counts dimEl and maps them to dim
-              return {[dim]: _.keys(dimElementCount(dim, dataCube.obs)).length};
-          })
-          // reduces to single object from array
-          .reduce((obj, c) => { return _.extend(obj, c); }, {})
-          .value();
 
-    const max = _.max(counts);
-    const isOnlyMax = _.countBy(counts)[max] === 1;
-    const isValid = _.chain(counts)
-        .filter(c => { return c < max; })
-        .every(c => { return c === 1; })
-        .value();
+    const counts = dataCube.get('dimensions')
+        .map(dim => Immutable.Map({
+            // counts dimEl and maps them to dim
+            [dim.get('cvUri')]: dimElementCount(dim, dataCube.get('obs')).keySeq().size
+        }))
+        // reduces to single object from list
+        .reduce((map, c) => map.merge(c), Immutable.Map());
+
+    const max = counts.max();
+    const isOnlyMax = counts.valueSeq().count(c => c === max) === 1;
+    const isValid = counts
+        .filter(c => c < max)
+        .every(c => c === 1);
+
 
     const inRange = new InRange(this.a, this.b);
 
-    if (isOnlyMax && isValid && inRange.isSatisfiedBy(dataCube.obs.length)) {
-        const selectedDim = _.findKey(counts, value => { return value === max; });
-        const fixedDims = _.filter(dataCube.dimensions, dim => { return dim !== selectedDim; });
+    if (isOnlyMax && isValid && inRange.isSatisfiedBy(dataCube.get('obs').size)) {
+        const selectedDimUri = counts.findKey(value => value === max);
 
-        return [true, {selectedDim, fixedDims}];
+        const selectedDim = dataCube.get('dimensions').find(dim => dim.get('cvUri') === selectedDimUri);
+        const fixedDims = dataCube.get('dimensions').filter(dim => dim.get('cvUri') !== selectedDimUri);
+
+        return Immutable.fromJS([true, {selectedDim, fixedDims}]);
     }
 
-    return [false];
+    return Immutable.List(false);
 };
-
-// export function BarChartRule(a, b) {
-//     this.a = a;
-//     this.b = b;
-// }
-//
-// BarChartRule.prototype = Object.create(Specification);
-// BarChartRule.prototype.isSatisfiedBy = function(dataCube) {
-//     const selectedDimensionRule = new SelectedDimensionRule(this.a, this.b);
-//     const isSatisfied = selectedDimensionRule.isSatisfiedBy(dataCube);
-//
-//     if (_.first(isSatisfied)) {
-//
-//     }
-//
-//     return [false];
-// }
 
 // n: valid observation count
 export function GroupedStackedBarRule(n) {

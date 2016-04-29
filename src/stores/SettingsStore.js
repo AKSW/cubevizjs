@@ -25,6 +25,7 @@ facetsSettingsChannel
 
 // String indexes ["0" "1"]
 export function getSelections(indexes) {
+
     return Immutable.fromJS(indexes)
         .reduce((list, i) => {return list.push(selections.get(i));},
         Immutable.List());

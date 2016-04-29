@@ -3,8 +3,11 @@
 /*eslint no-debugger:0*/
 /*eslint no-unused-vars:0*/
 
-import _ from 'underscore';
 import React from 'react';
+import Immutable, {Map} from 'immutable';
+
+import * as Util from '../../Util.js';
+
 import {PieChart, BarChart} from 'react-d3';
 import Heatmap from '../../components/Charts/Heatmap.js';
 import GroupedStackedBar from '../../components/Charts/GroupedStackedBar.js';
@@ -18,40 +21,39 @@ function convertDataCube(visual, dataCube) {
     const converter = {
 
         heatmap(v, dc) {
+            const map = dc.get('dimensions')
+                // gets all dimension elements in one list
+                .map(dim => Util.getDimensionElements(dim, dc).flatten(true))
+                //gives all dimension elements an index
+                .flatMap(dimEls => dimEls.map((dimEl, idx) => Map({[dimEl.get('cvUri')]: Map({idx, object: dimEl})})))
+                //reduces list to map
+                .reduce((m, dimEl) => m.merge(dimEl), Map());
 
-            const map =
-            _.chain(dc.dimensions)
-            .map(dim => { // gets all dimension elements in one array
-                return dc[dim];
-            })
-            //gives all dimension elements an index
-            .map(dimEls => { return _.map(dimEls, (dimEl, index) => {return {[dimEl]: index}; }); })
-            .flatten() // flattens array
-            .reduce((m, obj) => { return _.extend(m, obj); }, {}) // creates single object
-            .value();
+            const data = dc.get('obs')
+                .map(o => {
+                    const dimEls = o.get('cvDimensions')
+                        .map(dimEl => map.get(dimEl.get('cvUri')).get('idx')); //maps from dimEl to index
 
-            const data = _.map(dc.obs, o => {
-                const dimEls =
-                _.chain(dc.dimensions)
-                .map(dim => { return o[dim]; }) //gets all dimension elements for observation point
-                .map(dimEl => { return map[dimEl]; }) //maps from dim El to index
-                .value();
-
-                dimEls.push(o.value);
-                return dimEls;
-            });
+                    return dimEls.push(Util.getDefaultMeasurement(o).get('cvValue'));
+                });
 
             //TODO axis
-            return(<Heatmap container="chart" data={data}/>);
+            return(<Heatmap container="chart" data={data.toJS()}/>);
         },
         pieChart(v, dc) {
-            const sum = _.reduce(dc.obs, (s, o) => { return s + o.value; }, 0);
-            const data = _.map(dc.obs, o => {
-                return {label: o[v.selectedDim], value: Math.round((o.value / sum) * 100)};
+
+            const sum = dc.get('obs').reduce((s, o) =>
+                s + parseInt(Util.getDefaultMeasurement(o).get('cvValue'), 10), 0);
+            const data = dc.get('obs').map(o => {
+                return {
+                    label: Util.getDimensionElement(v.get('selectedDim'), o).get('cvNiceLabel'),
+                    value: Math.round((Util.getDefaultMeasurement(o).get('cvValue') / sum) * 100)
+                };
             });
 
+            //TODO Title
             return (<PieChart
-                      data={data}
+                      data={data.toJS()}
                       width={400}
                       height={400}
                       radius={100}
@@ -65,15 +67,21 @@ function convertDataCube(visual, dataCube) {
         },
 
         barChart(v, dc) {
-            const yAxisLabel = dc.obs[0].unit;
-            const xAxisLabel = v.selectedDim + ' (10^3) ';
+            // Util.getMeasure(Util.getDefaultMeasurement(o), dc).get('cvNiceLabel')
+            const yAxisLabel = Util.getMeasure(
+                Util.getDefaultMeasurement(dc.get('obs').first()), dc)
+                .get('cvNiceLabel');
+            const xAxisLabel = v.get('selectedDim').get('cvNiceLabel');
 
-            const data = _.map(dc.obs, o => {
-                return {x: o[v.selectedDim], y: (o.value / 1000)};
+            const data = dc.get('obs').map(o => {
+                return {
+                    x: Util.getDimensionElement(v.get('selectedDim'), o).get('cvNiceLabel'),
+                    y: parseInt(Util.getDefaultMeasurement(o).get('cvValue'), 10)
+                };
             });
 
             const barData = [
-                {name: 'Series A', values: data}
+                {name: 'Series A', values: data.toJS()}
             ];
 
             return(
@@ -89,8 +97,8 @@ function convertDataCube(visual, dataCube) {
         }
     };
 
-    if (converter[visual.name]) {
-        return converter[visual.name](visual, dataCube);
+    if (converter[visual.get('name')]) {
+        return converter[visual.get('name')](visual, dataCube);
     }
 
     throw new Error('Unkown chart type.');
@@ -98,12 +106,4 @@ function convertDataCube(visual, dataCube) {
 
 export function convert(visual, dataCube) {
     return convertDataCube(visual, dataCube);
-}
-
-export function dimensionElements(dimension, dataCube) {
-    return _.map(dataCube.obs, o => { return o[dimension]; });
-}
-
-export function allDimensionElements(dimensions, dataCube) {
-    return _.map(dimensions, dim => { return dimensionElements(dim, dataCube); });
 }

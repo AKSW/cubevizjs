@@ -3,12 +3,15 @@
 /*eslint no-debugger: 0*/
 
 // Data handling utility methods
-import _ from 'underscore';
 import Immutable from 'immutable';
 
-function keep(collection, fn) {
+function isUndefined(obj) {
+    return obj === undefined;
+}
+
+export function keep(collection, fn) {
     return collection.map(fn)
-        .filterNot(el => { return _.isUndefined(el); });
+        .filterNot(el => { return isUndefined(el); });
 }
 
 export function getDimensionElements(dimension, dataCube) {
@@ -20,6 +23,11 @@ export function getDimensionElements(dimension, dataCube) {
     });
 }
 
+export function getDimensionElement(dimension, observationPoint) {
+    return observationPoint.get('cvDimensions')
+        .find(dimEl => dimEl.get('cvAccordingDimension') === dimension.get('cvUri'));
+}
+
 // Returns dimension for dimension element
 export function getDimension(dimensionElement, dataCube) {
     const results = keep(dataCube.get('dimensions'), dim => {
@@ -29,4 +37,13 @@ export function getDimension(dimensionElement, dataCube) {
     });
 
     return results.first();
+}
+
+export function getMeasure(measurement, dataCube) {
+    return dataCube.get('measures')
+        .find(m => m.get('cvUri') === measurement.get('cvAccordingMeasurement'));
+}
+
+export function getDefaultMeasurement(observationPoint) {
+    return observationPoint.get('cvMeasures').first();
 }
