@@ -1,6 +1,8 @@
 /*eslint func-style: 0*/
+
 import Rxmq from 'ecc-messagebus';
-import _ from 'underscore';
+
+import * as Util from '../Util.js';
 
 export const logBoxChannel = Rxmq.channel('logbox');
 
@@ -11,8 +13,6 @@ export function newLog(log) {
 }
 
 export function logDimEls(dc) {
-    const dimEls = _.chain(dc.dimensions).map(dim => { return dc[dim]; })
-        .flatten()
-        .value();
+    const dimEls = Util.getAllDimensionElements(dc);
     newLog('DimEls: ' + dimEls);
 }

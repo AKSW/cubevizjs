@@ -111,6 +111,11 @@ export function createDataCube(selections, dataCube) {
     const dimensions = selectDimensions(selections, dataCube);
     const observations = selectObservations(dimensions, dataCube);
 
+    console.log('DIM: ');
+    console.log(dimensions.toJS());
+    console.log('OBS: ');
+    console.log(observations.toJS());
+
     return Immutable.Map().withMutations(map => map
         .set('dimensions', dimensions)
         .set('measures', dataCube.get('measures'))

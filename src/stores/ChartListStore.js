@@ -11,7 +11,7 @@ chartListChannel
 .subject('chartList.determineVisuals')
 .subscribe(({selections, input}) => {
 
-    const selectionCube = CubeViz.createDataCube(selections, input); //FIXME cannot select only one dim
+    const selectionCube = CubeViz.createDataCube(selections, input);
     const results = CubeViz.determineVisuals(null, selectionCube);
     const list = results
         .flatMap(r => {

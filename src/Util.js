@@ -28,6 +28,12 @@ export function getDimensionElement(dimension, observationPoint) {
         .find(dimEl => dimEl.get('cvAccordingDimension') === dimension.get('cvUri'));
 }
 
+export function getAllDimensionElements(dataCube) {
+    return dataCube.get('dimensions')
+        .map(dim => getDimensionElements(dim, dataCube))
+        .flatten();
+}
+
 // Returns dimension for dimension element
 export function getDimension(dimensionElement, dataCube) {
     const results = keep(dataCube.get('dimensions'), dim => {

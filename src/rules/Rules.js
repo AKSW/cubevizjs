@@ -3,6 +3,8 @@
 /*eslint no-debugger:0*/
 /*eslint no-unused-vars: 0*/
 
+//TODO rewrite in ES6
+
 import {SpecificationSync as Specification} from 'specification';
 import _ from 'underscore';
 import Immutable from 'immutable';
@@ -85,7 +87,7 @@ HeatmapRule.prototype.isSatisfiedBy = function(dataCube) {
         return Immutable.fromJS([true, {fixedDims: dataCube.get('dimensions')}]);
     }
 
-    return Immutable.List(false);
+    return Immutable.List([false]);
 };
 
 export function SelectedDimensionRule(a, b) {
@@ -125,7 +127,7 @@ SelectedDimensionRule.prototype.isSatisfiedBy = function(dataCube) {
         return Immutable.fromJS([true, {selectedDim, fixedDims}]);
     }
 
-    return Immutable.List(false);
+    return Immutable.List([false]);
 };
 
 // n: valid observation count

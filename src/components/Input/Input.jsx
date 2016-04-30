@@ -17,6 +17,16 @@ const Result = Immutable.fromJS({
                     cvUri: 'http://dim/1/element/2',
                     cvAccordingDimension: 'http://dim/1',
                     cvNiceLabel: 'england'
+                },
+                {
+                    cvUri: 'http://dim/1/element/3',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'poland'
+                },
+                {
+                    cvUri: 'http://dim/1/element/4',
+                    cvAccordingDimension: 'http://dim/1',
+                    cvNiceLabel: 'greek'
                 }
             ]
         },
@@ -33,9 +43,35 @@ const Result = Immutable.fromJS({
                     cvUri: 'http://dim/2/element/2',
                     cvAccordingDimension: 'http://dim/2',
                     cvNiceLabel: '2002'
+                },
+                {
+                    cvUri: 'http://dim/2/element/3',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2003'
+                },
+                {
+                    cvUri: 'http://dim/2/element/4',
+                    cvAccordingDimension: 'http://dim/2',
+                    cvNiceLabel: '2004'
                 }
             ]
         },
+        {
+            cvUri: 'http://dim/3',
+            cvNiceLabel: 'economic association',
+            dimensionElements: [
+                {
+                    cvUri: 'http://dim/3/element/1',
+                    cvAccordingDimension: 'http://dim/3',
+                    cvNiceLabel: 'european union'
+                },
+                {
+                    cvUri: 'http://dim/3/element/2',
+                    cvAccordingDimension: 'http://dim/3',
+                    cvNiceLabel: 'north american free trade agreement'
+                }
+            ]
+        }
     ],
     measures: [
         {
