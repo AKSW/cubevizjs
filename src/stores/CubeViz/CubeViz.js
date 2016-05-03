@@ -84,7 +84,7 @@ function selectObservations(dimensions, dataCube) {
     }, Immutable.List()).flatten(true);
 
     return dataCube.get('obs').filter(obs => {
-        const obsDimElUris = obs.get('cvDimensions').map(dimEl => dimEl.get('cvUri'));
+        const obsDimElUris = obs.get('cvDimensionElements').map(dimEl => dimEl.get('cvUri'));
         return obsDimElUris.every(uri => facetsDimElUris.contains(uri)); //TODO check if every or some
     });
 }

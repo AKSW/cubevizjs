@@ -3,6 +3,7 @@
 import Immutable from 'immutable';
 
 const Result = Immutable.fromJS({
+    cvDescription: 'The meaning of life and RDF is 42.',
     dimensions: [
         {
             cvUri: 'http://dim/1',
@@ -85,7 +86,7 @@ const Result = Immutable.fromJS({
     ],
     obs: [
         {
-            cvDimensions: [
+            cvDimensionElements: [
                 {
                     cvUri: 'http://dim/2/element/1',
                     cvAccordingDimension: 'http://dim/2',
@@ -109,7 +110,7 @@ const Result = Immutable.fromJS({
             ]
         },
         {
-            cvDimensions: [
+            cvDimensionElements: [
                 {
                     cvUri: 'http://dim/2/element/2',
                     cvAccordingDimension: 'http://dim/2',
@@ -133,7 +134,7 @@ const Result = Immutable.fromJS({
             ]
         },
         {
-            cvDimensions: [
+            cvDimensionElements: [
                 {
                     cvUri: 'http://dim/2/element/1',
                     cvAccordingDimension: 'http://dim/2',
@@ -150,9 +151,10 @@ const Result = Immutable.fromJS({
                     cvAccordingMeasurement: 'http://measure/1',
                     cvValue: '10000'
                 },
-                //
-                // Lücken mit leerwerten füllen ?
-                //
+                {
+                    cvAccordingMeasurement: 'http://measure/2',
+                    cvValue: '30000'
+                }
             ]
         },
     ]

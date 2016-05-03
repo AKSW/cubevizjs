@@ -31,7 +31,7 @@ function convertDataCube(visual, dataCube) {
 
             const data = dc.get('obs')
                 .map(o => {
-                    const dimEls = o.get('cvDimensions')
+                    const dimEls = o.get('cvDimensionElements')
                         .map(dimEl => map.get(dimEl.get('cvUri')).get('idx')); //maps from dimEl to index
 
                     return dimEls.push(Util.getDefaultMeasurement(o).get('cvValue'));

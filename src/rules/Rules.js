@@ -12,7 +12,7 @@ import {keep} from '../Util.js';
 
 function dimElsFromObsForDim(dim, obs) {
     return obs.reduce((list, o) => {
-        const dimEls = keep(o.get('cvDimensions'), el => {
+        const dimEls = keep(o.get('cvDimensionElements'), el => {
             if (el.get('cvAccordingDimension') === dim.get('cvUri')) {
                 return el;
             }
