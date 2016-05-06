@@ -10,10 +10,19 @@ import Popover from 'material-ui/lib/popover/popover';
 
 import Facets from './Facets.jsx';
 //TODO: Implement Input
-import Input from '../Input/Input.jsx';
+import InputTest from '../Input/Input.jsx';
+import Input from './Input.jsx';
 
 import {facetsSettingsChannel, getSelections} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
+
+const styles = {
+    popover: {
+        padding: 20,
+    },
+};
+
+let popoverComponent;
 
 const Settings = React.createClass({
 
@@ -26,13 +35,19 @@ const Settings = React.createClass({
     componentWillMount() {
 
         facetsSettingsChannel
-            .request({topic: 'settings.facets.init', data: Input})
+            .request({topic: 'settings.facets.init', data: InputTest})
             .subscribe(facets => {
 
                 this.setState({facets});
             });
     },
-    handleTouchTap(event) {
+    handleTouchTap(tag, event) {
+
+        if (tag === 1) {
+            popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
+        } else {
+            popoverComponent = <Input/>;
+        }
 
         this.setState({
             open: true,
@@ -50,14 +65,15 @@ const Settings = React.createClass({
 
         chartListChannel
             .subject('chartList.determineVisuals')
-            .onNext({selections, input: Input});
+            .onNext({selections, input: InputTest});
     },
     render() {
         return(
           <Toolbar>
               <ToolbarGroup float="left">
                   <ToolbarTitle text="CubeViz Settings" />
-                  <RaisedButton label="Choose Facets" primary={true} onTouchTap={this.handleTouchTap}/>
+              <RaisedButton tag="1" label="Input Source" primary={true} onTouchTap={this.handleTouchTap.bind(this, 0)}/>
+              <RaisedButton tag="2" label="Select Data" primary={true} onTouchTap={this.handleTouchTap.bind(this, 1)}/>
               </ToolbarGroup>
               <Popover
                   open={this.state.open}
@@ -65,7 +81,9 @@ const Settings = React.createClass({
                   anchorOrigin={{horizontal: 'left', vertical: 'bottom'}}
                   targetOrigin={{horizontal: 'left', vertical: 'top'}}
                   onRequestClose={this.handleRequestClose}>
-                  <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>
+                  <div style={styles.popover}>
+                     {popoverComponent}
+                  </div>
               </Popover>
           </Toolbar>
         );
