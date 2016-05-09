@@ -13,8 +13,7 @@ import Facets from './Facets.jsx';
 import InputTest from '../Input/Input.jsx';
 import Input from './Input.jsx';
 
-import {facetsSettingsChannel, getSelections} from '../../stores/SettingsStore.js';
-import {chartListChannel} from '../../stores/ChartListStore.js';
+import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
 
 const styles = {
     popover: {
@@ -61,11 +60,7 @@ const Settings = React.createClass({
     },
     onFacetsChange(facets) {
 
-        const selections = getSelections(facets);
-
-        chartListChannel
-            .subject('chartList.determineVisuals')
-            .onNext({selections, input: InputTest});
+        facetsChanged(facets);
     },
     render() {
         return(

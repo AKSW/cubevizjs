@@ -5,7 +5,7 @@
 // Data handling utility methods
 import Immutable from 'immutable';
 
-function isUndefined(obj) {
+export function isUndefined(obj) {
     return obj === undefined;
 }
 

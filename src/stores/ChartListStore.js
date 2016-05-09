@@ -3,15 +3,15 @@
 /*eslint no-debugger: 0*/
 
 import Rxmq from 'ecc-messagebus';
-import * as CubeViz from './CubeViz/CubeViz.js';
+import * as CubeViz from '../CubeViz.js';
 
 export const chartListChannel = Rxmq.channel('chartList');
 
 chartListChannel
 .subject('chartList.determineVisuals')
-.subscribe(({selections, input}) => {
+.subscribe(({selections, dataCube}) => {
 
-    const selectionCube = CubeViz.createDataCube(selections, input);
+    const selectionCube = CubeViz.createDataCube(selections, dataCube);
     const results = CubeViz.determineVisuals(null, selectionCube);
     const list = results
         .flatMap(r => {
@@ -24,5 +24,5 @@ chartListChannel
             return visuals;
         });
 
-    chartListChannel.subject('chartList.loaded').onNext({list: list.toJS(), selectionCube: selectionCube.toJS()});
+    chartListChannel.subject('chartList.loaded').onNext({list: list.toJS(), selectionCube});
 });

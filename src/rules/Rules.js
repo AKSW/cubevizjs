@@ -8,22 +8,14 @@
 import {SpecificationSync as Specification} from 'specification';
 import _ from 'underscore';
 import Immutable from 'immutable';
-import {keep} from '../Util.js';
 
-function dimElsFromObsForDim(dim, obs) {
-    return obs.reduce((list, o) => {
-        const dimEls = keep(o.get('cvDimensionElements'), el => {
-            if (el.get('cvAccordingDimension') === dim.get('cvUri')) {
-                return el;
-            }
-        });
-        return list.push(dimEls);
-    }, Immutable.List()).flatten(true);
-}
+import {keep} from '../Util.js';
+import DataCube from '../DataCube.js';
 
 function dimElementCount(dim, obs) {
-    const dimEls = dimElsFromObsForDim(dim, obs);
-    return dimEls.countBy(dimEl => dimEl.get('cvUri'));
+
+    const dimEls = obs.map(o => DataCube.getDimensionElementUri(dim, o).first()); //TODO is always array?
+    return dimEls.countBy(dimEl => DataCube.getUri(dimEl));
 }
 
 export function IsEqual(num) {
@@ -55,13 +47,13 @@ function IsEvenlyDistributed() {
 IsEvenlyDistributed.prototype = Object.create(Specification);
 IsEvenlyDistributed.prototype.isSatisfiedBy = function(dataCube) {
 
-    const isEvenlyDistributed = dataCube.get('dimensions')
-    .map(dim => {
-        const counts = dimElementCount(dim, dataCube.get('obs'));
-        const isUniq = _.uniq(_.values(counts.toJS())).length === 1; //TODO implement in Immutable js
-        return isUniq;
-    })
-    .every(u => u);
+    const isEvenlyDistributed = dataCube.dimensions
+        .map(dim => {
+            const counts = dimElementCount(dim, dataCube.observations);
+            const isUniq = _.uniq(_.values(counts.toJS())).length === 1; //TODO implement in Immutable js
+            return isUniq;
+        })
+        .every(u => u);
     return isEvenlyDistributed;
 };
 
@@ -81,10 +73,10 @@ HeatmapRule.prototype.isSatisfiedBy = function(dataCube) {
     const isEvenlyDistributed = new IsEvenlyDistributed();
 
   // das ist eine regel
-    if (inHeatmapRange.isSatisfiedBy(dataCube.get('obs').size) &&
-        isEqualHeatmapDim.isSatisfiedBy(dataCube.get('dimensions').size) &&
+    if (inHeatmapRange.isSatisfiedBy(dataCube.observations.size) &&
+        isEqualHeatmapDim.isSatisfiedBy(dataCube.dimensions.size) &&
         isEvenlyDistributed.isSatisfiedBy(dataCube)) {
-        return Immutable.fromJS([true, {fixedDims: dataCube.get('dimensions')}]);
+        return Immutable.fromJS([true, {fixedDims: dataCube.dimensions}]);
     }
 
     return Immutable.List([false]);
@@ -101,10 +93,10 @@ export function SelectedDimensionRule(a, b) {
 SelectedDimensionRule.prototype = Object.create(Specification);
 SelectedDimensionRule.prototype.isSatisfiedBy = function(dataCube) {
 
-    const counts = dataCube.get('dimensions')
+    const counts = dataCube.dimensions
         .map(dim => Immutable.Map({
             // counts dimEl and maps them to dim
-            [dim.get('cvUri')]: dimElementCount(dim, dataCube.get('obs')).keySeq().size
+            [DataCube.getUri(dim)]: dimElementCount(dim, dataCube.observations).keySeq().size
         }))
         // reduces to single object from list
         .reduce((map, c) => map.merge(c), Immutable.Map());
@@ -115,15 +107,13 @@ SelectedDimensionRule.prototype.isSatisfiedBy = function(dataCube) {
         .filter(c => c < max)
         .every(c => c === 1);
 
-
     const inRange = new InRange(this.a, this.b);
 
-    if (isOnlyMax && isValid && inRange.isSatisfiedBy(dataCube.get('obs').size)) {
+    if (isOnlyMax && isValid && inRange.isSatisfiedBy(dataCube.observations.size)) {
         const selectedDimUri = counts.findKey(value => value === max);
 
-        const selectedDim = dataCube.get('dimensions').find(dim => dim.get('cvUri') === selectedDimUri);
-        const fixedDims = dataCube.get('dimensions').filter(dim => dim.get('cvUri') !== selectedDimUri);
-
+        const selectedDim = dataCube.dimensions.find(dim => DataCube.getUri(dim) === selectedDimUri);
+        const fixedDims = dataCube.dimensions.filter(dim => DataCube.getUri(dim) !== selectedDimUri);
         return Immutable.fromJS([true, {selectedDim, fixedDims}]);
     }
 

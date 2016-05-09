@@ -5,14 +5,17 @@
 import Rxmq from 'ecc-messagebus';
 import Immutable from 'immutable';
 
-import * as CubeViz from './CubeViz/CubeViz.js';
+import * as CubeViz from '../CubeViz.js';
 
 export const chartChannel = Rxmq.channel('chart');
 
 chartChannel
 .subject('chart.convertToChart')
 .subscribe(data => {
-    const converted = Immutable.fromJS(data);
-    const chartReact = CubeViz.displayChart(converted.get('chart'), converted.get('selectionCube'));
+
+    const chart = Immutable.fromJS(data.chart);
+    const selectionCube = data.selectionCube;
+
+    const chartReact = CubeViz.displayChart(chart, selectionCube);
     chartChannel.subject('chart.display').onNext(chartReact);
 });

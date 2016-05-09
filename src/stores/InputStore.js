@@ -12,16 +12,6 @@ import * as jsonld from 'jsonld';
 
 export const inputChannel = Rxmq.channel('input');
 
-function toJSON(rdf) {
-    const temp = Immutable.fromJS(rdf);
-    const triples = temp.get('triples');
-    const prefixes = temp.get('prefixes'); //TODO check for all necessary prefixes
-
-    const dcDescription = triples.find(t => t.get('predicate') === 'http://purl.org/dc/elements/1.1/description');
-
-    debugger;
-}
-
 const getInput = {
     endpointChanged(v) {
         debugger;
