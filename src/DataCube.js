@@ -3,6 +3,7 @@
 /*eslint no-debugger: 0*/
 /*eslint func-style: 0*/
 /*eslint max-params: 0*/
+/*eslint complexity: 0*/
 
 import * as Constants from './Constants.js';
 import Immutable from 'immutable';

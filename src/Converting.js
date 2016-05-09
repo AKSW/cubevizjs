@@ -13,11 +13,6 @@ import {PieChart, BarChart} from 'react-d3';
 import Heatmap from './components/Charts/Heatmap.js';
 import GroupedStackedBar from './components/Charts/GroupedStackedBar.js';
 
-//TODO refactor to util components
-// function dimElementCount(dim, obs) {
-//     return _.countBy(obs, o => { return o[dim]; });
-// }
-
 function convertDataCube(visual, dataCube) {
     const converter = {
 
@@ -83,16 +78,25 @@ function convertDataCube(visual, dataCube) {
         },
 
         barChart(v, dc) {
-            // Util.getMeasure(Util.getDefaultMeasurement(o), dc).get('cvNiceLabel')
-            const yAxisLabel = Util.getMeasure(
-                Util.getDefaultMeasurement(dc.get('obs').first()), dc)
-                .get('cvNiceLabel');
-            const xAxisLabel = v.get('selectedDim').get('cvNiceLabel');
+            // const m = dc.getMeasure(dc.observations.first()).first(); //TODO first
+            const yAxisLabel = 'Unit Label';
+            // const yAxisLabel = Util.getMeasure(
+            //     Util.getDefaultMeasurement(dc.get('obs').first()), dc)
+            //     .get('cvNiceLabel');
+            const xAxisLabel = DataCube.getValue(dc.getLabel(v.get('selectedDim')));
 
-            const data = dc.get('obs').map(o => {
+            const data = dc.observations.map(o => {
+
+                //TODO first
+                const dimElUri = DataCube.getDimensionElementUri(v.get('selectedDim'), o).first();
+                const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
+
+                const m = dc.getMeasure(o).first(); //TODO first
+                const val = DataCube.getValue(m);
+
                 return {
-                    x: Util.getDimensionElement(v.get('selectedDim'), o).get('cvNiceLabel'),
-                    y: parseInt(Util.getDefaultMeasurement(o).get('cvValue'), 10)
+                    x: DataCube.getValue(dc.getLabel(dimEl)),
+                    y: val
                 };
             });
 
