@@ -27,7 +27,9 @@ const Input = React.createClass({
     request(data) {
         inputChannel
             .request({topic: 'input.entered', data})
-            .subscribe(result => {});
+            .subscribe(result => {
+                this.props.onInputChange(result);
+            });
     },
     render() {
         return(
@@ -35,7 +37,7 @@ const Input = React.createClass({
                 <SelectField
                     value={'http://test.org'}
                     onChange={this.handleEndpointChange}>
-                    <MenuItem value={'http://test.org'} primaryText="Local DAS Endpoint"/>
+                    <MenuItem value={'http://test.org'} primaryText="Mortality EU"/>
                 </SelectField><br/>
             <TextField hintText="Custom Sparql Endpoint..." onEnterKeyDown={this.handleCustomEPChange}/>
             <br/><br/>

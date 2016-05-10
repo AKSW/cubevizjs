@@ -107,12 +107,6 @@ export function createDataCube(selections, dataCube) {
         dimEls: selections.filter(s => dim.get('@id') === s.get('@type').first())
     }));
     const observations = selectObservations(dimensionsMap, dataCube);
-
-    console.log('DIM: ');
-    console.log(dimensions.toJS());
-    console.log('OBS: ');
-    console.log(observations.toJS());
-
     const dc = dataCube.createDataCube(selections, dimensions, observations);
     return dc;
 }
@@ -120,7 +114,12 @@ export function createDataCube(selections, dataCube) {
 export function determineVisuals(context, dataCube) {
 
     const test = Contexts.first();
-    return test.get('complexes').map(c => c.get('eval')(dataCube));
+    const result = test.get('complexes').map(c => c.get('eval')(dataCube));
+
+    console.log('\nCubeViz: ');
+    console.log(result.toJS());
+    console.log('\n');
+    return result;
 }
 /*eslint-disable */
 export function displayChart(visual, dataCube) {
@@ -131,6 +130,4 @@ export function displayChart(visual, dataCube) {
 export function displayConfigureDimensions(dataCube) {
 
     return dataCube.allDimensionElements;
-    // return dataCube.get('dimensions')
-    //     .flatMap(dim => { return Util.getDimensionElements(dim, dataCube).flatten(true); });
 }

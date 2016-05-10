@@ -7,50 +7,40 @@
 import Rxmq from 'ecc-messagebus';
 import Immutable from 'immutable';
 
-import N3 from 'n3';
 import * as jsonld from 'jsonld';
 
 export const inputChannel = Rxmq.channel('input');
 
 const getInput = {
-    endpointChanged(v) {
-        debugger;
+    endpointChanged(v, cb) {
     },
-    fileChanged(v) {
+    fileChanged(v, cb) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const rdf = e.target.result;
 
-            // const parser = N3.Parser();
-            // const results = {triples: [], prefixes: {}};
-            // parser.parse(rdf,
-            //   (error, triple, prefixes) => {
-            //       if (triple) {
-            //           results.triples.push(triple);
-            //       } else {
-            //           results.prefixes = prefixes;
-            //           toJSON(results);
-            //       }
-            //   });
-
             jsonld.fromRDF(rdf, {format: 'application/nquads'}, (err, doc) => {
-                console.log(err);
+                console.log('Import Error:' + err);
 
-                debugger;
+                cb(Immutable.fromJS(doc));
             });
         };
         const data = reader.readAsText(v);//TODO check if v is a text
     }
 };
 
+function finished(input, replySubject) {
+    replySubject.onNext(input);
+    replySubject.onCompleted();
+}
+
 inputChannel
     .subject('input.entered')
     .subscribe(({data, replySubject}) => {
 
         if (getInput[data.tag]) {
-            const input = getInput[data.tag](data.value);
-            return input;
+            getInput[data.tag](data.value, i => finished(i, replySubject));
+        } else {
+            throw new Error('Unkown input change.');
         }
-
-        throw new Error('Unkown input change.');
     });

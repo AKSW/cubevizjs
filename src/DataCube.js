@@ -21,6 +21,20 @@ class DataCube {
         this.allDimensionElements = this.dimensions.flatMap(dim => this.getDimensionElements(dim));
         this.observations = this.getAllObservations();
         this.defaultMeasureProperty = this.doc.find(t => t.get('@type').first() === Constants.MeasurePropertyUri);
+
+        // TODO Logging
+        if (doc.size) {
+            console.log('\nDataCube created');
+            console.log('\n');
+            console.log('DefaultLanguage: ' + this.defaultLanguage);
+            console.log('Dimensions:');
+            console.log(this.dimensions.toJS());
+            console.log('All dimension elements: ');
+            console.log(this.allDimensionElements.toJS());
+            console.log('Observation count: ' + this.observations.size);
+            console.log('Default measure property');
+            console.log(this.defaultMeasureProperty.toJS());
+        }
     }
 
     //TODO implement complex creation
@@ -90,6 +104,7 @@ class DataCube {
 
     static getType(doc, type) {
         //TODO is get('@type') always list?
+        debugger;
         return doc.filter(t => t.get('@type').first() === type);
     }
 

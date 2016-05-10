@@ -1,5 +1,6 @@
 /*eslint no-unused-vars: 0*/
 /*eslint no-debugger:0*/
+/*eslint no-console: 0*/
 
 import React from 'react';
 import Toolbar from 'material-ui/lib/toolbar/toolbar';
@@ -7,6 +8,9 @@ import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
 import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
 import RaisedButton from 'material-ui/lib/raised-button';
 import Popover from 'material-ui/lib/popover/popover';
+
+import * as jsonld from 'jsonld';
+import Immutable from 'immutable';
 
 import Facets from './Facets.jsx';
 //TODO: Implement Input
@@ -33,19 +37,26 @@ const Settings = React.createClass({
     },
     componentWillMount() {
 
-        facetsSettingsChannel
-            .request({topic: 'settings.facets.init', data: InputTest})
-            .subscribe(facets => {
+        //TODO finish input implementation
+        jsonld.fromRDF(InputTest, {format: 'application/nquads'}, (err, doc) => {
+            console.log('Import Error:' + err);
 
-                this.setState({facets});
-            });
+            const immutable = Immutable.fromJS(doc);
+
+            facetsSettingsChannel
+                .request({topic: 'settings.facets.init', data: immutable})
+                .subscribe(facets => {
+
+                    this.setState({facets});
+                });
+        });
     },
     handleTouchTap(tag, event) {
 
         if (tag === 1) {
             popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
         } else {
-            popoverComponent = <Input/>;
+            popoverComponent = <Input onInputChange={this.onInputChange}/>;
         }
 
         this.setState({
@@ -61,6 +72,14 @@ const Settings = React.createClass({
     onFacetsChange(facets) {
 
         facetsChanged(facets);
+    },
+    onInputChange(input) {
+        facetsSettingsChannel
+            .request({topic: 'settings.facets.init', data: input})
+            .subscribe(facets => {
+
+                this.setState({facets});
+            });
     },
     render() {
         return(
