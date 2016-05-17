@@ -5,40 +5,32 @@
   "main": "index.js",
   "scripts": {
     "test": "gulp test",
-    "lint": "gulp lint",
-    "start": "gulp",
+    "lint": "cp .eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp lint",
+    "start": "cp .eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp",
     "build": "gulp build",
     "deploy": "gulp deploy"
   },
-  "author": "",
+  "author": "Georges Alkhouri",
   "license": "",
   "dependencies": {
-    "ecc-messagebus": "*",
-    "ecc-mixins": "*",
-    "ecc-resparqler": "*",
-    "ecc-store-sparql": "*",
-    "flux": "*",
-    "funcy": "*",
-    "highcharts": "^4.2.3",
-    "immutable": "*",
-    "intl": "*",
+    "ecc-messagebus": "^3.4.0",
+    "highcharts": "^4.2.5",
+    "immutable": "^3.8.1",
     "jsonld": "^0.4.11",
-    "keymirror": "*",
-    "material-ui": "*",
-    "n3": "^0.4.5",
-    "react": "^0.14.*",
-    "react-bootstrap": "^0.28.3",
-    "react-d3": "*",
-    "react-d3-basic": "^1.6.11",
+    "material-ui": "^0.14.4",
+    "rdfstore": "^0.9.8",
+    "react": "^0.14.8",
+    "react-bootstrap": "^0.29.4",
+    "react-d3": "^0.4.0",
+    "react-dom": "^0.14.0",
     "react-file-input": "^0.2.5",
-    "react-tap-event-plugin": "^0.2.2",
-    "rx": "*",
-    "specification": "*",
-    "underscore": "*"
+    "react-tap-event-plugin": "^0.2.0",
+    "specification": "^0.1.0",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "ecc-gulp-tasks": "*",
-    "ecc-test-helpers": "*",
-    "gulp": "*"
+    "ecc-gulp-tasks": "^2.0.1",
+    "ecc-dotfiles": "^1.4.0",
+    "gulp": "^3.9.1"
   }
 }

@@ -25,7 +25,7 @@ const NavBar = React.createClass({
         this.props.onStart(this.state);
     },
     render() {
-        return(
+        return (
           <Grid>
             <Row>
               <Toolbar>
@@ -35,7 +35,7 @@ const NavBar = React.createClass({
                   <DropDownMenu value={this.state.context} onChange={this.handleContextChange}>
                     <MenuItem value={-1} primaryText="Choose Context..."/>
                     {this.props.complexes.map(function(complex, i) {
-                        return(<MenuItem key={i} value={complex.id} primaryText={complex.name}/>);
+                        return (<MenuItem key={i} value={complex.id} primaryText={complex.name}/>);
                     })}
                   </DropDownMenu>
                 </ToolbarGroup>
@@ -48,7 +48,7 @@ const NavBar = React.createClass({
             <Row>
               <Input ref="input" type="select" label="Choose Facets..." onChange={this.handleFacetsChange} multiple>
                 {this.props.facets.map(function(f, i) {
-                    return(<option key={i} value={f}>{f}</option>);
+                    return (<option key={i} value={f}>{f}</option>);
                 })}
               </Input>
             </Row>

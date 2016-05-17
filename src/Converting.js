@@ -38,7 +38,7 @@ function convertDataCube(visual, dataCube) {
                 });
 
             //TODO axis
-            return(<Heatmap container="chart" data={data.toJS()}/>);
+            return (<Heatmap container="chart" data={data.toJS()}/>);
         },
         pieChart(v, dc) {
 
@@ -74,7 +74,7 @@ function convertDataCube(visual, dataCube) {
                       />);
         },
         groupedStackedBar(v, dc) {
-            return(<GroupedStackedBar container="chart" />);
+            return (<GroupedStackedBar container="chart" />);
         },
 
         barChart(v, dc) {
@@ -104,7 +104,7 @@ function convertDataCube(visual, dataCube) {
                 {name: 'Series A', values: data.toJS()}
             ];
 
-            return(
+            return (
                 <BarChart
                 data={barData}
                 width={400}

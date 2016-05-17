@@ -17,7 +17,7 @@ const Chart = React.createClass({
     },
 
     render() {
-        return(
+        return (
             <div>{this.state.chart}</div>
         );
     }

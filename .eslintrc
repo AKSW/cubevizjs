@@ -36,7 +36,7 @@
     "valid-jsdoc": 2,
     "valid-typeof": 2,
     # Best Practices
-    "consistent-return": 1,
+    #"consistent-return": 1,
     "curly": 2,
     "default-case": 2,
     "dot-notation": 2,
@@ -104,7 +104,7 @@
     "semi": [2, "always"],
     "semi-spacing": [2, {"before": false, "after": true}],
     "space-before-function-paren": [1, {"anonymous": "never", "named": "never"}],
-    "space-after-keywords": [1, "always"],
+    "keyword-spacing": [1, { "after": true , "before": true}],
     "space-before-blocks": [1, "always"],
     "array-bracket-spacing": [1, "never"],
     "computed-property-spacing": [1, "never"],

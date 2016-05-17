@@ -32,7 +32,7 @@ const Input = React.createClass({
             });
     },
     render() {
-        return(
+        return (
             <div>
                 <SelectField
                     value={'http://test.org'}

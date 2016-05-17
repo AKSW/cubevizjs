@@ -25,7 +25,7 @@ const LogBox = React.createClass({
           <Panel header={<h6>Log Box</h6>}>
               <List>
                   {this.state.logs.map(function(log, i) {
-                      return(<ListItem key={i} value={i} primaryText={log}
+                      return (<ListItem key={i} value={i} primaryText={log}
                         style={{
                             fontSize: '80%'
                         }} />);

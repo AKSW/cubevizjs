@@ -82,7 +82,7 @@ const Settings = React.createClass({
             });
     },
     render() {
-        return(
+        return (
           <Toolbar>
               <ToolbarGroup float="left">
                   <ToolbarTitle text="CubeViz Settings" />

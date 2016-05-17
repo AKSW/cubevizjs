@@ -41,7 +41,7 @@ const ChartList = React.createClass({
             <Menu onChange={this.onChartSelect}>
               <MenuItem primaryText="Determined Charts" disabled={true} />
               {this.state.charts.map(function(el, i) {
-                  return(<MenuItem key={i} value={i} primaryText={el.string}
+                  return (<MenuItem key={i} value={i} primaryText={el.string}
                       style={{
                           fontSize: '80%'
                       }}
