@@ -27,9 +27,9 @@ IsEqual.prototype.isSatisfiedBy = function(n) {
     return (n === this.num);
 };
 
-// function GreaterThan(num) {
-//     this.num = num;
-// }
+function GreaterThan(num) {
+    this.num = num;
+}
 
 export function InRange(a, b) {
     this.a = a;
@@ -129,15 +129,17 @@ GroupedStackedBarRule.prototype.isSatisfiedBy = function(dataCube) {
 
     //TODO: dimensionelemente müssen gleich sein
 
-    const inRange = new InRange(1, this.n);
-    const isValid = dataCube.dimensions.length === 2;
-
-    if (isValid && inRange.isSatisfiedBy(dataCube.obs.length)) {
-        const selectedDim = dataCube.dimensions[0];
-        const groupDim = dataCube.dimensions[1];
-
-        return [true, {selectedDim, groupDim}];
-    }
+    const inRangeObservations = new InRange(1, this.n);
+    const inRangeDimensions = new InRange(1, 3);
+    //
+    // const isValid = dataCube.dimensions.length === 2;
+    //
+    // if (isValid && inRange.isSatisfiedBy(dataCube.obs.length)) {
+    //     const selectedDim = dataCube.dimensions[0];
+    //     const groupDim = dataCube.dimensions[1];
+    //
+    //     return [true, {selectedDim, groupDim}];
+    // }
 
     return [false];
 };

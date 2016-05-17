@@ -20,7 +20,7 @@ class DataCube {
         this.dimensions = this.getAllDimensions();
         this.allDimensionElements = this.dimensions.flatMap(dim => this.getDimensionElements(dim));
         this.observations = this.getAllObservations();
-        this.defaultMeasureProperty = this.doc.find(t => t.get('@type').first() === Constants.MeasurePropertyUri);
+        this.defaultMeasureProperty = this.getDefaultMeasureProperty();
 
         // TODO Logging
         if (doc.size) {
@@ -31,7 +31,8 @@ class DataCube {
             console.log(this.dimensions.toJS());
             console.log('All dimension elements: ');
             console.log(this.allDimensionElements.toJS());
-            console.log('Observation count: ' + this.observations.size);
+            console.log('Observations: ');
+            console.log(this.observations.toJS());
             console.log('Default measure property');
             console.log(this.defaultMeasureProperty.toJS());
         }
@@ -65,8 +66,16 @@ class DataCube {
         return new DataCube(final);
     }
 
+    getDefaultMeasureProperty() {
+        return DataCube.getType(this.doc, Constants.MeasurePropertyUri).first();
+    }
+
     getAllDimensions() {
-        return DataCube.getType(this.doc, Constants.DimensionPropertyUri);
+        return this.doc.filter(tri => tri.get(Constants.DimensionUri))
+            .map(tri => tri.get(Constants.DimensionUri).first().get('@id'))
+            .map(dimUri => this.doc.find(tri => tri.get('@id') === dimUri))
+            .filter(dim => !isUndefined(dim)); //FIXME DataCube creation
+        // return DataCube.getType(this.doc, Constants.DimensionPropertyUri);
     }
 
     getDimension(dimEl) {
@@ -104,8 +113,13 @@ class DataCube {
 
     static getType(doc, type) {
         //TODO is get('@type') always list?
-        debugger;
-        return doc.filter(t => t.get('@type').first() === type);
+        return doc.filter(tri => {
+            const t = tri.get('@type');
+            if (t) {
+                return t.find(el => el === type);
+            }
+            return false;
+        });
     }
 
     static getLabel(obj, lang) {

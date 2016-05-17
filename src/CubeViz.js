@@ -19,6 +19,9 @@ const comparison = {
         const results = {/*complex: this.name, visuals: []*/};
         let visuals = Immutable.List();
 
+
+        const t = new Rules.IsEqual(2);
+
         const heatmapRule = new Rules.HeatmapRule(2, 20, 2);
         const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
 
@@ -35,12 +38,12 @@ const comparison = {
                 v.push(isSatisfiedSelectedDim.last().merge({rank: 2, name: 'barChart'}));
             });
         }
-        //
-        // const groupedStackedBarRule = new Rules.GroupedStackedBarRule(20);
+
+        // const groupedStackedBarRule = new Rules.GroupedStackedBarRule(15);
         // const isSatisfiedGStackedBar = groupedStackedBarRule.isSatisfiedBy(dataCube);
         //
-        // if (_.first(isSatisfiedGStackedBar)) {
-        //     results.visuals.push(_.extend({rank: 0, name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar)));
+        // if (isSatisfiedGStackedBar.first()) {
+        //     // results.visuals.push(_.extend({rank: 0, name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar)));
         // }
 
         return Immutable.Map({complex: 'comparison', visuals});
