@@ -7,6 +7,7 @@ import Rxmq from 'ecc-messagebus';
 import * as CubeViz from '../CubeViz.js';
 import Immutable from 'immutable';
 import DataCube from '../DataCube.js';
+import Store from '../SparqlStore.js';
 
 import {chartListChannel} from './ChartListStore.js';
 
@@ -19,11 +20,7 @@ facetsSettingsChannel
 .subject('settings.facets.init')
 .subscribe(({data: input, replySubject}) => {
 
-    // jsonld.fromRDF(input, {format: 'application/nquads'}, (err, doc) => {
-    //     console.log(err);
-    //
-    //     const immutable = Immutable.fromJS(doc);
-
+    const store = new Store(input);
     dc = new DataCube(input);
     selections = CubeViz.displayConfigureDimensions(dc);
 
@@ -31,7 +28,6 @@ facetsSettingsChannel
         selections.map(dimEl => dc.getLabel(dimEl).get('@value')).toJS()
     );
     replySubject.onCompleted();
-    // });
 });
 
 // String indexes ["0" "1"]

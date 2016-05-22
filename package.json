@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "gulp test",
-    "lint": "cp .eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp lint",
-    "start": "cp .eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp",
+    "lint": "cp ./src/.eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp lint",
+    "start": "cp ./src/.eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp",
     "build": "gulp build",
     "deploy": "gulp deploy"
   },

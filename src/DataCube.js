@@ -13,7 +13,7 @@ class DataCube {
 
     //doc is an immutable datastructur (immutable.js)
     //in jsonld format
-    constructor(doc) {
+    constructor(doc, store) {
         this.doc = doc;
 
         this.defaultLanguage = 'en';
