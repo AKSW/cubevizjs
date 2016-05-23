@@ -1,3 +1,50 @@
-var gulp = require('ecc-gulp-tasks')(require('./buildConfig.js'));
 
-gulp.task('default', ['debug', 'serve']);
+var gulp = require('gulp');
+var babel = require('gulp-babel');
+var gutil = require('gulp-util');
+var webpack = require('webpack');
+var webpackConfig = require('./webpack.config.js');
+var WebpackDevServer = require('webpack-dev-server');
+
+gulp.task('default', ['server']);
+
+gulp.task('webpack', function(callback) {
+  var myConfig = Object.create(webpackConfig);
+  // myConfig.plugins = [
+  // new webpack.optimize.DedupePlugin(),
+  // new webpack.optimize.UglifyJsPlugin()
+  // ];
+
+  // run webpack
+  webpack(myConfig, function(err, stats) {
+    if (err) throw new gutil.PluginError('webpack', err);
+    gutil.log('[webpack]', stats.toString({
+      colors: true,
+      progress: true
+    }));
+    callback();
+  });
+});
+
+gulp.task('server', function(callback) {
+	// modify some webpack config options
+	var myConfig = Object.create(webpackConfig);
+	// Start a webpack-dev-server
+	new WebpackDevServer(webpack(myConfig), {
+        contentBase: myConfig.devServer.contentBase,
+        // Enable history API fallback so HTML5 History API based
+        // routing works. This is a good default that will come
+        // in handy in more complicated setups.
+        historyApiFallback: true,
+        hot: true,
+        inline: true,
+        progress: true,
+        // Display only errors to reduce the amount of output.
+        stats: {
+            colors: true
+        }
+    }).listen(8080, 'localhost', function(err) {
+		if(err) throw new gutil.PluginError('webpack-dev-server', err);
+		gutil.log('[webpack-dev-server]', 'http://localhost:8080/webpack-dev-server/index.html');
+	});
+});

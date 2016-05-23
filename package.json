@@ -4,11 +4,8 @@
   "description": "No description yet",
   "main": "index.js",
   "scripts": {
-    "test": "gulp test",
-    "lint": "cp ./src/.eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp lint",
-    "start": "cp ./src/.eslintrc ./node_modules/ecc-gulp-tasks/rules/eslintrc.yml && gulp",
-    "build": "gulp build",
-    "deploy": "gulp deploy"
+    "lint": "eslint src/",
+    "start": "gulp"
   },
   "author": "Georges Alkhouri",
   "license": "",
@@ -29,8 +26,17 @@
     "underscore": "^1.8.3"
   },
   "devDependencies": {
-    "ecc-gulp-tasks": "^2.0.1",
-    "ecc-dotfiles": "^1.4.0",
-    "gulp": "^3.9.1"
+    "babel-core": "^6.9.0",
+    "babel-eslint": "^6.0.4",
+    "babel-loader": "^6.2.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-react": "^6.5.0",
+    "eslint": "^2.10.2",
+    "eslint-plugin-react": "^5.1.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-util": "^3.0.7",
+    "webpack": "^1.13.1",
+    "webpack-dev-server": "^1.14.1"
   }
 }

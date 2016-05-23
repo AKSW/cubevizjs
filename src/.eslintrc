@@ -1,5 +1,5 @@
 {
-  # I want to use babel-eslint for parsing!
+   # I want to use babel-eslint for parsing!
   "parser": "babel-eslint",
   "env": {
     # I write for browser
@@ -9,9 +9,11 @@
     # use ES6
     "es6": true
   },
-  "ecmaProperties": {
-    # enable JSX support
-    "jsx": true
+  "parserOptions": {
+    "ecmaFeatures": {
+      # enable JSX support
+      "jsx": true
+    },
   },
   "plugins": [
     # enable react plugin
