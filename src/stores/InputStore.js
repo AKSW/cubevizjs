@@ -39,9 +39,8 @@ inputChannel
     .subject('input.entered')
     .subscribe(({data, replySubject}) => {
 
-        if (getInput[data.tag]) {
+        if (getInput[data.tag])
             getInput[data.tag](data.value, i => finished(i, replySubject));
-        } else {
+        else
             throw new Error('Unkown input change.');
-        }
     });

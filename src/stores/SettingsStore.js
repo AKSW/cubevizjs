@@ -12,6 +12,7 @@ import SparqlStore from '../SparqlStore.js';
 import {chartListChannel} from './ChartListStore.js';
 
 export const facetsSettingsChannel = Rxmq.channel('settings.facets');
+export const importingChannel = Rxmq.channel('importing');
 
 let selections = [];
 let dc = DataCube.empty();
@@ -19,6 +20,7 @@ let dc = DataCube.empty();
 facetsSettingsChannel
 .subject('settings.facets.init')
 .subscribe(({data: input, replySubject}) => {
+    importingChannel.subject('importing.start').onNext();
 
     const store = new SparqlStore(input);
     store.start()
@@ -28,6 +30,7 @@ facetsSettingsChannel
         return dc.start();
     })
     .then(() => {
+        importingChannel.subject('importing.finished').onNext();
         selections = CubeViz.displayConfigureDimensions(dc);
         replySubject.onNext(
             selections.map(dimEl => dc.getLabel(dimEl).get('@value')).toJS()

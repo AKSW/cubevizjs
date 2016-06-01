@@ -16,6 +16,7 @@ import Facets from './Facets.jsx';
 //TODO: Implement Input
 import InputTest from '../Input/Input.jsx';
 import Input from './Input.jsx';
+import ChartList from '../ChartList.jsx';
 
 import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
 
@@ -32,7 +33,7 @@ const Settings = React.createClass({
     getInitialState() {
         return {
             facets: [],
-            open: false,
+            open: false
         };
     },
     componentWillMount() {
@@ -53,11 +54,12 @@ const Settings = React.createClass({
     },
     handleTouchTap(tag, event) {
 
-        if (tag === 1) {
+        if (tag === 1)
             popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
-        } else {
-            popoverComponent = <Input onInputChange={this.onInputChange}/>;
-        }
+        else if (tag === 2)
+            popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
+        else
+            popoverComponent = <Input onInputChange={this.onInputChange} onInputStart={this.onInputStart}/>;
 
         this.setState({
             open: true,
@@ -86,8 +88,9 @@ const Settings = React.createClass({
           <Toolbar>
               <ToolbarGroup float="left">
                   <ToolbarTitle text="CubeViz Settings" />
-              <RaisedButton tag="1" label="Input Source" primary={true} onTouchTap={this.handleTouchTap.bind(this, 0)}/>
-              <RaisedButton tag="2" label="Select Data" primary={true} onTouchTap={this.handleTouchTap.bind(this, 1)}/>
+              <RaisedButton tag="0" label="Input Source" primary={true} onTouchTap={this.handleTouchTap.bind(this, 0)}/>
+              <RaisedButton tag="1" label="Select Data" primary={true} onTouchTap={this.handleTouchTap.bind(this, 1)}/>
+              <RaisedButton tag="2" label="Charts" primary={true} onTouchTap={this.handleTouchTap.bind(this, 2)}/>
               </ToolbarGroup>
               <Popover
                   open={this.state.open}
@@ -102,6 +105,9 @@ const Settings = React.createClass({
           </Toolbar>
         );
     }
+    // <Col md={2}>
+    //     <ChartList />
+    // </Col>
 });
 
 export default Settings;

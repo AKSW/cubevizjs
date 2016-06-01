@@ -147,8 +147,11 @@ class DataCube {
     }
 
     static getLabel(obj, lang) {
-        if (obj.get(Constants.LabelUri)) {
-            const labels = obj.get(Constants.LabelUri);
+
+        const labelUri = Immutable.fromJS(Constants.LabelUris)
+            .find(uri => obj.get(uri));
+        if (labelUri) {
+            const labels = obj.get(labelUri);
             return labels.find(l => l.get('@language') === lang);
         }
 
