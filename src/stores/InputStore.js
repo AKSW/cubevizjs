@@ -7,7 +7,7 @@
 import Rxmq from 'ecc-messagebus';
 import Immutable from 'immutable';
 
-import * as jsonld from 'jsonld';
+// import * as jsonld from 'jsonld';
 
 export const inputChannel = Rxmq.channel('input');
 
@@ -18,12 +18,13 @@ const getInput = {
         const reader = new FileReader();
         reader.onload = function(e) {
             const rdf = e.target.result;
+            // jsonld.fromRDF(rdf, {format: 'application/nquads'}, (err, doc) => {
+            //     console.log('Import Error:' + err);
+            //
+            //     cb(Immutable.fromJS(doc));
+            // });
 
-            jsonld.fromRDF(rdf, {format: 'application/nquads'}, (err, doc) => {
-                console.log('Import Error:' + err);
-
-                cb(Immutable.fromJS(doc));
-            });
+            cb(rdf);
         };
         const data = reader.readAsText(v);//TODO check if v is a text
     }

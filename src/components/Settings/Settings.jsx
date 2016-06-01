@@ -38,18 +38,18 @@ const Settings = React.createClass({
     componentWillMount() {
 
         //TODO finish input implementation
-        jsonld.fromRDF(InputTest, {format: 'application/nquads'}, (err, doc) => {
-            console.log('Import Error:' + err);
+        // jsonld.fromRDF(InputTest, {format: 'application/nquads'}, (err, doc) => {
+        //     console.log('Import Error:' + err);
+        //
+        //     const immutable = Immutable.fromJS(doc);
 
-            const immutable = Immutable.fromJS(doc);
+        facetsSettingsChannel
+            .request({topic: 'settings.facets.init', data: InputTest})
+            .subscribe(facets => {
 
-            facetsSettingsChannel
-                .request({topic: 'settings.facets.init', data: immutable})
-                .subscribe(facets => {
-
-                    this.setState({facets});
-                });
-        });
+                this.setState({facets});
+            });
+        // });
     },
     handleTouchTap(tag, event) {
 

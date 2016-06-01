@@ -7,7 +7,7 @@ import Rxmq from 'ecc-messagebus';
 import * as CubeViz from '../CubeViz.js';
 import Immutable from 'immutable';
 import DataCube from '../DataCube.js';
-import Store from '../SparqlStore.js';
+import SparqlStore from '../SparqlStore.js';
 
 import {chartListChannel} from './ChartListStore.js';
 
@@ -20,14 +20,21 @@ facetsSettingsChannel
 .subject('settings.facets.init')
 .subscribe(({data: input, replySubject}) => {
 
-    const store = new Store(input);
-    dc = new DataCube(input);
-    selections = CubeViz.displayConfigureDimensions(dc);
-
-    replySubject.onNext(
-        selections.map(dimEl => dc.getLabel(dimEl).get('@value')).toJS()
-    );
-    replySubject.onCompleted();
+    const store = new SparqlStore(input);
+    store.start()
+    .then(() => store.load())
+    .then(() => {
+        dc = new DataCube(store);
+        return dc.start();
+    })
+    .then(() => {
+        selections = CubeViz.displayConfigureDimensions(dc);
+        replySubject.onNext(
+            selections.map(dimEl => dc.getLabel(dimEl).get('@value')).toJS()
+        );
+        replySubject.onCompleted();
+    })
+    .catch(console.log);
 });
 
 // String indexes ["0" "1"]

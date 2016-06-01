@@ -11,71 +11,97 @@ import {keep, isUndefined} from './Util.js';
 
 class DataCube {
 
-    //doc is an immutable datastructur (immutable.js)
-    //in jsonld format
-    constructor(doc, store) {
-        this.doc = doc;
 
+    /**
+     * constructor - DataCube ....
+     * Can only handle jsonld response from store.
+     *
+     * @param  {type} store description
+     * @return {type}       description
+     */
+    constructor(store) {
+
+        this.store = store;
         this.defaultLanguage = 'en';
-        this.dimensions = this.getAllDimensions();
-        this.allDimensionElements = this.dimensions.flatMap(dim => this.getDimensionElements(dim));
-        this.observations = this.getAllObservations();
-        this.defaultMeasureProperty = this.getDefaultMeasureProperty();
+    }
 
-        // TODO Logging
-        if (doc.size) {
-            console.log('\nDataCube created');
-            console.log('\n');
-            console.log('DefaultLanguage: ' + this.defaultLanguage);
-            console.log('Dimensions:');
-            console.log(this.dimensions.toJS());
-            console.log('All dimension elements: ');
-            console.log(this.allDimensionElements.toJS());
-            console.log('Observations: ');
-            console.log(this.observations.toJS());
-            console.log('Default measure property');
-            console.log(this.defaultMeasureProperty.toJS());
+    log() {
+        console.log('\nDataCube created');
+        console.log('\n');
+        console.log('DefaultLanguage: ' + this.defaultLanguage);
+        console.log('Dimensions:');
+        console.log(this.dimensions.toJS());
+        console.log('All dimension elements: ');
+        console.log(this.allDimensionElements.toJS());
+        console.log('Observations: ');
+        console.log(this.observations.toJS());
+        console.log('Default measure property');
+        console.log(this.defaultMeasureProperty.toJS());
+    }
+
+    start() {
+        if (this.store) {
+            return this.store.getDatasets()
+            .then(ds => {
+                if (ds.length === 0) return Promise.reject('No datasets found.');
+                this.ds = ds[0];
+                return this.store.getDsd(ds[0]);
+            })
+            .then(dsd => {
+                if (dsd.length === 0) return Promise.reject('No dsd found.');
+                this.dsd = dsd[0];
+                const promises =
+                    [this.store.getDimensions(this.ds, this.dsd), this.store.getMeasure(this.ds, this.dsd)];
+                return Promise.all(promises);
+            })
+            .then(res => {
+                if (res[1].length === 0) return Promise.reject('No measures found.');
+                if (res[0].length === 0) return Promise.reject('No dimensions found.');
+                this.defaultMeasureProperty = Immutable.fromJS(res[1][0]);
+                this.dimensions = Immutable.fromJS(res[0]);
+                const promises = res[0]
+                    .map(dim => this.store.getDimElements(dim, this.ds));
+                return Promise.all(promises);
+            })
+            .then(dimEls => {
+                this.allDimensionElements = Immutable.fromJS(dimEls).flatten(1);
+                if (this.allDimensionElements.size === 0) return Promise.reject('No dimEls found.');
+                return this.store.getObservations(this.ds);
+            })
+            .then(obs => {
+                if (obs.length === 0) return Promise.reject('No observations found.');
+                this.observations = Immutable.fromJS(obs);
+                this.log();
+            })
+            .catch(console.log);
         }
+
+        return Promise.reject(new Error('Store is not initialized.'));
     }
 
     //TODO implement complex creation
     createDataCube(selections, dimensions, observations) {
         const dimEls = selections;
         const noDims = keep(this.doc, t => {
-            if (t.get('@type').first() !== Constants.DimensionPropertyUri) {
+            if (t.get('@type').first() !== Constants.DimensionPropertyUri)
                 return t;
-            }
         });
         const noDimEls = noDims.filter(t => {
             const dimension = dimensions.find(dim => dim.get('@id') === t.get('@type').first());
             if (dimension) {
-                if (dimEls.find(el => t.get('@id') === el.get('@id'))) {
+                if (dimEls.find(el => t.get('@id') === el.get('@id')))
                     return true;
-                }
                 return false;
             }
             return true;
         });
         const noObs = keep(noDimEls, t => {
-            if (t.get('@type').first() !== Constants.ObservationUri) {
+            if (t.get('@type').first() !== Constants.ObservationUri)
                 return t;
-            }
         });
 
         const final = noObs.concat(dimensions).concat(observations);
         return new DataCube(final);
-    }
-
-    getDefaultMeasureProperty() {
-        return DataCube.getType(this.doc, Constants.MeasurePropertyUri).first();
-    }
-
-    getAllDimensions() {
-        return this.doc.filter(tri => tri.get(Constants.DimensionUri))
-            .map(tri => tri.get(Constants.DimensionUri).first().get('@id'))
-            .map(dimUri => this.doc.find(tri => tri.get('@id') === dimUri))
-            .filter(dim => !isUndefined(dim)); //FIXME DataCube creation
-        // return DataCube.getType(this.doc, Constants.DimensionPropertyUri);
     }
 
     getDimension(dimEl) {
@@ -115,9 +141,7 @@ class DataCube {
         //TODO is get('@type') always list?
         return doc.filter(tri => {
             const t = tri.get('@type');
-            if (t) {
-                return t.find(el => el === type);
-            }
+            if (t) return t.find(el => el === type);
             return false;
         });
     }
@@ -145,13 +169,10 @@ class DataCube {
             //TODO Implement other types
             const type = obj.get('@type');
 
-            if (isUndefined(type)) {
-                return value;
-            }
+            if (isUndefined(type)) return value;
 
-            if (type === Constants.FloatUri) {
+            if (type === Constants.FloatUri)
                 return parseFloat(value);
-            }
 
             throw new Error('DataCube: Object has unkown type');
         }
@@ -160,7 +181,7 @@ class DataCube {
     }
 
     static empty() {
-        return new DataCube(Immutable.Map());
+        return new DataCube(null);
     }
 
     static observationContainsDimEl(obs, dimEl) {
