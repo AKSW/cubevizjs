@@ -39,7 +39,7 @@
     "valid-typeof": 2,
     # Best Practices
     #"consistent-return": 1,
-    "curly": 2,
+    "curly": ["error", "multi-or-nest", "consistent"],
     "default-case": 2,
     "dot-notation": 2,
     "eqeqeq": 2,
