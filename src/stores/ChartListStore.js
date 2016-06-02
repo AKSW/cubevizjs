@@ -10,7 +10,6 @@ export const chartListChannel = Rxmq.channel('chartList');
 chartListChannel
 .subject('chartList.determineVisuals')
 .subscribe(({selections, dataCube}) => {
-
     const selectionCube = CubeViz.createDataCube(selections, dataCube);
     const results = CubeViz.determineVisuals(null, selectionCube);
     const list = results
@@ -23,6 +22,5 @@ chartListChannel
                 ));
             return visuals;
         });
-
     chartListChannel.subject('chartList.loaded').onNext({list: list.toJS(), selectionCube});
 });

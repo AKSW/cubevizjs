@@ -7,7 +7,13 @@
 
 import Promise from 'promise';
 import RdfStore from 'rdfstore';
-import {promises} from 'jsonld';
+import {promises, jsonld} from 'jsonld';
+import Immutable from 'immutable';
+
+function allTriplesQuery() {
+    return 'CONSTRUCT { ?s ?p ?o } ' +
+        'WHERE { ?s ?p ?o .}';
+}
 
 function datasetQuery() {
     return 'CONSTRUCT { ?s ?p ?o } ' +
@@ -66,8 +72,9 @@ class SparqlStore {
     constructor(triple) {
         this.triple = triple;
         this.internalStore = null;
+        this.result = {};
+        this.result.defaultLanguage = 'en';
     }
-
 
     /**
      * parse - Parse graph object from rdfstore with jsonld.
@@ -98,7 +105,7 @@ class SparqlStore {
             });
         }).then(store => { //better way to handle side effects with promise?
             this.internalStore = store;
-            return this;
+            return Promise.resolve(this);
         });
     }
 
@@ -109,6 +116,58 @@ class SparqlStore {
                 else fulfill(res);
             });
         });
+    }
+
+    /**
+     * import - Imports and validates all nessecary components
+     * from a dataCube. (e.g. dataset, dsd ...)
+     *
+     * @return {Promise} Returns the promise of a json with all data.
+     */
+    import() {
+        if (this.internalStore) {
+            return this.getDatasets()
+            .then(ds => {
+                if (ds.length === 0) return Promise.reject('No datasets found.');
+                this.result.dataset = ds[0];
+                return this.getDsd(ds[0]);
+            })
+            .then(dsd => {
+                if (dsd.length === 0) return Promise.reject('No dsd found.');
+                this.result.dataStructureDefinition = dsd[0];
+                const p =
+                    [this.getDimensions(this.result.dataset, dsd[0]), this.getMeasure(this.result.dataset, dsd[0])];
+                return Promise.all(p);
+            })
+            .then(res => {
+                if (res[1].length === 0) return Promise.reject('No measures found.');
+                if (res[0].length === 0) return Promise.reject('No dimensions found.');
+                this.result.defaultMeasureProperty = res[1][0];
+                this.result.dimensions = res[0];
+                const p = res[0]
+                    .map(dim => this.getDimElements(dim, this.result.dataset));
+                return Promise.all(p);
+            })
+            .then(dimEls => {
+                const temp = Immutable.fromJS(dimEls);
+                if (temp.flatten(1).size === 0) return Promise.reject('No dimEls found.');
+                this.result.dimensionElements = temp
+                    .reduce((map, dimEl, idx) => {
+                        const dimUri = Immutable.fromJS(this.result.dimensions)
+                            .getIn([idx, '@id']);
+                        return map.set(dimUri, dimEl);
+                    }, Immutable.Map()).toJS();
+                return this.getObservations(this.result.dataset);
+            })
+            .then(obs => {
+                if (obs.length === 0) return Promise.reject('No observations found.');
+                this.result.observations = obs;
+                return Promise.resolve(this.result);
+            })
+            .catch(console.log);
+        }
+
+        return Promise.reject(new Error('Store is not initialized.'));
     }
 
     getDatasets() {
@@ -139,6 +198,9 @@ class SparqlStore {
 
     getObservations(dataset) {
         return this.execute(observationsQuery(dataset['@id'])).then(this.parse);
+    }
+    getAllTriples() {
+        return this.execute(allTriplesQuery()).then(this.parse);
     }
 }
 

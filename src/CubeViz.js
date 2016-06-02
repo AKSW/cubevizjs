@@ -25,9 +25,8 @@ const comparison = {
         const heatmapRule = new Rules.HeatmapRule(2, 20, 2);
         const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
 
-        if (isSatisfiedHeatmap.first()) {
+        if (isSatisfiedHeatmap.first())
             visuals = visuals.push(isSatisfiedHeatmap.last().merge({rank: 1, name: 'heatmap'}));
-        }
 
         const selectedDimensionRule = new Rules.SelectedDimensionRule(2, 10);
         const isSatisfiedSelectedDim = selectedDimensionRule.isSatisfiedBy(dataCube);
@@ -94,9 +93,8 @@ function selectDimensions(dimEls, dataCube) {
     return dimEls.reduce((list, dimEl) => {
         const dim = dataCube.getDimension(dimEl);
 
-        if (list.find(d => d.get('@id') === dim.get('@id'))) {
+        if (list.find(d => d.get('@id') === dim.get('@id')))
             return list;
-        }
 
         return list.push(dim);
     }, Immutable.List());
@@ -132,5 +130,5 @@ export function displayChart(visual, dataCube) {
 
 export function displayConfigureDimensions(dataCube) {
 
-    return dataCube.allDimensionElements;
+    return dataCube.getAllDimensionElements();
 }

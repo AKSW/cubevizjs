@@ -6,81 +6,62 @@
 /*eslint complexity: 0*/
 
 import * as Constants from './Constants.js';
-import Immutable from 'immutable';
+import Immutable, {fromJS} from 'immutable';
 import {keep, isUndefined} from './Util.js';
 
 class DataCube {
 
 
     /**
-     * constructor - DataCube ....
-     * Can only handle jsonld response from store.
+     * constructor - description
      *
-     * @param  {type} store description
-     * @return {type}       description
+     * @param  {JSON} data object like:
+     * Object { defaultLanguage: "en",
+     *          dataset: Object,
+     *          dataStructureDefinition: Object,
+     *          defaultMeasureProperty: Object,
+     *          dimensions: Array[n],
+     *          dimensionElements: Object,
+     *          observations: Array[n]}
+     * @return {type}      description
+     *
      */
-    constructor(store) {
 
-        this.store = store;
-        this.defaultLanguage = 'en';
+    constructor(data) {
+        if (!data) return;
+
+        this.data = fromJS(data);
+        this.defaultLanguage = data.defaultLanguage;
+        this.dataset = fromJS(data.dataset);
+        this.dataStructureDefinition = fromJS(data.dataStructureDefinition);
+        this.defaultMeasureProperty = fromJS(data.defaultMeasureProperty);
+        this.dimensions = fromJS(data.dimensions);
+        this.assignedDimEls = fromJS(data.dimensionElements);
+        this.observations = fromJS(data.observations);
+        this.log();
     }
 
     log() {
         console.log('\nDataCube created');
         console.log('\n');
         console.log('DefaultLanguage: ' + this.defaultLanguage);
+        console.log('Dataset:');
+        console.log(this.dataset.toJS());
+        console.log('dataStructureDefinition:');
+        console.log(this.dataStructureDefinition.toJS());
         console.log('Dimensions:');
         console.log(this.dimensions.toJS());
         console.log('All dimension elements: ');
-        console.log(this.allDimensionElements.toJS());
+        console.log(this.getAllDimensionElements().toJS());
         console.log('Observations: ');
         console.log(this.observations.toJS());
         console.log('Default measure property');
         console.log(this.defaultMeasureProperty.toJS());
     }
 
-    start() {
-        if (this.store) {
-            return this.store.getDatasets()
-            .then(ds => {
-                if (ds.length === 0) return Promise.reject('No datasets found.');
-                this.ds = ds[0];
-                return this.store.getDsd(ds[0]);
-            })
-            .then(dsd => {
-                if (dsd.length === 0) return Promise.reject('No dsd found.');
-                this.dsd = dsd[0];
-                const promises =
-                    [this.store.getDimensions(this.ds, this.dsd), this.store.getMeasure(this.ds, this.dsd)];
-                return Promise.all(promises);
-            })
-            .then(res => {
-                if (res[1].length === 0) return Promise.reject('No measures found.');
-                if (res[0].length === 0) return Promise.reject('No dimensions found.');
-                this.defaultMeasureProperty = Immutable.fromJS(res[1][0]);
-                this.dimensions = Immutable.fromJS(res[0]);
-                const promises = res[0]
-                    .map(dim => this.store.getDimElements(dim, this.ds));
-                return Promise.all(promises);
-            })
-            .then(dimEls => {
-                this.allDimensionElements = Immutable.fromJS(dimEls).flatten(1);
-                if (this.allDimensionElements.size === 0) return Promise.reject('No dimEls found.');
-                return this.store.getObservations(this.ds);
-            })
-            .then(obs => {
-                if (obs.length === 0) return Promise.reject('No observations found.');
-                this.observations = Immutable.fromJS(obs);
-                this.log();
-            })
-            .catch(console.log);
-        }
-
-        return Promise.reject(new Error('Store is not initialized.'));
-    }
-
     //TODO implement complex creation
     createDataCube(selections, dimensions, observations) {
+        debugger;
         const dimEls = selections;
         const noDims = keep(this.doc, t => {
             if (t.get('@type').first() !== Constants.DimensionPropertyUri)
@@ -109,11 +90,12 @@ class DataCube {
     }
 
     getDimensionElement(uri) {
-        return this.allDimensionElements.find(dimEl => dimEl.get('@id') === uri);
+        return this.getAllDimensionElements().find(dimEl => dimEl.get('@id') === uri);
     }
 
     getDimensionElements(dim) {
-        return DataCube.getType(this.doc, dim.get('@id'));
+        debugger;
+        return this.assignedDimEls.get(dim.get('@id'));
     }
 
     getDimElsFromObservation(observation) {
@@ -121,11 +103,15 @@ class DataCube {
     }
 
     getAllObservations() {
-        return DataCube.getType(this.doc, Constants.ObservationUri);
+        return this.observations;
     }
 
     getObservations(dimEl) {
         return this.observations.filter(o => DataCube.observationContainsDimEl(o, dimEl));
+    }
+
+    getAllDimensionElements() {
+        return this.assignedDimEls.reduce((list, v, k) => list.push(v), Immutable.List()).flatten(1);
     }
 
     getLabel(obj) {

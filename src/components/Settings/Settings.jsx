@@ -16,9 +16,9 @@ import Facets from './Facets.jsx';
 //TODO: Implement Input
 import InputTest from '../Input/Input.jsx';
 import Input from './Input.jsx';
-import ChartList from '../ChartList.jsx';
 
 import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
+import {chartListChannel} from '../../stores/ChartListStore.js';
 
 const styles = {
     popover: {
@@ -33,31 +33,31 @@ const Settings = React.createClass({
     getInitialState() {
         return {
             facets: [],
-            open: false
+            open: false,
+            charts: [],
+            selectionCube: null
         };
     },
     componentWillMount() {
-
-        //TODO finish input implementation
-        // jsonld.fromRDF(InputTest, {format: 'application/nquads'}, (err, doc) => {
-        //     console.log('Import Error:' + err);
-        //
-        //     const immutable = Immutable.fromJS(doc);
-
         facetsSettingsChannel
             .request({topic: 'settings.facets.init', data: InputTest})
             .subscribe(facets => {
 
                 this.setState({facets});
             });
-        // });
+        chartListChannel
+            .subject('chartList.loaded')
+            .subscribe(data => {
+                debugger;
+                this.setState({charts: data.list, selectionCube: data.selectionCube});
+            });
     },
     handleTouchTap(tag, event) {
 
         if (tag === 1)
             popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
         else if (tag === 2)
-            popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
+            popoverComponent = <Facets facets={this.state.charts} onFacetsChange={this.onFacetsChange}/>;
         else
             popoverComponent = <Input onInputChange={this.onInputChange} onInputStart={this.onInputStart}/>;
 

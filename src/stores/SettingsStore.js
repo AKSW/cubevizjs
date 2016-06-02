@@ -25,11 +25,9 @@ facetsSettingsChannel
     const store = new SparqlStore(input);
     store.start()
     .then(() => store.load())
-    .then(() => {
-        dc = new DataCube(store);
-        return dc.start();
-    })
-    .then(() => {
+    .then(() => store.import())
+    .then((data) => {
+        dc = new DataCube(data);
         importingChannel.subject('importing.finished').onNext();
         selections = CubeViz.displayConfigureDimensions(dc);
         replySubject.onNext(
