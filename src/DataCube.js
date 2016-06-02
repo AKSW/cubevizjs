@@ -30,7 +30,6 @@ class DataCube {
     constructor(data) {
         if (!data) return;
 
-        this.data = fromJS(data);
         this.defaultLanguage = data.defaultLanguage;
         this.dataset = fromJS(data.dataset);
         this.dataStructureDefinition = fromJS(data.dataStructureDefinition);
@@ -59,30 +58,34 @@ class DataCube {
         console.log(this.defaultMeasureProperty.toJS());
     }
 
-    //TODO implement complex creation
+
+    /**
+     * createDataCube - Creates new data cube from selected data.
+     *
+     * @param  {List} selections   Selected dimension elements
+     * @param  {List} dimensions   Selected dimensions
+     * @param  {List} observations observation points which fit in the above selections.
+     * @return {DataCube}              description
+     * @todo Maybe adjust ds and dsd properly befor putting them into the new data cube.
+     * @todo Refactor dimensionElements creation and delete method afterwards
+     */
     createDataCube(selections, dimensions, observations) {
-        debugger;
-        const dimEls = selections;
-        const noDims = keep(this.doc, t => {
-            if (t.get('@type').first() !== Constants.DimensionPropertyUri)
-                return t;
-        });
-        const noDimEls = noDims.filter(t => {
-            const dimension = dimensions.find(dim => dim.get('@id') === t.get('@type').first());
-            if (dimension) {
-                if (dimEls.find(el => t.get('@id') === el.get('@id')))
-                    return true;
-                return false;
-            }
-            return true;
-        });
-        const noObs = keep(noDimEls, t => {
-            if (t.get('@type').first() !== Constants.ObservationUri)
-                return t;
+        const dimensionElements = dimensions.toMap().flatMap(dim => {
+            const dimElUris = this.assignedDimEls.get(dim.get('@id'))
+                .map(dimEl => dimEl.get('@id'));
+            const selectedDimEls = selections.filter(s => dimElUris.contains(s.get('@id')));
+            return Immutable.Map({[dim.get('@id')]: selectedDimEls});
         });
 
-        const final = noObs.concat(dimensions).concat(observations);
-        return new DataCube(final);
+        return new DataCube({
+            defaultLanguage: this.defaultLanguage,
+            dataset: this.dataset.toJS(),
+            dataStructureDefinition: this.dataStructureDefinition.toJS(),
+            defaultMeasureProperty: this.defaultMeasureProperty.toJS(),
+            dimensions,
+            dimensionElements: dimensionElements.toJS(),
+            observations
+        });
     }
 
     getDimension(dimEl) {
