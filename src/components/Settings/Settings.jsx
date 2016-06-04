@@ -12,13 +12,14 @@ import Popover from 'material-ui/lib/popover/popover';
 import * as jsonld from 'jsonld';
 import Immutable from 'immutable';
 
-import Facets from './Facets.jsx';
+import List from './List.jsx';
 //TODO: Implement Input
 import InputTest from '../Input/Input.jsx';
 import Input from './Input.jsx';
 
 import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
+import {chartChannel} from '../../stores/ChartStore.js';
 
 const styles = {
     popover: {
@@ -34,6 +35,7 @@ const Settings = React.createClass({
         return {
             facets: [],
             open: false,
+            visuals: [],
             charts: [],
             selectionCube: null
         };
@@ -42,25 +44,37 @@ const Settings = React.createClass({
         facetsSettingsChannel
             .request({topic: 'settings.facets.init', data: InputTest})
             .subscribe(facets => {
-
                 this.setState({facets});
             });
         chartListChannel
             .subject('chartList.loaded')
             .subscribe(data => {
-                debugger;
-                this.setState({charts: data.list, selectionCube: data.selectionCube});
+                this.setState({
+                    visuals: data.list,
+                    charts: data.list.map(vis => vis.name),
+                    selectionCube: data.selectionCube});
+                this.onChartsChange(0); //TODO out of bounds
             });
     },
     handleTouchTap(tag, event) {
 
-        if (tag === 1)
-            popoverComponent = <Facets facets={this.state.facets} onFacetsChange={this.onFacetsChange}/>;
-        else if (tag === 2)
-            popoverComponent = <Facets facets={this.state.charts} onFacetsChange={this.onFacetsChange}/>;
-        else
+        if (tag === 1) {
+            popoverComponent = (<List
+                multiple={true}
+                label="Data Selection"
+                list={this.state.facets}
+                onChange={this.onDataChange}/>);
+        }
+        else if (tag === 2) {
+            popoverComponent = (<List
+                multiple={false}
+                label="Charts"
+                list={this.state.charts}
+                onChange={this.onChartsChange}/>);
+        }
+        else {
             popoverComponent = <Input onInputChange={this.onInputChange} onInputStart={this.onInputStart}/>;
-
+        }
         this.setState({
             open: true,
             anchorEl: event.currentTarget,
@@ -71,9 +85,18 @@ const Settings = React.createClass({
             open: false,
         });
     },
-    onFacetsChange(facets) {
-
-        facetsChanged(facets);
+    onDataChange(data) {
+        facetsChanged(data);
+    },
+    onChartsChange(chart) {
+        chartChannel
+        .subject('chart.convertToChart')
+        .onNext(
+            {
+                chart: this.state.visuals[chart],
+                selectionCube: this.state.selectionCube
+            }
+        );
     },
     onInputChange(input) {
         facetsSettingsChannel
@@ -87,7 +110,7 @@ const Settings = React.createClass({
         return (
           <Toolbar>
               <ToolbarGroup float="left">
-                  <ToolbarTitle text="CubeViz Settings" />
+                  <ToolbarTitle text="CubeViz" />
               <RaisedButton tag="0" label="Input Source" primary={true} onTouchTap={this.handleTouchTap.bind(this, 0)}/>
               <RaisedButton tag="1" label="Select Data" primary={true} onTouchTap={this.handleTouchTap.bind(this, 1)}/>
               <RaisedButton tag="2" label="Charts" primary={true} onTouchTap={this.handleTouchTap.bind(this, 2)}/>

@@ -97,7 +97,6 @@ class DataCube {
     }
 
     getDimensionElements(dim) {
-        debugger;
         return this.assignedDimEls.get(dim.get('@id'));
     }
 
