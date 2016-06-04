@@ -15,7 +15,6 @@ const comparison = {
     name: 'comparison',
     //return {rank: number, visual: type}
     eval(dataCube) {//HERE
-
         const results = {/*complex: this.name, visuals: []*/};
         let visuals = Immutable.List();
 
@@ -122,10 +121,9 @@ export function determineVisuals(context, dataCube) {
     console.log('\n');
     return result;
 }
-/*eslint-disable */
 export function displayChart(visual, dataCube) {
-  /*eslint-enable */
-    return convert(visual, dataCube);
+    if (visual)
+        return convert(visual, dataCube);
 }
 
 export function displayConfigureDimensions(dataCube) {

@@ -89,7 +89,8 @@ class DataCube {
     }
 
     getDimension(dimEl) {
-        return this.dimensions.find(dim => dim.get('@id') === dimEl.get('@type').first());
+        const dimUri = this.assignedDimEls.findKey(dimEls => dimEls.find(el => el.get('@id') === dimEl.get('@id')));
+        return this.dimensions.find(dim => dim.get('@id') === dimUri);
     }
 
     getDimensionElement(uri) {
