@@ -42,7 +42,7 @@ const Settings = React.createClass({
     },
     componentWillMount() {
         facetsSettingsChannel
-            .request({topic: 'settings.facets.init', data: InputTest})
+            .request({topic: 'settings.facets.init', data: {type: 'text', value: InputTest}})
             .subscribe(facets => {
                 this.setState({facets});
             });

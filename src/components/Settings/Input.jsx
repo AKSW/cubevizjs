@@ -39,10 +39,10 @@ const Input = React.createClass({
                     onChange={this.handleEndpointChange}>
                     <MenuItem value={'http://test.org'} primaryText="Mortality EU"/>
                 </SelectField><br/>
-            <TextField hintText="Custom Sparql Endpoint..." onEnterKeyDown={this.handleCustomEPChange}/>
+            <TextField hintText="Sparql endpoint or RDF file" onEnterKeyDown={this.handleCustomEPChange}/>
             <br/><br/>
             <form>
-                <FileInput placeholder="File" onChange={this.handleFileChange}/>
+                <FileInput placeholder="Upload RDF file" onChange={this.handleFileChange}/>
             </form>
             <Divider/>
             </div>

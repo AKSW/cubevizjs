@@ -6,25 +6,44 @@
 
 import Rxmq from 'ecc-messagebus';
 import Immutable from 'immutable';
-
-// import * as jsonld from 'jsonld';
+import $ from 'jquery';
 
 export const inputChannel = Rxmq.channel('input');
 
+function request(url, dataType, cb) {
+    $.ajax(url, {
+        dataType,
+        success: (result, status, xhr) => {
+            cb(result);
+        },
+        error: (xhr, status, error) => {
+            console.log('Error: ' + status);
+        }
+    });
+}
+
+function isFileUrl(url) {
+    return url.match(/\.([^\./\?]+)($|\?)/) !== null;
+}
+
 const getInput = {
     endpointChanged(v, cb) {
+        if (isFileUrl(v)) {
+            request(v, 'text', (r) => {
+                cb({type: 'text', value: r});
+            });
+        } else {
+            request(v, 'text', (r) => {
+                cb({type: 'endpoint', value: v});
+            });
+        }
     },
+
     fileChanged(v, cb) {
         const reader = new FileReader();
         reader.onload = function(e) {
             const rdf = e.target.result;
-            // jsonld.fromRDF(rdf, {format: 'application/nquads'}, (err, doc) => {
-            //     console.log('Import Error:' + err);
-            //
-            //     cb(Immutable.fromJS(doc));
-            // });
-
-            cb(rdf);
+            cb({type: 'text', value: rdf});
         };
         const data = reader.readAsText(v);//TODO check if v is a text
     }

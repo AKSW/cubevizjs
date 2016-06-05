@@ -22,7 +22,12 @@ facetsSettingsChannel
 .subscribe(({data: input, replySubject}) => {
     importingChannel.subject('importing.start').onNext();
 
-    const store = new SparqlStore(input);
+    let store;
+    if (input.type === 'text')
+        store = new SparqlStore(input.value);
+    else
+        store = null;
+
     store.start()
     .then(() => store.load())
     .then(() => store.import())
