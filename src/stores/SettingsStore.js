@@ -8,6 +8,7 @@ import * as CubeViz from '../CubeViz.js';
 import Immutable from 'immutable';
 import DataCube from '../DataCube.js';
 import SparqlStore from '../SparqlStore.js';
+import RemoteStore from '../RemoteStore.js';
 
 import {chartListChannel} from './ChartListStore.js';
 
@@ -26,7 +27,7 @@ facetsSettingsChannel
     if (input.type === 'text')
         store = new SparqlStore(input.value);
     else
-        store = null;
+        store = new RemoteStore(input.value);
 
     store.start()
     .then(() => store.load())
