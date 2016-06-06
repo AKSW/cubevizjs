@@ -75,9 +75,8 @@ HeatmapRule.prototype.isSatisfiedBy = function(dataCube) {
   // das ist eine regel
     if (inHeatmapRange.isSatisfiedBy(dataCube.observations.size) &&
         isEqualHeatmapDim.isSatisfiedBy(dataCube.dimensions.size) &&
-        isEvenlyDistributed.isSatisfiedBy(dataCube)) {
+        isEvenlyDistributed.isSatisfiedBy(dataCube))
         return Immutable.fromJS([true, {fixedDims: dataCube.dimensions}]);
-    }
 
     return Immutable.List([false]);
 };

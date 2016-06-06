@@ -6,6 +6,3 @@ if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
 } else {
     rootObject = window;
 }
-// export config
-rootObject.defaultEndpointUrl = 'http://docker.local';
-rootObject.rootPath = '/';

@@ -17,9 +17,8 @@ export function keep(collection, fn) {
 export function getDimensionElements(dimension, dataCube) {
 
     return keep(dataCube.get('dimensions'), dim => {
-        if (dim.get('cvUri') === dimension.get('cvUri')) {
+        if (dim.get('cvUri') === dimension.get('cvUri'))
             return dim.get('dimensionElements');
-        }
     });
 }
 
@@ -37,9 +36,8 @@ export function getAllDimensionElements(dataCube) {
 // Returns dimension for dimension element
 export function getDimension(dimensionElement, dataCube) {
     const results = keep(dataCube.get('dimensions'), dim => {
-        if (dim.get('cvUri') === dimensionElement.get('cvAccordingDimension')) {
+        if (dim.get('cvUri') === dimensionElement.get('cvAccordingDimension'))
             return dim;
-        }
     });
 
     return results.first();

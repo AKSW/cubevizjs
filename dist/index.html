@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>d3js</title>
+    <title>cubeviz.js</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="bootstrap.min.css">
     <!-- Optional theme -->
@@ -16,7 +16,15 @@
     <!-- app -->
     <!-- <script src="config.js"></script> -->
     <!-- app -->
-    <script src="app.min.js"></script>
+    <script src="cubeviz.min.js"></script>
+    <script>
+        var configuration = {
+            ui_container: 'react',
+        };
+
+        var cubeViz = new CubeViz.default(configuration);
+        cubeViz.run();
+    </script>
 </body>
 
 </html>

@@ -12,7 +12,10 @@ module.exports = {
     entry: './src/App.jsx',
     output: {
         path: PATHS.dist,
-        filename: 'app.min.js',
+        filename: 'cubeviz.min.js',
+        library: 'CubeViz',
+        libraryTarget: 'umd',
+        umdNamedDefine: true
     },
     node: {
         fs: 'empty'
@@ -27,6 +30,13 @@ module.exports = {
         sqlite3: 'sqlite3'
     },
     module: {
+        preLoaders: [
+            {
+                test: /\.jsx?$/,
+                exclude: /node_modules/,
+                loader: 'eslint-loader'
+            },
+        ],
         loaders: [
          {
            test: /.jsx?$/,

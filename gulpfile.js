@@ -4,16 +4,30 @@ var babel = require('gulp-babel');
 var gutil = require('gulp-util');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.config.js');
+var webpackAppConfig = require('./webpack.config.app.js');
 var WebpackDevServer = require('webpack-dev-server');
 
 gulp.task('default', ['server']);
 
-gulp.task('webpack', function(callback) {
-  var myConfig = Object.create(webpackConfig);
-  // myConfig.plugins = [
-  // new webpack.optimize.DedupePlugin(),
-  // new webpack.optimize.UglifyJsPlugin()
-  // ];
+gulp.task('build', function(callback) {
+
+  var myConfig = Object.create(webpackAppConfig);
+  myConfig.plugins = [
+        new webpack.optimize.OccurenceOrderPlugin(),
+        new webpack.optimize.DedupePlugin(),
+        new webpack.optimize.UglifyJsPlugin({
+            output: {
+                comments: false,
+            },
+            compress: {
+                warnings: false,
+                screw_ie8: true,
+            },
+            mangle: {
+                screw_ie8: true,
+            },
+        }),
+  ];
 
   // run webpack
   webpack(myConfig, function(err, stats) {

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "lint": "eslint src/",
-    "start": "gulp"
+    "start": "gulp",
+    "build": "gulp build"
   },
   "author": "Georges Alkhouri",
   "license": "",
@@ -16,7 +17,6 @@
     "jquery": "^2.2.4",
     "jsonld": "^0.4.11",
     "material-ui": "^0.14.4",
-    "promise": "^7.1.1",
     "rdfstore": "^0.9.8",
     "react": "^0.14.8",
     "react-bootstrap": "0.28.3",
@@ -31,14 +31,16 @@
     "babel-core": "^6.9.0",
     "babel-eslint": "^6.0.4",
     "babel-loader": "^6.2.4",
-    "json-loader": "^0.5.4",
+    "babel-plugin-add-module-exports": "^0.2.1",
     "babel-preset-es2015": "^6.9.0",
     "babel-preset-react": "^6.5.0",
     "eslint": "^2.10.2",
+    "eslint-loader": "^1.3.0",
     "eslint-plugin-react": "^5.1.1",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
     "gulp-util": "^3.0.7",
+    "json-loader": "^0.5.4",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   }

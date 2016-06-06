@@ -7,7 +7,6 @@
 
 import SparqlStore from './SparqlStore.js';
 
-import Promise from 'promise';
 import {promises} from 'jsonld';
 import $ from 'jquery';
 
