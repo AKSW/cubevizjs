@@ -102,7 +102,6 @@ const Settings = React.createClass({
         facetsSettingsChannel
             .request({topic: 'settings.facets.init', data: input})
             .subscribe(facets => {
-
                 this.setState({facets});
             });
     },

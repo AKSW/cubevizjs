@@ -70,12 +70,7 @@ class DataCube {
      * @todo Refactor dimensionElements creation and delete method afterwards
      */
     createDataCube(selections, dimensions, observations) {
-        const dimensionElements = dimensions.toMap().flatMap(dim => {
-            const dimElUris = this.assignedDimEls.get(dim.get('@id'))
-                .map(dimEl => dimEl.get('@id'));
-            const selectedDimEls = selections.filter(s => dimElUris.contains(s.get('@id')));
-            return Immutable.Map({[dim.get('@id')]: selectedDimEls});
-        });
+        const dimensionElements = this.assignDimEls(selections, dimensions);
 
         return new DataCube({
             defaultLanguage: this.defaultLanguage,
@@ -85,6 +80,15 @@ class DataCube {
             dimensions,
             dimensionElements: dimensionElements.toJS(),
             observations
+        });
+    }
+
+    assignDimEls(selections, dimensions) {
+        return dimensions.toMap().flatMap(dim => {
+            const dimElUris = this.assignedDimEls.get(dim.get('@id'))
+                .map(dimEl => dimEl.get('@id'));
+            const selectedDimEls = selections.filter(s => dimElUris.contains(s.get('@id')));
+            return Immutable.Map({[dim.get('@id')]: selectedDimEls});
         });
     }
 
@@ -141,7 +145,10 @@ class DataCube {
             .find(uri => obj.get(uri));
         if (labelUri) {
             const labels = obj.get(labelUri);
-            return labels.find(l => l.get('@language') === lang);
+            const language = labels.find(l => l.get('@language') === lang);
+            if (language)
+                return language;
+            return labels.first();
         }
 
         throw new Error('DataCube: No Label Property');
@@ -176,8 +183,8 @@ class DataCube {
         return new DataCube(null);
     }
 
-    static observationContainsDimEl(obs, dimEl) {
-        const objects = obs.get(dimEl.get('@type').first());
+    static observationContainsDimEl(dimUri, dimEl, obs) {
+        const objects = obs.get(dimUri);
         if (objects) {
             const contains = objects.find(obj => obj.get('@id') === dimEl.get('@id'));
             return !isUndefined(contains);

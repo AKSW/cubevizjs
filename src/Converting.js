@@ -2,6 +2,7 @@
 /*eslint react/no-multi-comp: 0*/
 /*eslint no-debugger:0*/
 /*eslint no-unused-vars:0*/
+/*eslint no-console: 0*/
 
 import React from 'react';
 import Immutable, {Map} from 'immutable';
@@ -12,6 +13,14 @@ import DataCube from './DataCube';
 import {PieChart, BarChart} from 'react-d3';
 import Heatmap from './components/Charts/Heatmap.js';
 import GroupedStackedBar from './components/Charts/GroupedStackedBar.js';
+
+function toNumber(val) {
+    if (typeof val !== 'number') {
+        console.log('Converting.js: Forcing value to be a number.');
+        return parseFloat(val);
+    }
+    return val;
+}
 
 function convertDataCube(visual, dataCube) {
     const converter = {
@@ -33,7 +42,7 @@ function convertDataCube(visual, dataCube) {
                         .map(dimEl => map.getIn([DataCube.getUri(dimEl), 'idx'])); //maps from dimEl to index
 
                     const m = dc.getMeasure(o).first(); //TODO first
-                    const val = DataCube.getValue(m);
+                    const val = toNumber(DataCube.getValue(m));
                     return dimEls.push(val);
                 });
 
@@ -44,19 +53,18 @@ function convertDataCube(visual, dataCube) {
 
             const sum = dc.observations.reduce((s, o) => {
                 const m = dc.getMeasure(o).first(); //TODO first
-                const val = DataCube.getValue(m);
+                const val = toNumber(DataCube.getValue(m));
 
                 return s + val;
             }, 0);
 
             const data = dc.observations.map(o => {
-
                 //TODO first
                 const dimElUri = DataCube.getDimensionElementUri(v.get('selectedDim'), o).first();
                 const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
 
                 const m = dc.getMeasure(o).first(); //TODO first
-                const val = DataCube.getValue(m);
+                const val = toNumber(DataCube.getValue(m));
                 return {
                     label: DataCube.getValue(dc.getLabel(dimEl)),
                     value: Math.round((val / sum) * 100)
@@ -92,7 +100,7 @@ function convertDataCube(visual, dataCube) {
                 const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
 
                 const m = dc.getMeasure(o).first(); //TODO first
-                const val = DataCube.getValue(m);
+                const val = toNumber(DataCube.getValue(m));
 
                 return {
                     x: DataCube.getValue(dc.getLabel(dimEl)),
@@ -117,9 +125,8 @@ function convertDataCube(visual, dataCube) {
         }
     };
 
-    if (converter[visual.get('name')]) {
+    if (converter[visual.get('name')])
         return converter[visual.get('name')](visual, dataCube);
-    }
 
     throw new Error('Unkown chart type.');
 }

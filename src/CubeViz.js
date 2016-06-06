@@ -81,8 +81,8 @@ export const Contexts = Immutable.fromJS([testContext]);
 // dimensionsMap: {dimension: dim, dimEls: [...]}
 function selectObservations(dimensionsMap, dataCube) {
     return dataCube.getAllObservations().
-        filter(o => dimensionsMap.every(dim_ => {
-            return dim_.get('dimEls').some(dimEl => DataCube.observationContainsDimEl(o, dimEl));
+        filter(o => dimensionsMap.every((dimEls, dimUri) => {
+            return dimEls.some(dimEl => DataCube.observationContainsDimEl(dimUri, dimEl, o));
         }));
 }
 
@@ -100,12 +100,8 @@ function selectDimensions(dimEls, dataCube) {
 }
 
 export function createDataCube(selections, dataCube) {
-
     const dimensions = selectDimensions(selections, dataCube);
-    const dimensionsMap = dimensions.map(dim => Immutable.Map({
-        dimension: dim,
-        dimEls: selections.filter(s => dim.get('@id') === s.get('@type').first())
-    }));
+    const dimensionsMap = dataCube.assignDimEls(selections, dimensions);
     const observations = selectObservations(dimensionsMap, dataCube);
     const dc = dataCube.createDataCube(selections, dimensions, observations);
     return dc;
