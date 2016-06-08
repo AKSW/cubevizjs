@@ -6,6 +6,9 @@
 
 import Rxmq from 'ecc-messagebus';
 import Immutable from 'immutable';
+
+import DataCube from '../assets/DefaultDataCube.js';
+
 import $ from 'jquery';
 
 export const inputChannel = Rxmq.channel('input');
@@ -46,6 +49,10 @@ const getInput = {
             cb({type: 'text', value: rdf});
         };
         const data = reader.readAsText(v);//TODO check if v is a text
+    },
+
+    default(v, cb) {
+        cb({type: 'text', value: DataCube});
     }
 };
 
@@ -57,7 +64,6 @@ function finished(input, replySubject) {
 inputChannel
     .subject('input.entered')
     .subscribe(({data, replySubject}) => {
-
         if (getInput[data.tag])
             getInput[data.tag](data.value, i => finished(i, replySubject));
         else

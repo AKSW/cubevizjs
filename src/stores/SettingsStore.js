@@ -19,7 +19,7 @@ let selections = [];
 let dc = DataCube.empty();
 
 facetsSettingsChannel
-.subject('settings.facets.init')
+.subject('settings.data.init')
 .subscribe(({data: input, replySubject}) => {
     importingChannel.subject('importing.start').onNext();
 

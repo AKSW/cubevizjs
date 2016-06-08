@@ -17,7 +17,7 @@ class CubeViz {
         // Check this repo:
         // https://github.com/zilverline/react-tap-event-plugin
         injectTapEventPlugin();
-        ReactDOM.render(<CubeVizApp />, document.getElementById(this.config.ui_container));
+        ReactDOM.render(<CubeVizApp config={this.config}/>, document.getElementById(this.config.ui_container));
     }
 }
 

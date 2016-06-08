@@ -3,7 +3,7 @@
 
 // import Immutable from 'immutable';
 /*eslint-disable*/
-const Result =  '   <http://example.cubeviz.org/compare/mortalityEurope/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .  '  + '\n' +
+const DataCube =  '   <http://example.cubeviz.org/compare/mortalityEurope/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .  '  + '\n' +
  '   <http://example.cubeviz.org/compare/mortalityEurope/> <http://www.w3.org/2000/01/rdf-schema#label> "DataCube: Estimated Mortality in Europe" .  '  + '\n' +
  '   <http://example.cubeviz.org/compare/mortalityEurope/> <http://purl.org/dc/elements/1.1/description> "Its purpose is to participate as an example use case for comparision. Source: http://www.indexmundi.com" .  '  + '\n' +
  '   <http://example.cubeviz.org/compare/mortalityEurope/Germany> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.cubeviz.org/compare/mortalityEurope/country> .  '  + '\n' +
@@ -232,166 +232,9 @@ const Result =  '   <http://example.cubeviz.org/compare/mortalityEurope/> <http:
  '   <http://example.cubeviz.org/compare/populationEurope/obs4> <http://example.cubeviz.org/compare/mortalityEurope/year> <http://example.cubeviz.org/compare/mortalityEurope/Y2004> .  '  + '\n' +
  '   <http://example.cubeviz.org/compare/populationEurope/obs4> <http://example.cubeviz.org/compare/mortalityEurope/unit> "straight number of people" .  '  + '\n' +
  '   <http://example.cubeviz.org/compare/populationEurope/obs4> <http://example.cubeviz.org/compare/mortalityEurope/value> "1337"^^<http://www.w3.org/2001/XMLSchema#float> .  '  + '\n' +
- '   <http://example.cubeviz.org/compare/populationEurope/obs4> <http://purl.org/linked-data/cube#dataSet> <http://example.cubeviz.org/compare/mortalityEurope/dataset> .  '  + '\n' + 
+ '   <http://example.cubeviz.org/compare/populationEurope/obs4> <http://purl.org/linked-data/cube#dataSet> <http://example.cubeviz.org/compare/mortalityEurope/dataset> .  '  + '\n' +
  '   <http://localhost/cubeviz/MortalityEU/> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .  '  + '\n' +
  '  <http://localhost/cubeviz/MortalityEU/> <http://www.w3.org/2000/01/rdf-schema#label> "Mortality EU" .  ' ;
 /*eslint-enable*/
-// const Result = Immutable.fromJS({
-//     cvDescription: 'The meaning of life and RDF is 42.',
-//     dimensions: [
-//         {
-//             cvUri: 'http://dim/1',
-//             cvNiceLabel: 'country',
-//             dimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/1/element/1',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'germany'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/2',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'england'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/3',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'poland'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/4',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'greek'
-//                 }
-//             ]
-//         },
-//         {
-//             cvUri: 'http://dim/2',
-//             cvNiceLabel: 'year',
-//             dimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/2/element/1',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2001'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/2/element/2',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2002'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/2/element/3',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2003'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/2/element/4',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2004'
-//                 }
-//             ]
-//         },
-//         {
-//             cvUri: 'http://dim/3',
-//             cvNiceLabel: 'economic association',
-//             dimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/3/element/1',
-//                     cvAccordingDimension: 'http://dim/3',
-//                     cvNiceLabel: 'european union'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/3/element/2',
-//                     cvAccordingDimension: 'http://dim/3',
-//                     cvNiceLabel: 'north american free trade agreement'
-//                 }
-//             ]
-//         }
-//     ],
-//     measures: [
-//         {
-//             cvUri: 'http://measure/1',
-//             cvNiceLabel: 'number of deaths'
-//         },
-//         {
-//             cvUri: 'http://measure/2',
-//             cvNiceLabel: 'number of births'
-//         }
-//     ],
-//     obs: [
-//         {
-//             cvDimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/2/element/1',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2001'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/2',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'england'
-//                 }
-//             ],
-//             cvMeasures: [
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/1',
-//                     cvValue: '80000'
-//                 },
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/2',
-//                     cvValue: '30000'
-//                 }
-//             ]
-//         },
-//         {
-//             cvDimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/2/element/2',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2002'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/2',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'england'
-//                 }
-//             ],
-//             cvMeasures: [
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/1',
-//                     cvValue: '80000'
-//                 },
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/2',
-//                     cvValue: '30000'
-//                 }
-//             ]
-//         },
-//         {
-//             cvDimensionElements: [
-//                 {
-//                     cvUri: 'http://dim/2/element/1',
-//                     cvAccordingDimension: 'http://dim/2',
-//                     cvNiceLabel: '2001'
-//                 },
-//                 {
-//                     cvUri: 'http://dim/1/element/1',
-//                     cvAccordingDimension: 'http://dim/1',
-//                     cvNiceLabel: 'deutschland'
-//                 }
-//             ],
-//             cvMeasures: [
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/1',
-//                     cvValue: '10000'
-//                 },
-//                 {
-//                     cvAccordingMeasurement: 'http://measure/2',
-//                     cvValue: '30000'
-//                 }
-//             ]
-//         },
-//     ]
-// });
 
-export default Result;
+export default DataCube;

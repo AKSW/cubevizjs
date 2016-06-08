@@ -13,10 +13,9 @@ import * as jsonld from 'jsonld';
 import Immutable from 'immutable';
 
 import List from './List.jsx';
-//TODO: Implement Input
-import InputTest from '../Input/Input.jsx';
 import Input from './Input.jsx';
 
+import {inputChannel} from '../../stores/InputStore.js';
 import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
 import {chartChannel} from '../../stores/ChartStore.js';
@@ -41,11 +40,17 @@ const Settings = React.createClass({
         };
     },
     componentWillMount() {
-        facetsSettingsChannel
-            .request({topic: 'settings.facets.init', data: {type: 'text', value: InputTest}})
-            .subscribe(facets => {
-                this.setState({facets});
+
+        let input = {tag: 'default', value: null};
+        if (this.props.config.data_source && this.props.config.data_source.value)
+            input = {tag: 'endpointChanged', value: this.props.config.data_source.value};
+
+        inputChannel
+            .request({topic: 'input.entered', data: input})
+            .subscribe(result => {
+                this.onInputChange(result);
             });
+
         chartListChannel
             .subject('chartList.loaded')
             .subscribe(data => {
@@ -100,7 +105,7 @@ const Settings = React.createClass({
     },
     onInputChange(input) {
         facetsSettingsChannel
-            .request({topic: 'settings.facets.init', data: input})
+            .request({topic: 'settings.data.init', data: input})
             .subscribe(facets => {
                 this.setState({facets});
             });

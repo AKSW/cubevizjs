@@ -40,7 +40,7 @@ const CubeVizApp = React.createClass({
             <div id="cubevizapp" className="cubevizapp">
                 <Grid>
                   <Row>
-                      <Col md={12}><Settings /></Col>
+                      <Col md={12}><Settings config={this.props.config}/></Col>
                   </Row>
                   <Row>
                       <Col md={12}>
