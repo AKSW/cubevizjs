@@ -20,9 +20,9 @@
     "rdfstore": "^0.9.8",
     "react": "^0.14.8",
     "react-bootstrap": "0.28.3",
-    "react-d3": "^0.4.0",
     "react-dom": "^0.14.0",
     "react-file-input": "^0.2.5",
+    "react-highcharts": "^8.3.2",
     "react-tap-event-plugin": "^0.2.0",
     "specification": "^0.1.0",
     "underscore": "^1.8.3"

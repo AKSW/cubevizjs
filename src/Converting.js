@@ -5,14 +5,15 @@
 /*eslint no-console: 0*/
 
 import React from 'react';
-import Immutable, {Map} from 'immutable';
+import Immutable, {Map, List} from 'immutable';
 
 import * as Util from './Util.js';
 import DataCube from './DataCube';
 
-import {PieChart, BarChart} from 'react-d3';
 import Heatmap from './components/Charts/Heatmap.js';
 import GroupedStackedBar from './components/Charts/GroupedStackedBar.js';
+
+import ReactHighcharts from 'react-highcharts';
 
 function toNumber(val) {
     if (typeof val !== 'number') {
@@ -22,12 +23,48 @@ function toNumber(val) {
     return val;
 }
 
+function createConfig(type, title) {
+    return {
+        chart: {
+            type
+        },
+        title: {
+            text: title
+        }
+    };
+}
+
+function createFixedDimsTitle(fixedDims, dc) {
+    return fixedDims.reduce((str, dim) => {
+
+        const dimStr = DataCube.getValue(dc.getLabel(dim));
+        const dimElsStr = dc.getDimensionElements(dim).reduce(
+            (s, dimEl) => {
+                if (s.length !== 0)
+                    return s + ', ' + DataCube.getValue(dc.getLabel(dimEl));
+                return DataCube.getValue(dc.getLabel(dimEl));
+            }, '');
+
+        if (str.length !== 0)
+            return str + ', ' + dimStr + ' (' + dimElsStr + ')';
+        return dimStr + ' (' + dimElsStr + ')';
+    }, '');
+}
+
+function createSelectedDimTitle(selectedDim, fixedDims, dc) {
+    const selectedTitle = DataCube.getValue(dc.getLabel(selectedDim));
+    const fixedTitle = createFixedDimsTitle(fixedDims, dc);
+
+    return selectedTitle + ' with ' + fixedTitle;
+}
+
 function convertDataCube(visual, dataCube) {
     const converter = {
 
         heatmap(v, dc) {
-
-            const map = dc.dimensions
+            //FIXME axis
+            const sorted = v.get('fixedDims').sortBy(dim => dc.getDimensionElements(dim).size).reverse(); //lowest last
+            const map = sorted
                 // gets all dimension elements in one list
                 .map(dim => dc.getDimensionElements(dim))
                 // gives all dimension elements an index
@@ -36,21 +73,54 @@ function convertDataCube(visual, dataCube) {
                 })})))
                 // reduces list to map
                 .reduce((m, dimEl) => m.merge(dimEl), Map());
-            const data = dc.observations
-                .map(o => {
-                    const dimEls = dc.getDimElsFromObservation(o).flatten(1) //TODO flatten()
-                        .map(dimEl => map.getIn([DataCube.getUri(dimEl), 'idx'])); //maps from dimEl to index
+            const data = dc.observations.map(o => {
+                debugger;
+                const dimEls = dc.getDimElsFromObservation(o).flatten(1)
+                    .map(dimEl => map.getIn([DataCube.getUri(dimEl), 'idx'])); //maps from dimEl to index
 
-                    const m = dc.getMeasure(o).first(); //TODO first
-                    const val = toNumber(DataCube.getValue(m));
-                    return dimEls.push(val);
-                });
+                const m = dc.getMeasure(o).first(); //TODO first
+                const val = toNumber(DataCube.getValue(m));
+                return dimEls.push(val);
+            });
 
-            //TODO axis
-            return (<Heatmap container="chart" data={data.toJS()}/>);
+            const title = createFixedDimsTitle(sorted, dc);
+
+            const config = createConfig('heatmap', title);
+            config.legend = {
+                align: 'left',
+                layout: 'vertical',
+                margin: 0,
+                verticalAlign: 'top',
+                y: 25,
+                symbolHeight: 280
+            };
+            config.series = [
+                {
+                    borderWidth: 1,
+                    data: data.toJS(),
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000'}
+                }
+            ];
+            config.colorAxis = {
+                min: 0,
+                minColor: '#FFFFFF',
+                maxColor: '#000000'
+            };
+            config.xAxis = {
+                categories: dc.getDimensionElements(sorted.get(0))
+                    .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
+                    .toJS()
+            };
+            config.yAxis = {
+                categories: dc.getDimensionElements(sorted.get(1))
+                    .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
+                    .toJS()
+            };
+            return (<ReactHighcharts config={config}/>);
         },
         pieChart(v, dc) {
-
             const sum = dc.observations.reduce((s, o) => {
                 const m = dc.getMeasure(o).first(); //TODO first
                 const val = toNumber(DataCube.getValue(m));
@@ -66,62 +136,60 @@ function convertDataCube(visual, dataCube) {
                 const m = dc.getMeasure(o).first(); //TODO first
                 const val = toNumber(DataCube.getValue(m));
                 return {
-                    label: DataCube.getValue(dc.getLabel(dimEl)),
-                    value: Math.round((val / sum) * 100)
+                    name: DataCube.getValue(dc.getLabel(dimEl)),
+                    y: Math.round((val / sum) * 100)
                 };
             });
-            //TODO Title
-            return (<PieChart
-                      data={data.toJS()}
-                      width={400}
-                      height={400}
-                      radius={100}
-                      innerRadius={20}
-                      sectorBorderColor="white"
-                      title="Pie Chart"
-                      />);
+
+            const title = createSelectedDimTitle(v.get('selectedDim'), v.get('fixedDims'), dc);
+
+            const config = createConfig('pie', title);
+            config.series = [
+                {
+                    data: data.toJS()
+                }
+            ];
+            return (<ReactHighcharts config={config}/>);
         },
         groupedStackedBar(v, dc) {
             return (<GroupedStackedBar container="chart" />);
         },
 
         barChart(v, dc) {
-            // const m = dc.getMeasure(dc.observations.first()).first(); //TODO first
             const yAxisLabel = 'Unit Label';
-            // const yAxisLabel = Util.getMeasure(
-            //     Util.getDefaultMeasurement(dc.get('obs').first()), dc)
-            //     .get('cvNiceLabel');
             const xAxisLabel = DataCube.getValue(dc.getLabel(v.get('selectedDim')));
 
-            const data = dc.observations.map(o => {
+            const title = createSelectedDimTitle(v.get('selectedDim'), v.get('fixedDims'), dc);
 
-                //TODO first
-                const dimElUri = DataCube.getDimensionElementUri(v.get('selectedDim'), o).first();
-                const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
+            const data = dc.getDimensionElements(v.get('selectedDim'))
+                .map(dimEl => {
+                    const values = dc.getObservations(dimEl).map(o => {
+                        const m = dc.getMeasure(o).first(); //TODO first
+                        const val = toNumber(DataCube.getValue(m));
+                        return val;
+                    });
 
-                const m = dc.getMeasure(o).first(); //TODO first
-                const val = toNumber(DataCube.getValue(m));
+                    return Map({
+                        name: DataCube.getValue(dc.getLabel(dimEl)),
+                        data: values
+                    });
+                });
 
-                return {
-                    x: DataCube.getValue(dc.getLabel(dimEl)),
-                    y: val
-                };
-            });
+            const config = createConfig('column', title);
+            config.series = data.toJS();
 
-            const barData = [
-                {name: 'Series A', values: data.toJS()}
-            ];
+            // config.xAxis = {
+            //     title: {
+            //         text: xAxisLabel
+            //     }
+            // };
+            // config.yAxis = {
+            //     title: {
+            //         text: yAxisLabel
+            //     }
+            // };
 
-            return (
-                <BarChart
-                data={barData}
-                width={400}
-                height={400}
-                fill={'#3182bd'}
-                yAxisLabel={yAxisLabel}
-                xAxisLabel={xAxisLabel}
-                />
-            );
+            return (<ReactHighcharts config={config}/>);
         }
     };
 

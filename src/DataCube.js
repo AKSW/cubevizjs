@@ -114,7 +114,11 @@ class DataCube {
     }
 
     getObservations(dimEl) {
-        return this.observations.filter(o => DataCube.observationContainsDimEl(o, dimEl));
+        return this.observations.filter(o => DataCube.observationContainsDimEl(
+            DataCube.getUri(this.getDimension(dimEl)),
+            dimEl,
+            o)
+        );
     }
 
     getAllDimensionElements() {
