@@ -44,6 +44,12 @@ const CubeVizApp = React.createClass({
                   </Row>
                   <Row>
                       <Col md={12}>
+                          <span>Demo application,
+                              please use the console for detailed output.</span>
+                      </Col>
+                  </Row>
+                  <Row>
+                      <Col md={12}>
                           <Chart />
                       </Col>
                   </Row>

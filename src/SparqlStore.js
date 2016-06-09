@@ -129,12 +129,14 @@ class SparqlStore {
         return this.getDatasets()
         .then(ds => {
             if (ds.length === 0) return Promise.reject('No datasets found.');
+            console.log('Found ' + ds.length + ' Datasets, selected first.');
             this.result.dataset = ds[0];
             return this.getDsd(ds[0]);
         })
         .then(dsd => {
             if (dsd.length === 0) return Promise.reject('No dsd found.');
             this.result.dataStructureDefinition = dsd[0];
+            console.log('Found ' + dsd.length + ' DSD, selected first.');
             const p =
                 [this.getDimensions(this.result.dataset, dsd[0]), this.getMeasure(this.result.dataset, dsd[0])];
             return Promise.all(p);
@@ -142,6 +144,9 @@ class SparqlStore {
         .then(res => {
             if (res[1].length === 0) return Promise.reject('No measures found.');
             if (res[0].length === 0) return Promise.reject('No dimensions found.');
+
+            console.log('Found ' + res[1].length + ' measures, selected first.');
+
             this.result.defaultMeasureProperty = res[1][0];
             this.result.dimensions = res[0];
             const p = res[0]

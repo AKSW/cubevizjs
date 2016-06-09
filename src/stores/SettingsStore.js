@@ -43,6 +43,7 @@ facetsSettingsChannel
     })
     .catch(e => {
         console.log(e);
+        importingChannel.subject('importing.finished').onNext();
     });
 });
 
