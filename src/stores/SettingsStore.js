@@ -41,7 +41,9 @@ facetsSettingsChannel
         );
         replySubject.onCompleted();
     })
-    .catch(console.log);
+    .catch(e => {
+        console.log(e);
+    });
 });
 
 // String indexes ["0" "1"]

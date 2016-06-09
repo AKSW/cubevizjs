@@ -74,7 +74,6 @@ function convertDataCube(visual, dataCube) {
                 // reduces list to map
                 .reduce((m, dimEl) => m.merge(dimEl), Map());
             const data = dc.observations.map(o => {
-                debugger;
                 const dimEls = dc.getDimElsFromObservation(o).flatten(1)
                     .map(dimEl => map.getIn([DataCube.getUri(dimEl), 'idx'])); //maps from dimEl to index
 

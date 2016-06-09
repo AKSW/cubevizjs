@@ -163,8 +163,7 @@ class SparqlStore {
             if (obs.length === 0) return Promise.reject('No observations found.');
             this.result.observations = obs;
             return Promise.resolve(this.result);
-        })
-        .catch(console.log);
+        });
     }
 
     getDatasets() {
