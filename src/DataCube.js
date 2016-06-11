@@ -41,12 +41,12 @@ class DataCube {
     }
 
     log() {
-        console.log('\nDataCube created');
+        console.log('\nIn-memory dataCube created');
         console.log('\n');
         console.log('DefaultLanguage: ' + this.defaultLanguage);
         console.log('Dataset:');
         console.log(this.dataset.toJS());
-        console.log('dataStructureDefinition:');
+        console.log('Data structure definition:');
         console.log(this.dataStructureDefinition.toJS());
         console.log('Dimensions:');
         console.log(this.dimensions.toJS());

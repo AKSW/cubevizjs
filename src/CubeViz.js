@@ -4,46 +4,130 @@
 /*eslint no-unused-vars: 0*/
 /*eslint no-console: 0*/
 
-import Immutable from 'immutable';
+import Immutable, {List, Map} from 'immutable';
 
 import * as Rules from './rules/Rules.js';
 import * as Util from './Util.js';
 import {convert} from './Converting.js';
 import DataCube from './DataCube.js';
 
+function logRules(satisfiedResult) {
+    satisfiedResult.forEach(r => {
+        console.log(r.rule);
+    });
+}
+
+function isAccepted(satisfiedResult) {
+    return satisfiedResult.every(rule => rule);
+}
+
 const comparison = {
     name: 'comparison',
-    //return {rank: number, visual: type}
-    eval(dataCube) {//HERE
-        const results = {/*complex: this.name, visuals: []*/};
-        let visuals = Immutable.List();
+    eval(dataCube) {
+        let visuals = List();
 
+        const heatmapRules = List([
+            List([
+                // {
+                //     rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(0)),
+                //     score: 3,
+                // },
+                {
+                    rule: new Rules.IsSingleElementDimension(2).and(new Rules.IsMultiElementDimension(0)),
+                    score: 3,
+                    selectedDim: dc => Map(),
+                    fixedDims: dc => dc.dimensions
+                },
+                // {
+                //     rule: new Rules.IsMultiElementDimension(1),
+                //     score: 2,
+                // },
+                {
+                    rule: new Rules.IsMultiElementDimension(2),
+                    score: 1,
+                    selectedDim: dc => Map(),
+                    fixedDims: dc => dc.dimensions
+                }
+            ]),
+            List([
+                {
+                    rule: new Rules.IsEvenlyDistributed(),
+                    score: 1
+                }
+            ]),
+            List([
+                {
+                    rule: new Rules.InObservationsRange(1, 9),
+                    score: 1
+                },
+                {
+                    rule: new Rules.InObservationsRange(10, 15),
+                    score: 2
+                },
+                {
+                    rule: new Rules.InObservationsRange(16, 30),
+                    score: 3
+                }
+            ])
+        ]);
 
-        const t = new Rules.IsEqual(2);
+        const satisfiedHeatmapRules = heatmapRules.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)));
+        if (isAccepted(satisfiedHeatmapRules)) {
+            console.log('Satisfied Heatmap rules: ');
+            logRules(satisfiedHeatmapRules);
 
-        const heatmapRule = new Rules.HeatmapRule(2, 20, 2);
-        const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
-
-        if (isSatisfiedHeatmap.first())
-            visuals = visuals.push(isSatisfiedHeatmap.last().merge({rank: 1, name: 'heatmap'}));
-
-        const selectedDimensionRule = new Rules.SelectedDimensionRule(2, 10);
-        const isSatisfiedSelectedDim = selectedDimensionRule.isSatisfiedBy(dataCube);
-        if (isSatisfiedSelectedDim.first()) {
-
+            const s = satisfiedHeatmapRules.first().selectedDim(dataCube);
+            const f = satisfiedHeatmapRules.first().fixedDims(dataCube);
             visuals = visuals.withMutations(v => {
-                v.push(isSatisfiedSelectedDim.last().merge({rank: 2, name: 'pieChart'}));
-                v.push(isSatisfiedSelectedDim.last().merge({rank: 2, name: 'barChart'}));
+                v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'heatmap'}));
             });
         }
 
-        // const groupedStackedBarRule = new Rules.GroupedStackedBarRule(15);
-        // const isSatisfiedGStackedBar = groupedStackedBarRule.isSatisfiedBy(dataCube);
-        //
-        // if (isSatisfiedGStackedBar.first()) {
-        //     // results.visuals.push(_.extend({rank: 0, name: 'groupedStackedBar'}, _.last(isSatisfiedGStackedBar)));
-        // }
+        const pieChartRules = List([
+            List([
+                // {
+                //     rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(0)),
+                //     score: 3,
+                //     selectedDim: dc => dc.dimensions.first(),
+                //     fixedDims: dc => List()
+                // },
+                // {
+                //     rule: new Rules.IsSingleElementDimension(0).and(new Rules.IsMultiElementDimension(1)),
+                //     score: 1,
+                //     selectedDim: dc => dc.dimensions.first(),
+                //     fixedDims: dc => List()
+                // },
+                {
+                    rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(1)),
+                    score: 1,
+                    selectedDim: dc => dc.dimensions.find(dim => dc.getDimensionElements(dim).size > 1),
+                    fixedDims: dc => dc.dimensions.filter(dim => dc.getDimensionElements(dim).size === 1)
+                },
+                // {
+                //     rule: new Rules.IsSingleElementDimension('?').and(new Rules.IsMultiElementDimension('>1')),
+                //     score: 0,
+                // },
+            ]),
+            List([
+                {
+                    rule: new Rules.InObservationsRange(1, 9),
+                    score: 1
+                }
+            ])
+        ]);
 
+        const satisfiedPieRules = pieChartRules.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)));
+        if (isAccepted(satisfiedPieRules)) {
+            console.log('Satisfied PieChart (BarChart) rules: ');
+            logRules(satisfiedPieRules);
+
+            const s = satisfiedPieRules.first().selectedDim(dataCube);
+            const f = satisfiedPieRules.first().fixedDims(dataCube);
+            visuals = visuals.withMutations(v => {
+                v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'pieChart'}));
+                v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'barChart'}));
+            });
+        }
         return Immutable.Map({complex: 'comparison', visuals});
     }
 };
@@ -52,17 +136,6 @@ const maxNumber = {
     name: 'maxNumber',
 
     eval(dataCube) {
-
-        // const results = {complex: this.name, visuals: []};
-        //
-        // const heatmapRule = new Rules.HeatmapRule(2, 10, 2);
-        // const isSatisfiedHeatmap = heatmapRule.isSatisfiedBy(dataCube);
-        //
-        // if (_.first(isSatisfiedHeatmap)) {
-        //     results.visuals.push(_.extend({rank: 2, name: 'heatmap'}, _.last(isSatisfiedHeatmap)));
-        // }
-        //
-        // return results;
     }
 };
 
@@ -113,7 +186,10 @@ export function determineVisuals(context, dataCube) {
     const result = test.get('complexes').map(c => c.get('eval')(dataCube));
 
     console.log('\nCubeViz: ');
-    console.log(result.toJS());
+    if (!result.some(res => res.get('visuals').size > 0))
+        console.log('No rule could be satisfied. No visuals determined.');
+    else
+        console.log(result.toJS());
     console.log('\n');
     return result;
 }
