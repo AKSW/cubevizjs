@@ -2,10 +2,11 @@
 /*eslint no-console: 0*/
 /*eslint no-debugger: 0*/
 /*eslint func-style: 0*/
+/*eslint max-nested-callbacks: 0*/
 
 import Rxmq from 'ecc-messagebus';
 import * as CubeViz from '../CubeViz.js';
-import Immutable from 'immutable';
+import Immutable, {Map, List} from 'immutable';
 import DataCube from '../DataCube.js';
 import SparqlStore from '../SparqlStore.js';
 import RemoteStore from '../RemoteStore.js';
@@ -37,7 +38,12 @@ facetsSettingsChannel
         importingChannel.subject('importing.finished').onNext();
         selections = CubeViz.displayConfigureDimensions(dc);
         replySubject.onNext(
-            selections.map(dimEl => dc.getLabel(dimEl).get('@value')).toJS()
+            selections.map(obj => {
+                return Map({
+                    header: DataCube.getValue(dc.getLabel(obj.get('dim'))),
+                    elements: obj.get('dimEls').map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
+                });
+            }).toJS()
         );
         replySubject.onCompleted();
     })
@@ -48,15 +54,18 @@ facetsSettingsChannel
 });
 
 // String indexes ["0" "1"]
-function getSelections(indexes) {
-
-    return Immutable.fromJS(indexes)
-        .reduce((list, i) => {return list.push(selections.get(i));},
-        Immutable.List());
+function getSelections(sel, indexes) {
+    return indexes.reduce((list, i) => list.push(sel.get(i)), List());
 }
 
-export function facetsChanged(facets) {
-    const s = getSelections(facets);
+// selections.get(0).get('dimEls').get(0)
+
+export function dataSelectionChanged(dataSelection) {
+    const s = Immutable.fromJS(dataSelection).map((indexes, identifier) => {
+        const obj = selections.get(identifier);
+        const dimEls = getSelections(obj.get('dimEls'), indexes);
+        return dimEls;
+    }).toList().flatten(1);
     chartListChannel
         .subject('chartList.determineVisuals')
         .onNext({selections: s, dataCube: dc});

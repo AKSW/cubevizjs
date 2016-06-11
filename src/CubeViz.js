@@ -199,6 +199,8 @@ export function displayChart(visual, dataCube) {
 }
 
 export function displayConfigureDimensions(dataCube) {
-
-    return dataCube.getAllDimensionElements();
+    return dataCube.assignedDimEls.map((dimEls, dimUri) => {
+        const dim = dataCube.getDimensionFromUri(dimUri);
+        return Map({dim, dimEls});
+    }).toList();
 }

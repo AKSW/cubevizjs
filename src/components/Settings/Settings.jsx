@@ -13,10 +13,11 @@ import * as jsonld from 'jsonld';
 import Immutable from 'immutable';
 
 import List from './List.jsx';
+import MultipleList from './MultipleList.jsx';
 import Input from './Input.jsx';
 
 import {inputChannel} from '../../stores/InputStore.js';
-import {facetsSettingsChannel, facetsChanged} from '../../stores/SettingsStore.js';
+import {facetsSettingsChannel, dataSelectionChanged} from '../../stores/SettingsStore.js';
 import {chartListChannel} from '../../stores/ChartListStore.js';
 import {chartChannel} from '../../stores/ChartStore.js';
 
@@ -32,7 +33,7 @@ const Settings = React.createClass({
 
     getInitialState() {
         return {
-            facets: [],
+            dataSelections: [],
             open: false,
             visuals: [],
             charts: [],
@@ -64,11 +65,9 @@ const Settings = React.createClass({
     handleTouchTap(tag, event) {
 
         if (tag === 1) {
-            popoverComponent = (<List
-                multiple={true}
-                label="Data Selection"
-                list={this.state.facets}
-                onChange={this.onDataChange}/>);
+            popoverComponent = (
+                <MultipleList lists={this.state.dataSelections} onChange={this.onDataChange}/>
+            );
         }
         else if (tag === 2) {
             popoverComponent = (<List
@@ -90,8 +89,9 @@ const Settings = React.createClass({
             open: false,
         });
     },
-    onDataChange(data) {
-        facetsChanged(data);
+    onDataChange(selections) {
+        this.setState({open: false});
+        dataSelectionChanged(selections);
     },
     onChartsChange(chart) {
         chartChannel
@@ -106,8 +106,8 @@ const Settings = React.createClass({
     onInputChange(input) {
         facetsSettingsChannel
             .request({topic: 'settings.data.init', data: input})
-            .subscribe(facets => {
-                this.setState({facets});
+            .subscribe(dataSelections => {
+                this.setState({dataSelections});
             });
     },
     render() {

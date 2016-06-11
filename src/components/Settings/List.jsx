@@ -5,7 +5,10 @@ import {Input} from 'react-bootstrap';
 
 const List = React.createClass({
     onChange() {
-        this.props.onChange(this.refs.input.getValue());
+        this.props.onChange({
+            identifier: this.props.identifier,
+            indexes: this.refs.input.getValue()
+        });
     },
     render() {
         return (
