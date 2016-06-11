@@ -62,7 +62,6 @@ function convertDataCube(visual, dataCube) {
     const converter = {
 
         heatmap(v, dc) {
-            //FIXME axis
             const sorted = v.get('fixedDims').sortBy(dim => dc.getDimensionElements(dim).size).reverse(); //lowest last
             const map = sorted
                 // gets all dimension elements in one list
@@ -108,12 +107,12 @@ function convertDataCube(visual, dataCube) {
                 maxColor: '#000000'
             };
             config.xAxis = {
-                categories: dc.getDimensionElements(sorted.get(0))
+                categories: dc.getDimensionElements(sorted.get(1))
                     .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
                     .toJS()
             };
             config.yAxis = {
-                categories: dc.getDimensionElements(sorted.get(1))
+                categories: dc.getDimensionElements(sorted.get(0))
                     .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
                     .toJS()
             };
@@ -136,7 +135,7 @@ function convertDataCube(visual, dataCube) {
                 const val = toNumber(DataCube.getValue(m));
                 return {
                     name: DataCube.getValue(dc.getLabel(dimEl)),
-                    y: Math.round((val / sum) * 100)
+                    y: (val / sum) * 100
                 };
             });
 
@@ -148,6 +147,9 @@ function convertDataCube(visual, dataCube) {
                     data: data.toJS()
                 }
             ];
+            config.tooltip = {
+                pointFormat: '{point.percentage:.1f}%'
+            };
             return (<ReactHighcharts config={config}/>);
         },
         groupedStackedBar(v, dc) {
