@@ -7,32 +7,34 @@ import {Grid, Row, Col} from 'react-bootstrap';
 
 import Settings from './Settings/Settings.jsx';
 import Chart from './Chart.jsx'; //FIXME does not rerender after new facet selection
-import Dialog from 'material-ui/lib/dialog';
+import Popover from 'material-ui/lib/popover/popover';
 import CircularProgress from 'material-ui/lib/circular-progress';
 
 import {importingChannel} from '../stores/SettingsStore.js';
 
 const contentStyle = {
-    width: '20%',
-    maxWidth: 'none'
+    marginTop: '100px',
+    padding: 50,
+    textAlign: 'center',
+    fontSize: 'medium'
 };
 
 const CubeVizApp = React.createClass({
     getInitialState() {
         return {
-            showDialog: false
+            showPopover: false
         };
     },
     componentWillMount() {
         importingChannel //TODO Remove quick and dirty
             .subject('importing.start')
             .subscribe(_ => {
-                this.setState({showDialog: true});
+                this.setState({showPopover: true});
             });
         importingChannel
             .subject('importing.finished')
             .subscribe(_ => {
-                this.setState({showDialog: false});
+                this.setState({showPopover: false});
             });
     },
     render() {
@@ -54,15 +56,15 @@ const CubeVizApp = React.createClass({
                       </Col>
                   </Row>
                 </Grid>
-                <Dialog
-                    title="Importing Data"
-                    modal={true}
-                    contentStyle={contentStyle}
-                    style={{'background-color': 'rgba(0.5, 0.5, 0.5, 0.4);'}}
-                    open={this.state.showDialog}
-                    >
-                    <CircularProgress />
-                </Dialog>
+                <Popover
+                    open={this.state.showPopover}
+                    anchorEl={document.getElementById('cubevizapp')}
+                    anchorOrigin={{horizontal: 'middle', vertical: 'center'}}
+                    targetOrigin={{horizontal: 'middle', vertical: 'center'}}
+                    style={contentStyle}>
+                        <CircularProgress />< br/>< br/>
+                        <b>Importing</b>
+                </Popover>
             </div>
         );
     }
