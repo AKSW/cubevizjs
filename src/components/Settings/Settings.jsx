@@ -37,6 +37,8 @@ const Settings = React.createClass({
             open: false,
             visuals: [],
             charts: [],
+            selectedChart: '',
+            selectedDataSelections: [],
             selectionCube: null
         };
     },
@@ -66,7 +68,10 @@ const Settings = React.createClass({
 
         if (tag === 1) {
             popoverComponent = (
-                <MultipleList lists={this.state.dataSelections} onChange={this.onDataChange}/>
+                <MultipleList
+                    lists={this.state.dataSelections}
+                    values={this.state.selectedDataSelections}
+                    onChange={this.onDataChange}/>
             );
         }
         else if (tag === 2) {
@@ -74,6 +79,7 @@ const Settings = React.createClass({
                 multiple={false}
                 label="Charts"
                 list={this.state.charts}
+                value={this.state.selectedChart}
                 onChange={this.onChartsChange}/>);
         }
         else {
@@ -90,10 +96,12 @@ const Settings = React.createClass({
         });
     },
     onDataChange(selections) {
+        this.setState({selectedDataSelections: selections});
         this.setState({open: false});
         dataSelectionChanged(selections);
     },
     onChartsChange(chart) {
+        this.setState({selectedChart: chart});
         chartChannel
         .subject('chart.convertToChart')
         .onNext(

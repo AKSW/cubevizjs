@@ -10,7 +10,7 @@ import List from './List.jsx';
 const MultipleList = React.createClass({
     getInitialState() {
         return {
-            selections: {}
+            selections: this.props.values
         };
     },
     onChange(data) {
@@ -32,6 +32,7 @@ const MultipleList = React.createClass({
                                 multiple={true}
                                 label={list.header}
                                 list={list.elements}
+                                value={this.state.selections[i]}
                                 onChange={this.onChange}/>
                             );
                         })}
