@@ -14,7 +14,7 @@ import {importingChannel} from '../stores/SettingsStore.js';
 
 const contentStyle = {
     width: '20%',
-    maxWidth: 'none',
+    maxWidth: 'none'
 };
 
 const CubeVizApp = React.createClass({
@@ -58,6 +58,7 @@ const CubeVizApp = React.createClass({
                     title="Importing Data"
                     modal={true}
                     contentStyle={contentStyle}
+                    style={{'background-color': 'rgba(0.5, 0.5, 0.5, 0.4);'}}
                     open={this.state.showDialog}
                     >
                     <CircularProgress />

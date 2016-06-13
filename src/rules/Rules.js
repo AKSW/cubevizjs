@@ -79,3 +79,16 @@ IsEvenlyDistributed.prototype.isSatisfiedBy = function(dc) {
         .every(u => u);
     return isEvenlyDistributed;
 };
+
+export function IsContainingObservations(min) {
+    this.min = min;
+}
+
+IsContainingObservations.prototype = Object.create(Specification);
+IsContainingObservations.prototype.isSatisfiedBy = function(dc) {
+
+    return dc.getAllDimensionElements().every(dimEl => {
+        const obs = dc.getObservations(dimEl);
+        return obs.size >= this.min;
+    });
+};

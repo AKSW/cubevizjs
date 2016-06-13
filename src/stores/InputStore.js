@@ -43,6 +43,9 @@ const getInput = {
     },
 
     fileChanged(v, cb) {
+        if (v.size / 1000000 > 15.0)
+            throw new Error('Currently CubeViz cannot handle files bigger than 15 MB.');
+
         const reader = new FileReader();
         reader.onload = function(e) {
             const rdf = e.target.result;
