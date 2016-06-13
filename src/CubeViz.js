@@ -68,6 +68,12 @@ const comparison = {
                     rule: new Rules.InObservationsRange(16, 30),
                     score: 3
                 }
+            ]),
+            List([
+                {
+                    rule: new Rules.IsContainingObservations(1),
+                    score: 1
+                }
             ])
         ]);
 
