@@ -3,6 +3,7 @@
 /*eslint no-debugger:0*/
 /*eslint no-unused-vars: 0*/
 /*eslint no-console: 0*/
+/*eslint max-statements: 0*/
 
 import Immutable, {List, Map} from 'immutable';
 
@@ -10,6 +11,13 @@ import * as Rules from './rules/Rules.js';
 import * as Util from './Util.js';
 import {convert} from './Converting.js';
 import DataCube from './DataCube.js';
+
+function logUnSatisfiedRules(unSatisfiedRules, rules) {
+    unSatisfiedRules.forEach((r, idx) => {
+        if (r === undefined)
+            console.log(rules.get(idx).first().rule);
+    });
+}
 
 function logRules(satisfiedResult) {
     satisfiedResult.forEach(r => {
@@ -87,6 +95,9 @@ const comparison = {
             visuals = visuals.withMutations(v => {
                 v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'heatmap'}));
             });
+        } else {
+            console.log('UNSATISFIED Heatmap rules: ');
+            logUnSatisfiedRules(satisfiedHeatmapRules, heatmapRules);
         }
 
         const pieChartRules = List([
@@ -139,6 +150,9 @@ const comparison = {
                 v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'pieChart'}));
                 v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'barChart'}));
             });
+        } else {
+            console.log('UNSATISFIED PieChart (BarChart) rules: ');
+            logUnSatisfiedRules(satisfiedPieRules, pieChartRules);
         }
         return Immutable.Map({complex: 'comparison', visuals});
     }
