@@ -8,12 +8,13 @@
 import SparqlStore from './SparqlStore.js';
 
 import {promises} from 'jsonld';
-import $ from 'jquery';
+import Ajax from 'simple-ajax';
 
 class RemoteStore extends SparqlStore {
     constructor(url) {
         super();
         this.url = url;
+        this.request = null;
     }
 
     parse(graph) {
@@ -22,24 +23,28 @@ class RemoteStore extends SparqlStore {
 
     execute(query) {
         return new Promise((fulfill, reject) => {
-            $.ajax(this.url, {
+            const ajax = new Ajax({
+                url: this.url,
+                requestedWith: false,
                 cache: false,
                 dataType: 'text',
                 data: {
-                    query
-                },
-                success: (result, status, xhr) => fulfill(result),
-                error: (xhr, status, error) => reject(status)
+                    query,
+                    format: 'text/plain'
+                }
             });
+            ajax.on('success', event => fulfill(event.target.responseText));
+            ajax.on('error', event => reject(event.target.status));
+            ajax.send();
         });
     }
 
-    start() {
-        return Promise.resolve(this);
+    create() {
+        return (this.url) ? Promise.resolve(this) : Promise.reject(this);
     }
 
     load() {
-        return Promise.resolve(this);
+        return (this.url) ? Promise.resolve(this) : Promise.reject(this);
     }
 
     getDatasets() {

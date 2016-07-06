@@ -9,7 +9,6 @@ import Promise from 'promise';
 import RdfStore from 'rdfstore';
 import {promises, jsonld} from 'jsonld';
 import Immutable from 'immutable';
-import $ from 'jquery';
 
 class SparqlStore {
 
@@ -35,9 +34,10 @@ class SparqlStore {
     }
 
     csQuery(dsd) {
-        return 'SELECT ?o ' +
+        return 'CONSTRUCT {?cs ?p ?o} ' +
                 'WHERE { ' +
-                    '<' + dsd + '> <http://purl.org/linked-data/cube#component> ?o ' +
+                    '<' + dsd + '> <http://purl.org/linked-data/cube#component> ?cs . ' +
+                    '?cs ?p ?o . ' +
                 '}';
     }
 
@@ -98,7 +98,11 @@ class SparqlStore {
         });
     }
 
-    start() {
+    create() {
+
+        if (!this.triple)
+            return Promise.reject('No triples!');
+
         return new Promise((fulfill, reject) => {
             RdfStore.create((err, store) => {
                 if (err) reject(err);
@@ -128,13 +132,13 @@ class SparqlStore {
     import() {
         return this.getDatasets()
         .then(ds => {
-            if (ds.length === 0) return Promise.reject('No datasets found.');
+            if (ds.length === 0) return Promise.reject(new Error('NO DATASET FOUND VALIDATION ERROR'));
             console.log('Found ' + ds.length + ' Datasets, selected first.');
             this.result.dataset = ds[0];
             return this.getDsd(ds[0]);
         })
         .then(dsd => {
-            if (dsd.length === 0) return Promise.reject('No dsd found.');
+            if (dsd.length === 0) return Promise.reject(new Error('NO DSD FOUND VALIDATION ERROR'));
             this.result.dataStructureDefinition = dsd[0];
             console.log('Found ' + dsd.length + ' DSD, selected first.');
             const p =
@@ -142,8 +146,8 @@ class SparqlStore {
             return Promise.all(p);
         })
         .then(res => {
-            if (res[1].length === 0) return Promise.reject('No measures found.');
-            if (res[0].length === 0) return Promise.reject('No dimensions found.');
+            if (res[1].length === 0) return Promise.reject(new Error('NO MEASURE FOUND VALIDATION ERROR'));
+            if (res[0].length === 0) return Promise.reject(new Error('NO DIMENSIONS FOUND VALIDATION ERROR'));
 
             console.log('Found ' + res[1].length + ' measures, selected first.');
 
@@ -155,7 +159,8 @@ class SparqlStore {
         })
         .then(dimEls => {
             const temp = Immutable.fromJS(dimEls);
-            if (temp.flatten(1).size === 0) return Promise.reject('No dimEls found.');
+            if (temp.flatten(1).size === 0)
+                return Promise.reject(new Error('NO DIMENSION ELEMENTS FOUND VALIDATION ERROR'));
             this.result.dimensionElements = temp
                 .reduce((map, dimEl, idx) => {
                     const dimUri = Immutable.fromJS(this.result.dimensions)
@@ -165,7 +170,7 @@ class SparqlStore {
             return this.getObservations(this.result.dataset);
         })
         .then(obs => {
-            if (obs.length === 0) return Promise.reject('No observations found.');
+            if (obs.length === 0) return Promise.reject(new Error('NO OBSERVATIONS FOUND VALIDATION ERROR'));
             this.result.observations = obs;
             return Promise.resolve(this.result);
         });
@@ -180,7 +185,7 @@ class SparqlStore {
     }
 
     getCs(dsd) {
-        return this.execute(this.csQuery(dsd));
+        return this.execute(this.csQuery(dsd['@id'])).then(this.parse);
     }
 
     getDimensions(ds, dsd) {

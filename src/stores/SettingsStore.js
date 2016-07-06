@@ -30,7 +30,7 @@ facetsSettingsChannel
     else
         store = new RemoteStore(input.value);
 
-    store.start()
+    store.create()
     .then(() => store.load())
     .then(() => store.import())
     .then((data) => {
