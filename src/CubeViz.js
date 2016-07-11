@@ -7,7 +7,7 @@
 
 import Immutable, {List, Map} from 'immutable';
 
-import * as Rules from './rules/Rules.js';
+// import * as Rules from './rules/Rules.js';
 import * as Util from './Util.js';
 import {convert} from './Converting.js';
 import DataCube from './DataCube.js';
@@ -20,13 +20,14 @@ function logUnSatisfiedRules(unSatisfiedRules, rules) {
 }
 
 function logRules(satisfiedResult) {
-    satisfiedResult.forEach(r => {
-        console.log(r.rule);
+    satisfiedResult.forEach((ruleSet, kind) => {
+        console.log(kind);
+        ruleSet.forEach(r => (r !== undefined) ? console.log(r.rule) : null);
     });
 }
 
 function isAccepted(satisfiedResult) {
-    return satisfiedResult.every(rule => rule);
+    return satisfiedResult.get('mandatory').every(rule => rule);
 }
 
 const comparison = {
@@ -34,64 +35,25 @@ const comparison = {
     eval(dataCube) {
         let visuals = List();
 
-        const heatmapRules = List([
-            List([
-                // {
-                //     rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(0)),
-                //     score: 3,
-                // },
-                {
-                    rule: new Rules.IsSingleElementDimension(2).and(new Rules.IsMultiElementDimension(0)),
-                    score: 3,
-                    selectedDim: dc => Map(),
-                    fixedDims: dc => dc.dimensions
-                },
-                // {
-                //     rule: new Rules.IsMultiElementDimension(1),
-                //     score: 2,
-                // },
-                {
-                    rule: new Rules.IsMultiElementDimension(2),
-                    score: 1,
-                    selectedDim: dc => Map(),
-                    fixedDims: dc => dc.dimensions
-                }
-            ]),
-            List([
-                {
-                    rule: new Rules.IsEvenlyDistributed(),
-                    score: 1
-                }
-            ]),
-            List([
-                {
-                    rule: new Rules.InObservationsRange(1, 9),
-                    score: 1
-                },
-                {
-                    rule: new Rules.InObservationsRange(10, 15),
-                    score: 2
-                },
-                {
-                    rule: new Rules.InObservationsRange(16, 30),
-                    score: 3
-                }
-            ]),
-            List([
-                {
-                    rule: new Rules.IsContainingObservations(1),
-                    score: 1
-                }
-            ])
-        ]);
-
-        const satisfiedHeatmapRules = heatmapRules.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)));
+        const heatmapRules = null;
+        const satisfiedHeatmapRules = heatmapRules.map(
+            rulesSets => rulesSets.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)))
+        );
         if (isAccepted(satisfiedHeatmapRules)) {
             console.log('Satisfied Heatmap rules: ');
             logRules(satisfiedHeatmapRules);
 
-            const s = satisfiedHeatmapRules.first().selectedDim(dataCube);
-            const f = satisfiedHeatmapRules.first().fixedDims(dataCube);
+            //TODO REFACTOR Datacube handling
+            //TODO Generalize process method for all rules
+
+            let newDc = null;
+            if (satisfiedHeatmapRules.get('optional').first() === undefined) {
+                newDc = heatmapRules.get('optional').first().first().rule.process(dataCube);
+                debugger;
+            }
+
+            const s = satisfiedHeatmapRules.get('mandatory').first().selectedDim(dataCube);
+            const f = satisfiedHeatmapRules.get('mandatory').first().fixedDims(dataCube);
             visuals = visuals.withMutations(v => {
                 v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'heatmap'}));
             });
@@ -100,60 +62,67 @@ const comparison = {
             logUnSatisfiedRules(satisfiedHeatmapRules, heatmapRules);
         }
 
-        const pieChartRules = List([
-            List([
-                // {
-                //     rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(0)),
-                //     score: 3,
-                //     selectedDim: dc => dc.dimensions.first(),
-                //     fixedDims: dc => List()
-                // },
-                // {
-                //     rule: new Rules.IsSingleElementDimension(0).and(new Rules.IsMultiElementDimension(1)),
-                //     score: 1,
-                //     selectedDim: dc => dc.dimensions.first(),
-                //     fixedDims: dc => List()
-                // },
-                {
-                    rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(1)),
-                    score: 1,
-                    selectedDim: dc => dc.dimensions.find(dim => dc.getDimensionElements(dim).size > 1),
-                    fixedDims: dc => dc.dimensions.filter(dim => dc.getDimensionElements(dim).size === 1)
-                },
-                // {
-                //     rule: new Rules.IsSingleElementDimension('?').and(new Rules.IsMultiElementDimension('>1')),
-                //     score: 0,
-                // },
-            ]),
-            List([
-                {
-                    rule: new Rules.InObservationsRange(1, 9),
-                    score: 1
-                }
-            ]),
-            List([
-                {
-                    rule: new Rules.IsContainingObservations(1),
-                    score: 1
-                }
-            ])
-        ]);
-
-        const satisfiedPieRules = pieChartRules.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)));
-        if (isAccepted(satisfiedPieRules)) {
-            console.log('Satisfied PieChart (BarChart) rules: ');
-            logRules(satisfiedPieRules);
-
-            const s = satisfiedPieRules.first().selectedDim(dataCube);
-            const f = satisfiedPieRules.first().fixedDims(dataCube);
-            visuals = visuals.withMutations(v => {
-                v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'pieChart'}));
-                v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'barChart'}));
-            });
-        } else {
-            console.log('UNSATISFIED PieChart (BarChart) rules: ');
-            logUnSatisfiedRules(satisfiedPieRules, pieChartRules);
-        }
+        // const pieChartRules = Map({
+        //     mandatory: List([
+        //         List([
+        //             // {
+        //             //     rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(0)),
+        //             //     score: 3,
+        //             //     selectedDim: dc => dc.dimensions.first(),
+        //             //     fixedDims: dc => List()
+        //             // },
+        //             // {
+        //             //     rule: new Rules.IsSingleElementDimension(0).and(new Rules.IsMultiElementDimension(1)),
+        //             //     score: 1,
+        //             //     selectedDim: dc => dc.dimensions.first(),
+        //             //     fixedDims: dc => List()
+        //             // },
+        //             {
+        //                 rule: new Rules.IsSingleElementDimension(1).and(new Rules.IsMultiElementDimension(1)),
+        //                 score: 1,
+        //                 selectedDim: dc => dc.dimensions.find(dim => dc.getDimensionElements(dim).size > 1),
+        //                 fixedDims: dc => dc.dimensions.filter(dim => dc.getDimensionElements(dim).size === 1)
+        //             },
+        //             // {
+        //             //     rule: new Rules.IsSingleElementDimension('?')
+        // .and(new Rules.IsMultiElementDimension('>1')),
+        //             //     score: 0,
+        //             // },
+        //         ]),
+        //         List([
+        //             {
+        //                 rule: new Rules.InObservationsRange(1, 9),
+        //                 score: 1
+        //             }
+        //         ])
+        //     ]),
+        //     optional: List([
+        //         List([
+        //             {
+        //                 rule: new Rules.IsContainingObservations(1),
+        //                 score: 1
+        //             }
+        //         ])
+        //     ])
+        // });
+        //
+        // const satisfiedPieRules = pieChartRules.map(
+        //     rulesSets => rulesSets.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)))
+        // );
+        // if (isAccepted(satisfiedPieRules)) {
+        //     console.log('Satisfied PieChart (BarChart) rules: ');
+        //     logRules(satisfiedPieRules);
+        //
+        //     const s = satisfiedPieRules.get('mandatory').first().selectedDim(dataCube);
+        //     const f = satisfiedPieRules.get('mandatory').first().fixedDims(dataCube);
+        //     visuals = visuals.withMutations(v => {
+        //         v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'pieChart'}));
+        //         v.push(Map({selectedDim: s, fixedDims: f}).merge({rank: 2, name: 'barChart'}));
+        //     });
+        // } else {
+        //     console.log('UNSATISFIED PieChart (BarChart) rules: ');
+        //     logUnSatisfiedRules(satisfiedPieRules, pieChartRules);
+        // }
         return Immutable.Map({complex: 'comparison', visuals});
     }
 };

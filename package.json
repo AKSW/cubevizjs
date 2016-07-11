@@ -27,6 +27,7 @@
     "react-tap-event-plugin": "^0.2.0",
     "simple-ajax": "^2.5.1",
     "specification": "^0.1.0",
+    "ts-specification": "^2.0.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
