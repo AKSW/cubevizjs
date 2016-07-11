@@ -29,10 +29,22 @@ function isFileUrl(url) {
     return url.match(/\.([^\./\?]+)($|\?)/) !== null;
 }
 
+/**
+ * byteSize - Returns byte size of a string
+ *
+ * @param  {string} s string
+ * @return {number}  size in bytes
+ */
+function byteSize(s) {
+    return (new TextEncoder('utf-8').encode(s)).length;
+}
+
 const getInput = {
     endpointChanged(v, cb) {
         if (isFileUrl(v)) {
             request(v, 'text', (r) => {
+                if (byteSize(r) / 1000000 > 15.0)
+                    throw new Error('Currently CubeViz cannot handle files bigger than 15 MB.');
                 cb({type: 'text', value: r});
             });
         } else {
