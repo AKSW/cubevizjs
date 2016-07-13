@@ -188,7 +188,17 @@ class DataCube {
     }
 
     static empty() {
-        return new DataCube(null);
+        const dc = new DataCube(null);
+
+        dc.defaultLanguage = '';
+        dc.dataset = fromJS({});
+        dc.dataStructureDefinition = fromJS({});
+        dc.defaultMeasureProperty = fromJS({});
+        dc.dimensions = fromJS([]);
+        dc.assignedDimEls = fromJS([]);
+        dc.observations = fromJS([]);
+
+        return dc;
     }
 
     static observationContainsDimEl(dimUri, dimEl, obs) {

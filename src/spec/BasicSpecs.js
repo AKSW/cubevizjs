@@ -55,7 +55,7 @@ export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
      * @return {type}    description
      */
     isSatisfiedBy(dc) {
-        return this.dimensionsConstraint(dimElSize => dimElSize > 1, dimCount => this.num > dimCount, dc);
+        return this.dimensionsConstraint(dimElSize => dimElSize > 1, dimCount => dimCount === this.num, dc);
     }
 }
 

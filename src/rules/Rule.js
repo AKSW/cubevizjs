@@ -1,10 +1,11 @@
-/*eslint func-style: [2, "declaration"]*/
 /*eslint no-debugger:0*/
+/*eslint no-console:0*/
 /*eslint no-unused-vars: 0*/
 
 import Immutable, {List, Map} from 'immutable';
+import {CompositeSpecification} from 'ts-specification';
 
-export class Rule {
+export default class Rule extends CompositeSpecification {
 
 
     /**
@@ -13,14 +14,56 @@ export class Rule {
      * @param  {Immutable} ruleSets description
      */
     constructor(ruleSets) {
-        this.ruleSets = ruleSets;
-        this.sufficientlySatisfied = false;
+        super();
+        if (!ruleSets.has('mandatory'))
+            throw new Error('Rulesets has no "mandatory" ruleset.');
+
+        this._ruleSets = ruleSets;
     }
 
-    satisfy(dc) {
+    getRules(ruleSet) {
+        return ruleSet.flatten(1);
+    }
 
-        // const satisfiedHeatmapRules = heatmapRules.map(
-        //     rulesSets => rulesSets.map(ruleSet => ruleSet.find(r => r.rule.isSatisfiedBy(dataCube)))
-        // );
+    getAllRules() {
+        return this._ruleSets.map(ruleSet => this.getRules(ruleSet)).toList().flatten(1);
+    }
+
+    isRuleSatisfiedBy(rule, dc) {
+        return rule.spec.isSatisfiedBy(dc);
+    }
+
+    getSatisfiedRules(dc) {
+        return this.getAllRules().filter(rule => this.isRuleSatisfiedBy(rule, dc));
+    }
+
+    getNotsatisfiedRules(dc) {
+        return this.getAllRules().filter(rule => !this.isRuleSatisfiedBy(rule, dc));
+    }
+
+    getScore(dc) {
+
+        if (!this.isSatisfiedBy(dc))
+            return 0;
+
+        return this.getSatisfiedRules(dc).reduce((sum, rule) => {
+            if (rule.score)
+                return sum + rule.score;
+            return sum;
+        }, 0);
+    }
+
+    getName() {
+        return 'cvRule';
+    }
+
+    isSatisfiedBy(dc) {
+
+        const mandatory = this._ruleSets.get('mandatory');
+        const isSatisfied = mandatory
+            .map(rules => rules.find(rule => this.isRuleSatisfiedBy(rule, dc)))
+            .every(isSat => isSat !== undefined);
+
+        return isSatisfied;
     }
 }
