@@ -6,7 +6,6 @@ import Immutable, {List, Map} from 'immutable';
 
 import {CompositeSpecification} from 'ts-specification';
 import {ProcessingSpec} from './BasicSpecs.js';
-import DataCube from '../DataCube.js';
 
 export default class ContainingObservationsSpec extends ProcessingSpec {
     constructor(min) {

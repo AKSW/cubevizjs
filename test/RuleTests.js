@@ -1,10 +1,10 @@
 import {assert} from 'chai';
 
-import HeatmapRule from '../src/rules/HeatmapRule.js';
-import PieChartRule from '../src/rules/PieChartRule.js'
+import HeatmapRule from '../src/api/rules/HeatmapRule.js';
+import PieChartRule from '../src/api/rules/PieChartRule.js'
 
-import DataCube from '../src/DataCube.js';
-import SparqlStore from '../src/SparqlStore.js';
+import DataCube from '../src/api/DataCube.js';
+import SparqlStore from '../src/api/SparqlStore.js';
 
 import cube1 from './assets/SatisfyHeatmapCube1.js';
 import cube2 from './assets/SatisfyHeatmapCube2.js';

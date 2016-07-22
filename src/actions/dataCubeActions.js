@@ -5,7 +5,7 @@ import {createAction} from 'redux-actions';
 import {Map, List, fromJS} from 'immutable';
 
 import * as cubeViz from '../api/cubeViz.js';
-import DataCube from '../DataCube.js';
+import DataCube from '../api/DataCube.js';
 
 export const NEW_DATA_CUBE = 'NEW_DATA_CUBE';
 export const NEW_SELECTABLE_COMPONENTS = 'NEW_SELECTABLE_COMPONENTS';

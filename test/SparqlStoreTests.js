@@ -10,7 +10,7 @@ import noMeasureCube from './assets/NoMeasureCube.js';
 import noObservationsCube from './assets/NoObservationsCube.js';
 import defaultTestCube from '../src/assets/DefaultDataCube.js';
 
-import SparqlStore from '../src/SparqlStore.js'
+import SparqlStore from '../src/api/SparqlStore.js'
 
 function assertType(expectedType, types) {
     const type = types.find(t => t === expectedType);

@@ -7,7 +7,6 @@
 import React from 'react';
 import Immutable, {Map, List} from 'immutable';
 
-import * as Util from './Util.js';
 import DataCube from './DataCube';
 
 import Heatmap from './components/Charts/Heatmap.js';

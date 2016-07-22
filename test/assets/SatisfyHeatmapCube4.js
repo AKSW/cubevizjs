@@ -1,4 +1,4 @@
-import DataCube from '../../src/DataCube.js';
+import DataCube from '../../src/api/DataCube.js';
 
 const dataset =
 {

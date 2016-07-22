@@ -1,6 +1,6 @@
 import {assert} from 'chai';
 
-import * as CubeViz from '../src/CubeViz.js';
+import * as CubeViz from '../src/api/cubeViz.js';
 
 import cube1 from './assets/SatisfyHeatmapCube1.js';
 

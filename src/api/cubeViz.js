@@ -7,11 +7,10 @@
 
 import Immutable, {List, Map} from 'immutable';
 
-import HeatmapRule from '../rules/HeatmapRule.js';
-import PieChartRule from '../rules/PieChartRule.js';
-import * as Util from '../Util.js';
+import HeatmapRule from './rules/HeatmapRule.js';
+import PieChartRule from './rules/PieChartRule.js';
 // import {convert} from './Converting.js';
-import DataCube from '../DataCube.js';
+import DataCube from './DataCube.js';
 
 const comparison = {
     name: 'comparison',

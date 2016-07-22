@@ -11,7 +11,6 @@ import {changeSelectedComponents} from '../actions/dataCubeActions.js';
 
 // import {doImport} from '../actions';
 import MultipleList from '../components/lists/MultipleList.jsx';
-import DataCube from '../DataCube.js';
 
 class DataSelection extends Component {
 

@@ -1,7 +1,7 @@
 import chai, {assert} from 'chai';
 import _ from 'underscore';
 
-import DataCube from '../src/DataCube.js'
+import DataCube from '../src/api/DataCube.js'
 
 describe('Basic data cube tests', function() {
 

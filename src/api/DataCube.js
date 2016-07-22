@@ -5,9 +5,8 @@
 /*eslint max-params: 0*/
 /*eslint complexity: 0*/
 
-import * as Constants from './Constants.js';
+import * as Constants from '../Constants.js';
 import Immutable, {fromJS} from 'immutable';
-import {keep, isUndefined} from './Util.js';
 
 class DataCube {
 
@@ -126,7 +125,7 @@ class DataCube {
     }
 
     getAllDimensionElements() {
-        return this.assignedDimEls.reduce((list, v, k) => list.push(v), Immutable.List()).flatten(1);
+        return this.assignedDimEls.reduce((list, v, _) => list.push(v), Immutable.List()).flatten(1);
     }
 
     getLabel(obj) {
@@ -176,7 +175,7 @@ class DataCube {
             //TODO Implement other types
             const type = obj.get('@type');
 
-            if (isUndefined(type)) return value;
+            if (type === undefined) return value;
 
             if (type === Constants.FloatUri)
                 return parseFloat(value);
@@ -205,7 +204,7 @@ class DataCube {
         const objects = obs.get(dimUri);
         if (objects) {
             const contains = objects.find(obj => obj.get('@id') === dimEl.get('@id'));
-            return !isUndefined(contains);
+            return contains !== undefined;
         }
         return false;
     }

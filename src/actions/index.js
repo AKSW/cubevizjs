@@ -4,8 +4,8 @@
 import {createAction} from 'redux-actions';
 import {createNewDataCube} from './dataCubeActions.js';
 import imprt, {IMPORT_TYPE_FILE_UPLOAD} from '../api/import';
-import SparqlStore from '../SparqlStore.js';
-import RemoteStore from '../RemoteStore.js';
+import SparqlStore from '../api/SparqlStore.js';
+import RemoteStore from '../api/RemoteStore.js';
 
 export const SHOW_GLOBAL_POPOVER = 'SHOW_GLOBAL_POPOVER';
 
