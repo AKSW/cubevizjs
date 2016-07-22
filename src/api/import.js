@@ -33,7 +33,8 @@ function isFileUrl(url) {
 }
 const getImport = {
     endpoint(v) {
-        if (!isURL(v))
+        debugger;
+        if (!isURL(v)) //FIXME nonsense input
             return Promise.reject('NOT VALID URL ERROR');
         if (isFileUrl(v)) {
             return request(v)

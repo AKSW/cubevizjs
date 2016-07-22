@@ -15,11 +15,13 @@ import Popover from 'material-ui/lib/popover/popover';
 import {showSettingsModal, hideSettingsModal} from '../actions';
 
 import Import from './Import.jsx';
+import DataSelection from './DataSelection.jsx';
+import ChartSelection from './ChartSelection.jsx';
 
 const modalComponents = {
     import: <Import />,
-    dataSelection: '',
-    chartSelection: ''
+    dataSelection: <DataSelection />,
+    chartSelection: <ChartSelection />
 };
 
 const styles = {

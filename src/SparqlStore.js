@@ -118,7 +118,7 @@ class SparqlStore {
         return new Promise((fulfill, reject) => {
             this.internalStore.load('text/n3', this.triple, (err, res) => {
                 if (err) reject(err);
-                else fulfill(res);
+                else fulfill(this);
             });
         });
     }
