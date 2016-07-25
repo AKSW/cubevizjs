@@ -4,7 +4,6 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 
 import Root from './containers/Root.jsx';
 
-
 class CubeViz {
 
     constructor(config) {

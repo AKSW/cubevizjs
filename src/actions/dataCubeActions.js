@@ -14,12 +14,17 @@ export const NEW_SLICE = 'NEW_SLICE';
 export const NEW_CUBEVIZ_CHARTS = 'NEW_CUBEVIZ_CHARTS';
 export const NEW_CUBEVIZ_CHART_NAMES = 'NEW_CUBEVIZ_CHART_NAMES';
 
+export const CHANGED_SELECTED_CHART_IDX = 'CHANGED_SELECTED_CHART_IDX';
+export const CHANGED_SELECTED_CHART = 'CHANGED_SELECTED_CHART';
+
 export const newDataCube = createAction(NEW_DATA_CUBE);
 export const newSelectableComponents = createAction(NEW_SELECTABLE_COMPONENTS);
 export const selectComponents = createAction(SELECT_COMPONENTS);
 export const newSlice = createAction(NEW_SLICE);
 export const newCubeVizCharts = createAction(NEW_CUBEVIZ_CHARTS);
 export const newCubeVizChartNames = createAction(NEW_CUBEVIZ_CHART_NAMES);
+export const changedSelectedChartIdx = createAction(CHANGED_SELECTED_CHART_IDX);
+export const changedSelectedChart = createAction(CHANGED_SELECTED_CHART);
 
 function createSelectableComponents(dc) {
     return dc.assignedDimEls.map((dimEls, dimUri) => {
@@ -76,5 +81,17 @@ export function changeSelectedComponents(selection) {
         dispatch(newSlice(slice));
         dispatch(newCubeVizCharts(charts));
         dispatch(newCubeVizChartNames(getNamesforCharts(charts)));
+    };
+}
+
+export function changeSelectedChart(index) {
+    return (dispatch, getState) => {
+        const {dataCubeReducer} = getState();
+        const charts = dataCubeReducer.get('cubeVizCharts');
+        const idx = parseInt(index, 10);
+        const chart = charts.get(idx);
+
+        dispatch(changedSelectedChart(chart));
+        dispatch(changedSelectedChartIdx(idx));
     };
 }

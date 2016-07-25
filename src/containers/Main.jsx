@@ -7,7 +7,7 @@ import {Grid, Row, Col} from 'react-bootstrap';
 import {connect} from 'react-redux';
 
 import Settings from './Settings.jsx';
-// import Chart from './Chart.jsx';
+import Chart from './Chart.jsx';
 import Popover from 'material-ui/lib/popover/popover';
 import CircularProgress from 'material-ui/lib/circular-progress';
 
@@ -38,7 +38,7 @@ class Main extends Component {
                   </Row>
                   <Row>
                       <Col md={12}>
-                          Chart
+                          <Chart />
                       </Col>
                   </Row>
                 </Grid>
