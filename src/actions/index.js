@@ -70,3 +70,13 @@ export function doImport(importType, value) {
             });
     };
 }
+
+export function handleConfiguration(config) {
+    return dispatch => {
+        if (config.data_source &&
+            config.data_source.value)
+            dispatch(doImport('endpoint', config.data_source.value));
+        else
+            dispatch(doImport('default', 'default'));
+    };
+}

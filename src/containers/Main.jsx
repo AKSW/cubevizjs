@@ -1,10 +1,13 @@
 /*eslint no-debugger: 0*/
 /*eslint no-console: 0*/
 /*eslint func-style: 0*/
+/*eslint camelcase: 0*/
 
 import React, {Component, PropTypes} from 'react';
 import {Grid, Row, Col} from 'react-bootstrap';
 import {connect} from 'react-redux';
+
+import {handleConfiguration} from '../actions';
 
 import Settings from './Settings.jsx';
 import Chart from './Chart.jsx';
@@ -20,7 +23,7 @@ const contentStyle = {
 
 class Main extends Component {
     componentDidMount() {
-        //handle conifg
+        this.props.dispatch(handleConfiguration(this.props.config));
     }
 
     render() {
@@ -59,7 +62,13 @@ class Main extends Component {
 Main.propTypes = {
     popoverTitle: PropTypes.string.isRequired,
     showPopover: PropTypes.bool.isRequired,
-    dispatch: PropTypes.func.isRequired
+    dispatch: PropTypes.func.isRequired,
+    config: PropTypes.shape({
+        ui_container: PropTypes.string,
+        data_source: PropTypes.shape({
+            value: PropTypes.string.isRequired
+        })
+    }).isRequired
 };
 
 function mapStateToProps(state) {

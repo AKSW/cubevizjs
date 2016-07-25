@@ -33,7 +33,6 @@ function isFileUrl(url) {
 }
 const getImport = {
     endpoint(v) {
-        debugger;
         if (!isURL(v)) //FIXME nonsense input
             return Promise.reject('NOT VALID URL ERROR');
         if (isFileUrl(v)) {
@@ -62,7 +61,7 @@ const getImport = {
     },
 
     default(_) {
-        return Promise.resolve({type: 'text', value: DataCube});
+        return Promise.resolve({dataType: 'triple', value: DataCube});
     }
 };
 
