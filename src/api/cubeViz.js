@@ -25,8 +25,8 @@ const comparison = {
                 name: rule.getName(),
                 score: rule.getScore(dataCube),
                 isSatisfied: rule.isSatisfiedBy(dataCube),
-                singleElementDimensions: [],
-                multiElementDimensions: []
+                singleElementDimensions: rule.getSingleElementDimensions(dataCube),
+                multiElementDimensions: rule.getMultiElementDimensions(dataCube)
             });
         });
 
@@ -98,6 +98,7 @@ export function determineCharts(context, dc) {
                 .sortBy(chrt => chrt.get('score'))
                 .reverse();
         }, List());
+    console.log(charts.toJS());
     return charts;
 }
 

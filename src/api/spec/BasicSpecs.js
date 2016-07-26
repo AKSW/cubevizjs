@@ -11,22 +11,24 @@ export class SingleElementDimensionSpec extends CompositeSpecification {
         this.num = num;
     }
 
+    constraint() {
+        return dimElSize => dimElSize === 1;
+    }
     /**
-     * dimensionsConstraint - Applies the contstrains dimElSizeConstraint and dimCountConstraint
+     * dimensionsConstraint - Applies the contstraint dimElSizeConstraint
      * to all dimension elements from every dimension in the data cube.
      *
-     * @param  {boolean} dimElSizeConstraint Constrain to valid the dimension elements size.
-     * @param  {boolean} dimCountConstraint  Constrain to valid the dimensions size.
-     * @param  {DataCube} dc                  description
-     * @return {boolean}                     description
+     * @param  {boolean} dimElSizeConstraint Constraint function to validate the dimension elements size.
+     * @param  {DataCube} dc Data cube
+     * @return {Immutable.List} List of dimensions which have satisfied the dimElSizeConstraint.
      */
-    dimensionsConstraint(dimElSizeConstraint, dimCountConstraint, dc) {
+    dimensionsConstraint(dimElSizeConstraint, dc) {
         const filtered = dc.dimensions.filter(dim => {
             const dimEls = dc.getDimensionElements(dim);
             return dimElSizeConstraint(dimEls.size);
         });
 
-        return dimCountConstraint(filtered.size);
+        return filtered;
     }
 
     /**
@@ -37,7 +39,8 @@ export class SingleElementDimensionSpec extends CompositeSpecification {
      * @return {type}    description
      */
     isSatisfiedBy(dc) {
-        return this.dimensionsConstraint(dimElSize => dimElSize === 1, dimCount => dimCount === this.num, dc);
+        const dims = this.dimensionsConstraint(this.constraint(), dc);
+        return dims.size === this.num;
     }
 }
 export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
@@ -45,6 +48,10 @@ export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
     constructor(num) {
         super();
         this.num = num;
+    }
+
+    constraint() {
+        return dimElSize => dimElSize > 1;
     }
 
     /**
@@ -55,7 +62,8 @@ export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
      * @return {type}    description
      */
     isSatisfiedBy(dc) {
-        return this.dimensionsConstraint(dimElSize => dimElSize > 1, dimCount => dimCount === this.num, dc);
+        const dims = this.dimensionsConstraint(this.constraint(), dc);
+        return dims.size === this.num;
     }
 }
 

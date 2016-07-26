@@ -18,23 +18,27 @@ export default class HeatmapRule extends Rule {
                     List([
                         {
                             spec: new SingleElementDimensionSpec(1).and(new MultiElementDimensionSpec(0)),
-                            score: 1
+                            score: 1,
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         },
                         {
                             spec: new SingleElementDimensionSpec(2).and(new MultiElementDimensionSpec(0)),
                             score: 1,
-                            selectedDim: dc => Map(),
-                            fixedDims: dc => dc.dimensions
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         },
                         {
                             spec: new MultiElementDimensionSpec(1),
-                            score: 2
+                            score: 2,
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         },
                         {
                             spec: new MultiElementDimensionSpec(2),
                             score: 3,
-                            selectedDim: dc => Map(),
-                            fixedDims: dc => dc.dimensions
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         }
                     ]),
                     List([

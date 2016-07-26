@@ -18,20 +18,20 @@ export default class PieChartRule extends Rule {
                         {
                             spec: new SingleElementDimensionSpec(1).and(new MultiElementDimensionSpec(0)),
                             score: 1,
-                            selectedDim: dc => dc.dimensions.first(),
-                            fixedDims: dc => List()
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         },
                         {
                             spec: new SingleElementDimensionSpec(0).and(new MultiElementDimensionSpec(1)),
                             score: 3,
-                            selectedDim: dc => dc.dimensions.first(),
-                            fixedDims: dc => List()
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         },
                         {
                             spec: new SingleElementDimensionSpec(1).and(new MultiElementDimensionSpec(1)),
                             score: 3,
-                            selectedDim: dc => dc.dimensions.find(dim => dc.getDimensionElements(dim).size > 1),
-                            fixedDims: dc => dc.dimensions.filter(dim => dc.getDimensionElements(dim).size === 1)
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
                         }
                     ]),
                     List([

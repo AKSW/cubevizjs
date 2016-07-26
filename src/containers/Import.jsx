@@ -2,6 +2,7 @@
 /*eslint no-debugger:0*/
 /*eslint no-console: 0*/
 /*eslint func-style: 0*/
+/*eslint complexity: 0*/
 
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';

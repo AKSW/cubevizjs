@@ -4,12 +4,13 @@
 
 import Immutable, {List, Map} from 'immutable';
 import {CompositeSpecification} from 'ts-specification';
+import {SingleElementDimensionSpec, MultiElementDimensionSpec} from '../spec/BasicSpecs.js';
 
 export default class Rule extends CompositeSpecification {
 
 
     /**
-     * constructor - Rule class expects ruleSets to be Immutable.js data type.
+     * constructor - Rule class expects ruleSets to be Immutable.js data type
      *
      * @param  {Immutable} ruleSets description
      */
@@ -21,6 +22,13 @@ export default class Rule extends CompositeSpecification {
         this._ruleSets = ruleSets;
     }
 
+
+    /**
+     * getRules - Returns all rules from one rule set
+     *
+     * @param  {Immutable.Map} ruleSet description
+     * @return {Immutable.List}         rules
+     */
     getRules(ruleSet) {
         return ruleSet.flatten(1);
     }
@@ -41,6 +49,40 @@ export default class Rule extends CompositeSpecification {
         return this.getAllRules().filter(rule => !this.isRuleSatisfiedBy(rule, dc));
     }
 
+    getSatisfiedMandatoryRules(dc) {
+        const mandatoryRules = this._ruleSets.get('mandatory')
+            .first()
+            .filter(rule => this.isRuleSatisfiedBy(rule, dc));
+        return mandatoryRules;
+    }
+
+    getDimensions(extractor, dc) {
+        const dimensionsExtractor = extractor;
+        if (dimensionsExtractor)
+            return dimensionsExtractor.dimensionsConstraint(dimensionsExtractor.constraint(), dc);
+        return List();
+    }
+
+    getSingleElementDimensions(dc) {
+        const mandatoryRules = this.getSatisfiedMandatoryRules(dc);
+        if (!this.isSatisfiedBy(dc) || mandatoryRules.size === 0)
+            return List();
+        return this.getDimensions(mandatoryRules.first().singleElementDimensions, dc);
+    }
+
+    getMultiElementDimensions(dc) {
+        const mandatoryRules = this.getSatisfiedMandatoryRules(dc);
+        if (!this.isSatisfiedBy(dc) || mandatoryRules.size === 0)
+            return List();
+
+        return this.getDimensions(mandatoryRules.first().multiElementDimensions, dc);
+    }
+    /**
+     * getScore - Sums up all scores from satisfied rules
+     *
+     * @param  {DataCube} dc data cube
+     * @return {number}    Sum of score
+     */
     getScore(dc) {
 
         if (!this.isSatisfiedBy(dc))
