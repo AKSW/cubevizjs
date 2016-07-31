@@ -1,7 +1,7 @@
 /*eslint func-style: 0*/
 /*eslint complexity: 0*/
 
-import {fromJS, List, Map} from 'immutable';
+import {fromJS, List} from 'immutable';
 import {
     NEW_DATA_CUBE,
     NEW_SELECTABLE_COMPONENTS,
@@ -18,7 +18,7 @@ const initialState = fromJS({
     slice: null, //Could easy be changed to store sliceS
     cubeVizCharts: List(),
     selectableChartsNames: List(), //Array of strings
-    selectedChart: Map(),
+    selectedChart: null,
     selectedChartIdx: 0
 });
 

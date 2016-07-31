@@ -9,13 +9,12 @@ import Immutable, {List, Map} from 'immutable';
 
 import HeatmapRule from './rules/HeatmapRule.js';
 import PieChartRule from './rules/PieChartRule.js';
-// import {convert} from './Converting.js';
 import DataCube from './DataCube.js';
 
 const comparison = {
     name: 'comparison',
     eval(dataCube) {
-        const rules = List([new HeatmapRule(), new PieChartRule()]);
+        const rules = List([new PieChartRule(), new HeatmapRule()]);
         const charts = rules.map(rule => {
 
             //TODO implement singleElementDimensions and multiElementDimensions method
@@ -70,6 +69,7 @@ export function createDataCube(selections, dataCube) {
     const dimensions = selectDimensions(selections, dataCube);
     const dimensionsMap = dataCube.assignDimEls(selections, dimensions);
     const observations = selectObservations(dimensionsMap, dataCube);
+
     const dc = dataCube.createDataCube(selections, dimensions, observations);
     return dc;
 }
@@ -98,18 +98,5 @@ export function determineCharts(context, dc) {
                 .sortBy(chrt => chrt.get('score'))
                 .reverse();
         }, List());
-    console.log(charts.toJS());
     return charts;
-}
-
-export function displayChart(visual, dataCube) {
-    // if (visual)
-    //     return convert(visual, dataCube);
-}
-
-export function displayConfigureDimensions(dataCube) {
-    return dataCube.assignedDimEls.map((dimEls, dimUri) => {
-        const dim = dataCube.getDimensionFromUri(dimUri);
-        return Map({dim, dimEls});
-    }).toList();
 }

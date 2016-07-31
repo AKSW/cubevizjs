@@ -5,12 +5,11 @@
 
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
+import {convert} from '../api/convert.js';
 
 class Chart extends Component {
     render() {
-        return (
-            this.props.chart
-        );
+        return (<div>{this.props.chart}</div>);
     }
 }
 
@@ -20,7 +19,12 @@ Chart.propTypes = {
 function mapStateToProps(state) {
     const {dataCubeReducer} = state;
     return {
-        chart: null
+        chart: (dataCubeReducer.get('selectedChart'))
+            ? convert(
+                dataCubeReducer.get('selectedChart'),
+                dataCubeReducer.get('slice'),
+                dataCubeReducer.get('dataCube'))
+            : null
     };
 }
 

@@ -69,21 +69,6 @@ export function createNewDataCube(data) {
     };
 }
 
-export function changeSelectedComponents(selection) {
-    return (dispatch, getState) => {
-        const {dataCubeReducer} = getState();
-        const dataCube = dataCubeReducer.get('dataCube');
-        const selectedComponents = getComponentsFromSelection(selection, getAllComponents(dataCube));
-        const slice = cubeViz.createDataCube(selectedComponents, dataCube);
-        const charts = cubeViz.determineCharts(null, slice);
-
-        dispatch(selectComponents(selectedComponents));
-        dispatch(newSlice(slice));
-        dispatch(newCubeVizCharts(charts));
-        dispatch(newCubeVizChartNames(getNamesforCharts(charts)));
-    };
-}
-
 export function changeSelectedChart(index) {
     return (dispatch, getState) => {
         const {dataCubeReducer} = getState();
@@ -93,5 +78,26 @@ export function changeSelectedChart(index) {
 
         dispatch(changedSelectedChart(chart));
         dispatch(changedSelectedChartIdx(idx));
+    };
+}
+
+export function changeSelectedComponents(selection) {
+    return (dispatch, getState) => {
+        const {dataCubeReducer} = getState();
+        const dataCube = dataCubeReducer.get('dataCube');
+        const selectedComponents = getComponentsFromSelection(selection, getAllComponents(dataCube));
+        const slice = cubeViz.createDataCube(selectedComponents, dataCube);
+        const charts = cubeViz.determineCharts(null, slice);
+        console.log(charts.toJS());
+
+        const satisfied = charts.filter(c => c.get('isSatisfied'));
+        if (satisfied.size > 0) {
+            dispatch(selectComponents(selectedComponents));
+            dispatch(newSlice(slice));
+            dispatch(newCubeVizCharts(satisfied));
+            dispatch(newCubeVizChartNames(getNamesforCharts(satisfied)));
+
+            dispatch(changeSelectedChart(0));
+        }
     };
 }
