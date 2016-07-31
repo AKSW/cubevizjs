@@ -10,7 +10,7 @@ import noMeasureCube from './assets/NoMeasureCube.js';
 import noObservationsCube from './assets/NoObservationsCube.js';
 import defaultTestCube from '../src/assets/DefaultDataCube.js';
 
-import RemoteStore from '../src/RemoteStore.js';
+import RemoteStore from '../src/api/RemoteStore.js';
 
 const defaultTestCubeUrl = 'http://dockerhost:8890/sparql';
 

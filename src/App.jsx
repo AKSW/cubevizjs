@@ -2,8 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
-import CubeVizApp from './components/CubeVizApp.jsx';
-
+import Root from './containers/Root.jsx';
 
 class CubeViz {
 
@@ -17,7 +16,7 @@ class CubeViz {
         // Check this repo:
         // https://github.com/zilverline/react-tap-event-plugin
         injectTapEventPlugin();
-        ReactDOM.render(<CubeVizApp config={this.config}/>, document.getElementById(this.config.ui_container));
+        ReactDOM.render(<Root config={this.config}/>, document.getElementById(this.config.ui_container));
     }
 }
 
