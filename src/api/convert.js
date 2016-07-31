@@ -10,8 +10,6 @@ import Immutable, {Map, List, Range, fromJS} from 'immutable';
 import DataCube from './DataCube';
 import ReactHighcharts from 'react-highcharts';
 
-const r = require('react-highcharts');
-
 function toNumber(val) {
     if (typeof val !== 'number') {
         console.log('Converting.js: Forcing value to be a number.');
@@ -31,6 +29,10 @@ function createConfig(type, title) {
     };
 }
 
+function createTitle(dim, dc) {
+    return DataCube.getValue(dc.getLabel(dim));
+}
+
 /*eslint-disable*/
 // Source: https://gist.github.com/hu9o/f4e80ed4b036fd76c31ef33dc5b32601
 function cartesianProduct(...arrays) {
@@ -47,11 +49,9 @@ function cartesianProduct(...arrays) {
     }
     return _inner(...arrays, [[]]);
 }
-/*eslint-enable*/
+
 
 function createHeatmap(dim1, dim2, slice, dc) {
-    console.log(r);
-    debugger;
     const vals = slice.observations.map(o => {
         const m = slice.getMeasure(o).first(); //TODO first
         const val = toNumber(DataCube.getValue(m));
@@ -88,42 +88,6 @@ function createHeatmap(dim1, dim2, slice, dc) {
     ];
 
     return (<ReactHighcharts config={config}/>);
-    //
-    // const m = dc.getMeasure(dc.observations.first()).first(); //TODO first
-    // const val = toNumber(DataCube.getValue(m));
-    // const data = [[0, 0, val]];
-    //
-    // const title = DataCube.getValue(dc.getLabel(dim1)) + ' and ' + DataCube.getValue(dc.getLabel(dim2));
-    // const config = createConfig('heatmap', title);
-    // config.legend = {
-    //     align: 'left',
-    //     layout: 'vertical',
-    //     margin: 0,
-    //     verticalAlign: 'top',
-    //     y: 25,
-    //     symbolHeight: 280
-    // };
-    // config.series = [
-    //     {
-    //         borderWidth: 1,
-    //         data,
-    //         dataLabels: {
-    //             enabled: true,
-    //             color: '#000000'}
-    //     }
-    // ];
-    // config.colorAxis = {
-    //     min: 0,
-    //     minColor: '#FFFFFF',
-    //     maxColor: '#000000'
-    // };
-    // config.xAxis = {
-    //     categories: [DataCube.getValue(dc.getLabel(dimEl1))]
-    // };
-    // config.yAxis = {
-    //     categories: [DataCube.getValue(dc.getLabel(dimEl2))]
-    // };
-    // return (<ReactHighcharts config={config}/>);
 }
 
 function createPieChart(dim, remainder, slice, dc) {
@@ -154,7 +118,7 @@ function createPieChart(dim, remainder, slice, dc) {
         };
     });
 
-    const title = 'Test';
+    let title = createTitle(dim, dc);
 
     const config = createConfig('pie', title);
     config.series = [
@@ -173,54 +137,15 @@ export function convert(visual, slice, dataCube) {
     const converter = {
 
         cvHeatmap(v, s, dc) {
+            return null;
+
             const sed = v.get('singleElementDimensions');
             const med = v.get('multiElementDimensions');
             if (sed.size + med.size > 2)
                 throw new Error('Heatmap not appropriate for more than 2 dimensions');
             if (sed.size === 1 && med.size === 0) {
-                //
-                const dim1 = sed.get(0);
-                const others = dc.dimensions.filter(d => d.get('@id') !== dim.get('@id'));
-                // const title = createSelectedDimTitle(dim, others, dc);
-                //
-                // const dimEls = dc.getDimensionElements(dim);
-                //
-                // const data = dc.observations.map((o, idx) => {
-                //     const m = dc.getMeasure(o).first(); //TODO first
-                //     const val = toNumber(DataCube.getValue(m));
-                //     return [0, idx, val];
-                // }).toJS();
-                //
-                // const config = createConfig('heatmap', title);
-                //
-                // config.xAxis = {
-                //     categories: dimEls.map(dimEl => DataCube.getValue(dc.getLabel(dimEl))).toJS()
-                // };
-                //
-                // config.legend = {
-                //     align: 'left',
-                //     layout: 'vertical',
-                //     margin: 0,
-                //     verticalAlign: 'top',
-                //     y: 25,
-                //     symbolHeight: 280
-                // };
-                // config.series = [
-                //     {
-                //         borderWidth: 1,
-                //         data,
-                //         dataLabels: {
-                //             enabled: true,
-                //             color: '#000000'}
-                //     }
-                // ];
-                // config.colorAxis = {
-                //     min: 0,
-                //     minColor: '#FFFFFF',
-                //     maxColor: '#000000'
-                // };
-                //
-                // return (<ReactHighcharts config={config}/>);
+                // const dim1 = sed.get(0);
+                // const others = dc.dimensions.filter(d => d.get('@id') !== dim.get('@id'));
 
             } else if (sed.size === 2 && med.size === 0) {
 
@@ -231,40 +156,6 @@ export function convert(visual, slice, dataCube) {
             }
 
             throw new Error();
-            // const sorted = v.get('fixedDims').sortBy(dim => dc.getDimensionElements(dim).size).reverse(); //lowest last
-            // const map = sorted
-            //     // gets all dimension elements in one list
-            //     .map(dim => dc.getDimensionElements(dim))
-            //     // gives all dimension elements an index
-            //     .flatMap(dimEls => dimEls.map((dimEl, idx) => Map({
-            //         [DataCube.getUri(dimEl)]: Map({idx, object: dimEl
-            //     })})))
-            //     // reduces list to map
-            //     .reduce((m, dimEl) => m.merge(dimEl), Map());
-            // const data = dc.observations.map(o => {
-            //     const dimEls = dc.getDimElsFromObservation(o).flatten(1)
-            //         .map(dimEl => map.getIn([DataCube.getUri(dimEl), 'idx'])); //maps from dimEl to index
-            //
-            //     const m = dc.getMeasure(o).first(); //TODO first
-            //     const val = toNumber(DataCube.getValue(m));
-            //     return dimEls.push(val);
-            // });
-            //
-            // const title = createFixedDimsTitle(sorted, dc);
-            //
-            // const config = createConfig('heatmap', title);
-
-            // config.xAxis = {
-            //     categories: dc.getDimensionElements(sorted.get(1))
-            //         .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
-            //         .toJS()
-            // };
-            // config.yAxis = {
-            //     categories: dc.getDimensionElements(sorted.get(0))
-            //         .map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
-            //         .toJS()
-            // };
-            // return (<ReactHighcharts config={config}/>);
         },
         cvPieChart(v, slce, dc) {
 
@@ -290,40 +181,6 @@ export function convert(visual, slice, dataCube) {
         },
 
         barChart(v, dc) {
-            const yAxisLabel = 'Unit Label';
-            const xAxisLabel = DataCube.getValue(dc.getLabel(v.get('selectedDim')));
-
-            const title = createSelectedDimTitle(v.get('selectedDim'), v.get('fixedDims'), dc);
-
-            const data = dc.getDimensionElements(v.get('selectedDim'))
-                .map(dimEl => {
-                    const values = dc.getObservations(dimEl).map(o => {
-                        const m = dc.getMeasure(o).first(); //TODO first
-                        const val = toNumber(DataCube.getValue(m));
-                        return val;
-                    });
-
-                    return Map({
-                        name: DataCube.getValue(dc.getLabel(dimEl)),
-                        data: values
-                    });
-                });
-
-            const config = createConfig('column', title);
-            config.series = data.toJS();
-
-            // config.xAxis = {
-            //     title: {
-            //         text: xAxisLabel
-            //     }
-            // };
-            // config.yAxis = {
-            //     title: {
-            //         text: yAxisLabel
-            //     }
-            // };
-
-            return (<ReactHighcharts config={config}/>);
         }
     };
 
@@ -332,3 +189,4 @@ export function convert(visual, slice, dataCube) {
 
     throw new Error('Unkown chart type.');
 }
+/*eslint-enable*/
