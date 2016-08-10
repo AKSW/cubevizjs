@@ -396,7 +396,9 @@ const dc = new DataCube({
     defaultMeasureProperty,
     dimensions,
     dimensionElements,
-    observations
+    observations,
+    attributes: [],
+    attributesElements: {}
 });
 
 export default dc;

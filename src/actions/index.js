@@ -56,7 +56,11 @@ export function doImport(importType, value) {
                 dispatch(changeImportSettings(importType, value));
                 dispatch(showGlobalPopover(true, 'Creating RDF Store'));
                 return createRdfStore(result);
-            }).then(store => {
+            })
+            .then(store => {
+                return store.verify();
+            })
+            .then(store => {
                 dispatch(showGlobalPopover(true, 'Importing Data'));
                 return importData(store);
             }).then(data => {

@@ -38,7 +38,7 @@ const dataStructureDefinition =
       "@id": "http://example.cubeviz.org/compare/mortalityEurope/yearCS"
     },
     {
-      "@id": "http://example.cubeviz.org/compare/mortalityEurope/unitCS"
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/unit1CS"
     },
     {
       "@id": "http://example.cubeviz.org/compare/mortalityEurope/valueCS"
@@ -170,10 +170,10 @@ const observations =
         "@id": "http://example.cubeviz.org/compare/mortalityEurope/Y2000"
       }
     ],
-    "http://example.cubeviz.org/compare/mortalityEurope/unit": [
-      {
-        "@value": "straight deaths"
-      }
+    "http://example.cubeviz.org/compare/mortalityEurope/unit1": [
+        {
+          "@id": "http://example.cubeviz.org/compare/mortalityEurope/unit1/el1"
+        }
     ]
   },
   {
@@ -191,10 +191,10 @@ const observations =
         "@id": "http://example.cubeviz.org/compare/mortalityEurope/Y2001"
       }
     ],
-    "http://example.cubeviz.org/compare/mortalityEurope/unit": [
-      {
-        "@value": "straight deaths"
-      }
+    "http://example.cubeviz.org/compare/mortalityEurope/unit1": [
+        {
+          "@id": "http://example.cubeviz.org/compare/mortalityEurope/unit1/el2"
+        }
     ],
     "http://example.cubeviz.org/compare/mortalityEurope/value": [
       {
@@ -207,8 +207,68 @@ const observations =
         "@id": "http://example.cubeviz.org/compare/mortalityEurope/dataset"
       }
     ]
-  }
+},
+{
+  "@id": "http://example.cubeviz.org/compare/mortalityEurope/obs2",
+  "@type": [
+    "http://purl.org/linked-data/cube#Observation"
+  ],
+  "http://example.cubeviz.org/compare/mortalityEurope/country": [
+    {
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/Germany"
+    }
+  ],
+  "http://example.cubeviz.org/compare/mortalityEurope/year": [
+    {
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/Y2001"
+    }
+  ],
+  "http://example.cubeviz.org/compare/mortalityEurope/unit1": [
+    {
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/unit1/el1"
+    }
+  ],
+  "http://example.cubeviz.org/compare/mortalityEurope/value": [
+    {
+      "@value": "856000",
+      "@type": "http://www.w3.org/2001/XMLSchema#float"
+    }
+  ],
+  "http://purl.org/linked-data/cube#dataSet": [
+    {
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/dataset"
+    }
+  ]
+}
 ];
+
+const attributes =
+[
+    {
+        "@id": "http://example.cubeviz.org/compare/mortalityEurope/unit1",
+        "@type": [
+            "http://purl.org/linked-data/cube#AttributeProperty"
+        ]
+    }
+];
+
+const attributesElements=
+{
+    'http://example.cubeviz.org/compare/mortalityEurope/unit1': [
+        {
+            '@id': 'http://example.cubeviz.org/compare/mortalityEurope/unit1/el1',
+            '@type': [
+                'http://example.cubeviz.org/compare/mortalityEurope/unit1'
+            ]
+        },
+        {
+            '@id': 'http://example.cubeviz.org/compare/mortalityEurope/unit1/el2',
+            '@type': [
+                'http://example.cubeviz.org/compare/mortalityEurope/unit1'
+            ]
+        }
+    ]
+}
 
 const dc = new DataCube({
     defaultLanguage: 'en',
@@ -216,10 +276,10 @@ const dc = new DataCube({
     dataStructureDefinition,
     defaultMeasureProperty,
     dimensions,
+    attributes,
+    attributesElements,
     dimensionElements,
-    observations,
-    attributes: [],
-    attributesElements: {}
+    observations
 });
 
 export default dc;

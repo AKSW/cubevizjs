@@ -53,7 +53,7 @@ function cartesianProduct(...arrays) {
 
 function createHeatmap(dim1, dim2, slice, dc) {
     const vals = slice.observations.map(o => {
-        const m = slice.getMeasure(o).first(); //TODO first
+        const m = slice.getMeasure(o);
         const val = toNumber(DataCube.getValue(m));
         return val;
     });
@@ -93,24 +93,22 @@ function createHeatmap(dim1, dim2, slice, dc) {
 function createPieChart(dim, remainder, slice, dc) {
 
     const sum = slice.observations.reduce((s, o) => {
-        const m = slice.getMeasure(o).first(); //TODO first
+        const m = slice.getMeasure(o);
         const val = toNumber(DataCube.getValue(m));
         return s + val;
     }, 0);
 
     const data = slice.observations.map(o => {
-        //TODO first
-        const dimElUri = DataCube.getDimensionElementUri(dim, o).first();
+        const dimElUri = DataCube.getDimensionElementUri(dim, o);
         const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
-        const restDimEls = DataCube.getDimElsFromObservation(remainder, o).flatten(1);
-        const restDimElsStr = '(' + restDimEls.reduce((str, restDimElUri) => {
-            const restDimEl = dc.getDimensionElement(DataCube.getUri(restDimElUri));
+        const restDimEls = dc.getDimElsFromObservation(o).filter(dEl => DataCube.getUri(dEl) !== DataCube.getUri(dimEl));
+        const restDimElsStr = '(' + restDimEls.reduce((str, restDimEl) => {
             return (str === '')
                 ? str + DataCube.getValue(dc.getLabel(restDimEl))
                 : ' ,' + str + DataCube.getValue(dc.getLabel(restDimEl));
         }, '') + ')';
 
-        const m = slice.getMeasure(o).first(); //TODO first
+        const m = slice.getMeasure(o);
         const val = toNumber(DataCube.getValue(m));
         return {
             name: DataCube.getValue(slice.getLabel(dimEl)) + ' ' + restDimElsStr,

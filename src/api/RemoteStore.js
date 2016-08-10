@@ -6,6 +6,7 @@
 /*eslint complexity: 0*/
 
 import SparqlStore from './SparqlStore.js';
+import * as Queries from '../ICQueries.js';
 
 import {promises} from 'jsonld';
 import Ajax from 'simple-ajax';
@@ -47,37 +48,25 @@ class RemoteStore extends SparqlStore {
         return (this.url) ? Promise.resolve(this) : Promise.reject(this);
     }
 
-    getDatasets() {
-        return this.execute(this.datasetQuery()).then(this.parse);
-    }
+    verify() {
 
-    getDsd(dataset) {
-        return this.execute(this.dsdQuery(dataset['@id'])).then(this.parse);
-    }
-
-    getCs(dsd) {
-        return this.execute(this.csQuery(dsd));
-    }
-
-    getDimensions(ds, dsd) {
-        return this.execute(this.componentQuery(ds['@id'], dsd['@id'], 'http://purl.org/linked-data/cube#dimension'))
-            .then(this.parse);
-    }
-
-    getMeasure(ds, dsd) {
-        return this.execute(this.componentQuery(ds['@id'], dsd['@id'], 'http://purl.org/linked-data/cube#measure'))
-            .then(this.parse);
-    }
-
-    getDimElements(dim, dataset) {
-        return this.execute(this.dimElementsQuery(dim['@id'], dataset['@id'])).then(this.parse);
-    }
-
-    getObservations(dataset) {
-        return this.execute(this.observationsQuery(dataset['@id'])).then(this.parse);
-    }
-    getAllTriples() {
-        return this.execute(this.allTriplesQuery()).then(this.parse);
+        return Promise.all([
+            this.execVerification(Queries.IC1),
+            this.execVerification(Queries.IC2),
+            this.execVerification(Queries.IC3),
+            this.execVerification(Queries.IC4),
+            this.execVerification(Queries.IC6),
+            this.execVerification(Queries.IC11),
+            this.execVerification(Queries.IC12),
+            this.execVerification(Queries.IC13),
+            this.execVerification(Queries.IC14),
+            this.execVerification(Queries.IC15),
+            this.execVerification(Queries.IC16),
+        ])
+        .then(_ => this, e => {
+            console.log(e);
+            return this;
+        });
     }
 }
 

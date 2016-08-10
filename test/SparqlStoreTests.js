@@ -8,7 +8,7 @@ import noDsdCube from './assets/NoDsdCube.js';
 import noDimsCube from './assets/NoDimsCube.js';
 import noMeasureCube from './assets/NoMeasureCube.js';
 import noObservationsCube from './assets/NoObservationsCube.js';
-import defaultTestCube from '../src/assets/DefaultDataCube.js';
+import defaultTestCube from './assets/DefaultDataCube.js';
 
 import SparqlStore from '../src/api/SparqlStore.js'
 
@@ -112,6 +112,15 @@ test(new SparqlStore(defaultTestCube), [
         message: 'should retrieve measure'
     },
     {
+        assert: store => assert.isFulfilled(store.getAttributes({'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dataset' }, {'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dsd'})).then(attributes => {
+            assert.typeOf(attributes, 'array');
+            assert.lengthOf(attributes, 1);
+            assertType('http://purl.org/linked-data/cube#AttributeProperty', attributes[0]['@type']);
+            assert.isTrue(attributes[0]['@id'] === 'http://example.cubeviz.org/compare/mortalityEurope/unit');
+        }),
+        message: 'should retrieve attributes'
+    },
+    {
         assert: store => {
             [{'@id': 'http://example.cubeviz.org/compare/mortalityEurope/country', l: 2}, {'@id': 'http://example.cubeviz.org/compare/mortalityEurope/year', l: 13}].forEach(dim => {
                 assert.isFulfilled(store.getDimElements(dim, {'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dataset' })).then(dimEls => {
@@ -126,7 +135,7 @@ test(new SparqlStore(defaultTestCube), [
     {
         assert: store => assert.isFulfilled(store.getObservations({'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dataset' })).then(obs => {
             assert.typeOf(obs, 'array');
-            assert.lengthOf(obs, 27);
+            assert.lengthOf(obs, 26);
             obs.forEach(o => assertType('http://purl.org/linked-data/cube#Observation', o['@type']));
         }),
         message: 'should retrieve all observations'
@@ -174,3 +183,29 @@ test(new SparqlStore(defaultTestCube), [
         message: 'should import data cube'
     }
 ], { beforeEach: store => store.create().then(s => s.load()) }, 'Complete import test for default test cube for ' + SparqlStore.name);
+
+test(new SparqlStore(defaultTestCube), [
+        {
+            assert: store => assert.isFulfilled(store.import()).then(result => {
+                assert.isNotNull(result);
+                assert.property(result, 'defaultLanguage');
+                assert.property(result, 'dataset');
+                assert.property(result, 'dataStructureDefinition');
+                assert.property(result, 'defaultMeasureProperty');
+                assert.property(result, 'dimensions');
+                assert.property(result, 'attributes');
+                assert.property(result, 'dimensionElements');
+                assert.property(result, 'observations');
+
+                assert.typeOf(result.defaultLanguage, 'string');
+                assert.typeOf(result.dataset, 'object');
+                assert.typeOf(result.dataStructureDefinition, 'object');
+                assert.typeOf(result.defaultMeasureProperty, 'object');
+                assert.typeOf(result.dimensions, 'array');
+                assert.typeOf(result.attributes, 'array');
+                assert.typeOf(result.dimensionElements, 'object');
+                assert.typeOf(result.observations, 'array');
+            }),
+            message: 'should return complete result with correct types'
+        },
+    ], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);

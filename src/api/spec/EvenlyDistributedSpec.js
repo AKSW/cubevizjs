@@ -11,7 +11,7 @@ export default class EvenlyDistributedSpec extends CompositeSpecification {
 
     dimElementCount(dim, obs) {
 
-        const dimEls = obs.map(o => DataCube.getDimensionElementUri(dim, o).first()); //TODO is always array?
+        const dimEls = obs.map(o => DataCube.getDimensionElementUri(dim, o));
         return dimEls.countBy(dimEl => DataCube.getUri(dimEl));
     }
 

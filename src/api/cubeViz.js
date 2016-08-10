@@ -45,11 +45,23 @@ const Contexts = Immutable.fromJS([testContext]);
 
 // Discards every observation point not in dimensions
 // dimensionsMap: {dimension: dim, dimEls: [...]}
-function selectObservations(dimensionsMap, dataCube) {
-    return dataCube.getAllObservations().
-        filter(o => dimensionsMap.every((dimEls, dimUri) => {
+function selectObservations(dimensionsMap, measure, dataCube) {
+    return dataCube.getAllObservations()
+        .filter(o => dimensionsMap.every((dimEls, dimUri) => {
             return dimEls.some(dimEl => DataCube.observationContainsDimEl(dimUri, dimEl, o));
-        }));
+        }))
+        .filter(o => DataCube.getMeasure(measure, o))
+        .filter(o => {
+            const attr = dataCube.getDefaultAttribute();
+            const attrEl = dataCube.getDefaultAttributeElement();
+            if (attrEl && attr) {
+                const attrUri = DataCube.getUri(attr);
+                const attrElUri = DataCube.getUri(attrEl);
+                const observationAttrEl = DataCube.getUri(o.get(attrUri).first());
+                return observationAttrEl === attrElUri;
+            }
+            return true; //no attributes at allD
+        });
 }
 
 //Returns list with dimensions and according dimension elements
@@ -68,7 +80,7 @@ function selectDimensions(dimEls, dataCube) {
 export function createDataCube(selections, dataCube) {
     const dimensions = selectDimensions(selections, dataCube);
     const dimensionsMap = dataCube.assignDimEls(selections, dimensions);
-    const observations = selectObservations(dimensionsMap, dataCube);
+    const observations = selectObservations(dimensionsMap, dataCube.defaultMeasureProperty, dataCube);
 
     const dc = dataCube.createDataCube(selections, dimensions, observations);
     return dc;

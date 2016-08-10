@@ -6,7 +6,7 @@
 /*eslint complexity: 0*/
 
 import * as Constants from '../Constants.js';
-import Immutable, {fromJS} from 'immutable';
+import Immutable, {fromJS, Map} from 'immutable';
 
 class DataCube {
 
@@ -34,6 +34,8 @@ class DataCube {
         this.dataStructureDefinition = fromJS(data.dataStructureDefinition);
         this.defaultMeasureProperty = fromJS(data.defaultMeasureProperty);
         this.dimensions = fromJS(data.dimensions);
+        this.attributes = fromJS(data.attributes);
+        this.attributesElements = fromJS(data.attributesElements);
         this.assignedDimEls = fromJS(data.dimensionElements);
         this.observations = fromJS(data.observations);
         this.log();
@@ -51,6 +53,8 @@ class DataCube {
         console.log(this.dimensions.toJS());
         console.log('All dimension elements: ');
         console.log(this.getAllDimensionElements().toJS());
+        console.log('All attribute elements: ');
+        console.log(this.attributesElements.toJS());
         console.log('Observations: ');
         console.log(this.observations.toJS());
         console.log('Default measure property');
@@ -78,6 +82,8 @@ class DataCube {
             defaultMeasureProperty: this.defaultMeasureProperty.toJS(),
             dimensions,
             dimensionElements: dimensionElements.toJS(),
+            attributes: this.attributes.toJS(),
+            attributesElements: this.attributesElements.toJS(),
             observations
         });
     }
@@ -109,7 +115,11 @@ class DataCube {
     }
 
     getDimElsFromObservation(observation) {
-        return DataCube.getDimElsFromObservation(this.dimensions, observation);
+        return this.dimensions.map(dim => {
+            const uriObj = DataCube.getDimensionElementUri(dim, observation);
+            const uri = DataCube.getUri(uriObj);
+            return this.getDimensionElement(uri);
+        });
     }
 
     getAllObservations() {
@@ -137,6 +147,25 @@ class DataCube {
     }
 
 
+    /**
+     * getDefaultAttribute - Returns the default (first one) selected attribute.
+     *
+     * @returns {?object}  Attribute or null
+     */
+    getDefaultAttribute() {
+        return (this.attributes.size > 0) ? this.attributes.first() : null;
+    }
+
+    getDefaultAttributeElement() {
+        const attribute = this.getDefaultAttribute();
+        if (!attribute)
+            return null;
+
+        const attributeElements = this.attributesElements.get(DataCube.getUri(attribute));
+        return attributeElements.first();
+    }
+
+
     static getType(doc, type) {
         //TODO is get('@type') always list?
         return doc.filter(tri => {
@@ -157,16 +186,19 @@ class DataCube {
                 return language;
             return labels.first();
         }
-
-        throw new Error('DataCube: No Label Property');
+        return Map({'@value': DataCube.getUri(obj).match(/([^\/]*)\/*$/)[1]});
+        //http://stackoverflow.com/a/36741635
     }
 
     static getUri(obj) {
         return obj.get('@id');
     }
 
+    //TODO Different kinds of measurements
     static getMeasure(measureProperty, obj) {
-        return obj.get(measureProperty.get('@id'));
+        const measures = obj.get(measureProperty.get('@id'));
+        if (measures)
+            return obj.get(measureProperty.get('@id')).first();
     }
 
     static getValue(obj) {
@@ -177,7 +209,9 @@ class DataCube {
 
             if (type === undefined) return value;
 
-            if (type === Constants.FloatUri)
+            if (type === Constants.FloatUri ||
+                type === Constants.DoubleUri ||
+                type === Constants.DecimalUri)
                 return parseFloat(value);
 
             throw new Error('DataCube: Object has unkown type');
@@ -194,6 +228,8 @@ class DataCube {
         dc.dataStructureDefinition = fromJS({});
         dc.defaultMeasureProperty = fromJS({});
         dc.dimensions = fromJS([]);
+        dc.attributes = fromJS([]);
+        dc.attributesElements = fromJS({});
         dc.assignedDimEls = fromJS([]);
         dc.observations = fromJS([]);
 
@@ -210,12 +246,7 @@ class DataCube {
     }
 
     static getDimensionElementUri(dimension, observation) {
-        return observation.get(dimension.get('@id'));
-    }
-
-    //IMPORTANT change to getDimensionElementURI
-    static getDimElsFromObservation(dimensions, observation) {
-        return dimensions.map(dim => DataCube.getDimensionElementUri(dim, observation));
+        return observation.get(dimension.get('@id')).first();
     }
 }
 
