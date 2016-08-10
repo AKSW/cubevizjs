@@ -16,7 +16,10 @@
     <script src="cubeviz.min.js"></script>
     <script>
         var configuration = {
-            ui_container: 'react'
+            ui_container: 'react',
+            data_source: {
+                value: 'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3'
+            }
         };
 
         var cubeViz = new CubeViz.default(configuration);

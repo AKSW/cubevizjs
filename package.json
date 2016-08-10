@@ -1,6 +1,6 @@
 {
   "name": "Project",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "No description yet",
   "main": "index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "jquery": "^3.0.0",
     "jsonld": "^0.4.11",
     "material-ui": "^0.14.4",
-    "rdfstore": "^0.9.8",
+    "rdfstore": "^0.9.15",
     "react": "^0.14.8",
     "react-bootstrap": "0.28.3",
     "react-dom": "^0.14.0",
