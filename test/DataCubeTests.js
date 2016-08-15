@@ -28,32 +28,22 @@ describe('Basic data cube tests', function() {
         assert.property(dc, 'defaultLanguage');
         assert.property(dc, 'dataset');
         assert.property(dc, 'dataStructureDefinition');
-        assert.property(dc, 'defaultMeasureProperty');
+        assert.property(dc, 'measures');
         assert.property(dc, 'dimensions');
         assert.property(dc, 'attributes');
+        assert.property(dc, 'attributesElements');
         assert.property(dc, 'assignedDimEls');
         assert.property(dc, 'observations');
 
         assert.isTrue(dc.defaultLanguage === '');
         assert.isTrue(_.isEmpty(dc.dataset.toJS()));
         assert.isTrue(_.isEmpty(dc.dataStructureDefinition.toJS()));
-        assert.isTrue(_.isEmpty(dc.defaultMeasureProperty.toJS()));
+        assert.isTrue(_.isEmpty(dc.measures.toJS()));
         assert.isTrue(_.isEmpty(dc.dimensions.toJS()));
         assert.isTrue(_.isEmpty(dc.attributes.toJS()));
+        assert.isTrue(_.isEmpty(dc.attributesElements.toJS()));
         assert.isTrue(_.isEmpty(dc.assignedDimEls.toJS()));
         assert.isTrue(_.isEmpty(dc.observations.toJS()));
     });
 
-    it('should return the correct default attribute', function() {
-        const dc = DataCube.empty();
-        dc.attributes = fromJS(defaultAttributes);
-
-        assert.typeOf(dc.getDefaultAttribute().toJS(), 'object');
-        assert.deepEqual(dc.getDefaultAttribute().toJS(), defaultAttributes[0]);
-    });
-
-    it('should return null if no attributes are present', function() {
-        const dc = DataCube.empty();
-        assert.strictEqual(dc.getDefaultAttribute(), null);
-    });
 });

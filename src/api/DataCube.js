@@ -6,7 +6,7 @@
 /*eslint complexity: 0*/
 
 import * as Constants from '../Constants.js';
-import Immutable, {fromJS, Map} from 'immutable';
+import Immutable, {fromJS, Map, List} from 'immutable';
 
 class DataCube {
 
@@ -18,7 +18,9 @@ class DataCube {
      * Object { defaultLanguage: "en",
      *          dataset: Object,
      *          dataStructureDefinition: Object,
-     *          defaultMeasureProperty: Object,
+     *          measures: Array[n],
+     *          attributes: Array[n],
+     *          attributesElements: Object,
      *          dimensions: Array[n],
      *          dimensionElements: Object,
      *          observations: Array[n]}
@@ -32,11 +34,12 @@ class DataCube {
         this.defaultLanguage = data.defaultLanguage;
         this.dataset = fromJS(data.dataset);
         this.dataStructureDefinition = fromJS(data.dataStructureDefinition);
-        this.defaultMeasureProperty = fromJS(data.defaultMeasureProperty);
         this.dimensions = fromJS(data.dimensions);
+        this.measures = fromJS(data.measures);
+        this.measureElements = null;
+        this.assignedDimEls = fromJS(data.dimensionElements);
         this.attributes = fromJS(data.attributes);
         this.attributesElements = fromJS(data.attributesElements);
-        this.assignedDimEls = fromJS(data.dimensionElements);
         this.observations = fromJS(data.observations);
         this.log();
     }
@@ -49,16 +52,16 @@ class DataCube {
         console.log(this.dataset.toJS());
         console.log('Data structure definition:');
         console.log(this.dataStructureDefinition.toJS());
-        console.log('Dimensions:');
+        console.log('Dimension(s):');
         console.log(this.dimensions.toJS());
+        console.log('Measure(s)');
+        console.log(this.measures.toJS());
         console.log('All dimension elements: ');
         console.log(this.getAllDimensionElements().toJS());
         console.log('All attribute elements: ');
         console.log(this.attributesElements.toJS());
         console.log('Observations: ');
         console.log(this.observations.toJS());
-        console.log('Default measure property');
-        console.log(this.defaultMeasureProperty.toJS());
     }
 
 
@@ -79,7 +82,7 @@ class DataCube {
             defaultLanguage: this.defaultLanguage,
             dataset: this.dataset.toJS(),
             dataStructureDefinition: this.dataStructureDefinition.toJS(),
-            defaultMeasureProperty: this.defaultMeasureProperty.toJS(),
+            measures: this.measures.toJS(),
             dimensions,
             dimensionElements: dimensionElements.toJS(),
             attributes: this.attributes.toJS(),
@@ -114,24 +117,14 @@ class DataCube {
         return this.assignedDimEls.get(dim.get('@id'));
     }
 
-    getDimElsFromObservation(observation) {
-        return this.dimensions.map(dim => {
-            const uriObj = DataCube.getDimensionElementUri(dim, observation);
-            const uri = DataCube.getUri(uriObj);
-            return this.getDimensionElement(uri);
+    getObservationsContainingDimEl(dimEl) {
+        return this.observations.filter(o => {
+            const dimUri = DataCube.getUri(this.getDimension(dimEl));
+            const objects = o.get(dimUri);
+            if (objects)
+                return objects.find(obj => obj.get('@id') === dimEl.get('@id')) !== undefined;
+            return false;
         });
-    }
-
-    getAllObservations() {
-        return this.observations;
-    }
-
-    getObservations(dimEl) {
-        return this.observations.filter(o => DataCube.observationContainsDimEl(
-            DataCube.getUri(this.getDimension(dimEl)),
-            dimEl,
-            o)
-        );
     }
 
     getAllDimensionElements() {
@@ -142,37 +135,40 @@ class DataCube {
         return DataCube.getLabel(obj, this.defaultLanguage);
     }
 
-    getMeasure(obj) {
-        return DataCube.getMeasure(this.defaultMeasureProperty, obj);
-    }
-
-
-    /**
-     * getDefaultAttribute - Returns the default (first one) selected attribute.
-     *
-     * @returns {?object}  Attribute or null
-     */
-    getDefaultAttribute() {
-        return (this.attributes.size > 0) ? this.attributes.first() : null;
-    }
-
-    getDefaultAttributeElement() {
-        const attribute = this.getDefaultAttribute();
-        if (!attribute)
-            return null;
-
-        const attributeElements = this.attributesElements.get(DataCube.getUri(attribute));
-        return attributeElements.first();
-    }
-
-
-    static getType(doc, type) {
-        //TODO is get('@type') always list?
-        return doc.filter(tri => {
-            const t = tri.get('@type');
-            if (t) return t.find(el => el === type);
-            return false;
+    getMeasureElementsFromObservation(ob, measures = this.measures) {
+        const res = measures.map(comp => {
+            const value = this.getComponentElementFromObservation(ob, comp);
+            return value;
         });
+        return res;
+    }
+
+    getAttributeElementsFromObservation(ob, attributes = this.attributes) {
+        const res = this.getComponentsElementFromObservation(ob, this.attributesElements, attributes);
+        return res;
+    }
+
+    getDimensionElementsFromObservation(ob, dimensions = this.dimensions) {
+        const res = this.getComponentsElementFromObservation(ob, this.assignedDimEls, dimensions);
+        return res;
+    }
+
+    getComponentElementFromObservation(ob, comp) {
+        return ob.get(comp.get('@id')).first();
+    }
+
+    getComponentsElementFromObservation(ob, componentElements, components) {
+        if (!components)
+            return List();
+        return components.map(comp => {
+            const elUri = this.getComponentElementFromObservation(ob, comp);
+            const elements = this.getComponentElements(componentElements, comp);
+            return elements.find(el => el.get('@id') === elUri.get('@id'));
+        });
+    }
+
+    getComponentElements(els, comp) {
+        return els.get(comp.get('@id'));
     }
 
     static getLabel(obj, lang) {
@@ -194,17 +190,9 @@ class DataCube {
         return obj.get('@id');
     }
 
-    //TODO Different kinds of measurements
-    static getMeasure(measureProperty, obj) {
-        const measures = obj.get(measureProperty.get('@id'));
-        if (measures)
-            return obj.get(measureProperty.get('@id')).first();
-    }
-
     static getValue(obj) {
         const value = obj.get('@value');
         if (value) {
-            //TODO Implement other types
             const type = obj.get('@type');
 
             if (type === undefined) return value;
@@ -226,7 +214,7 @@ class DataCube {
         dc.defaultLanguage = '';
         dc.dataset = fromJS({});
         dc.dataStructureDefinition = fromJS({});
-        dc.defaultMeasureProperty = fromJS({});
+        dc.measures = fromJS([]);
         dc.dimensions = fromJS([]);
         dc.attributes = fromJS([]);
         dc.attributesElements = fromJS({});
@@ -234,19 +222,6 @@ class DataCube {
         dc.observations = fromJS([]);
 
         return dc;
-    }
-
-    static observationContainsDimEl(dimUri, dimEl, obs) {
-        const objects = obs.get(dimUri);
-        if (objects) {
-            const contains = objects.find(obj => obj.get('@id') === dimEl.get('@id'));
-            return contains !== undefined;
-        }
-        return false;
-    }
-
-    static getDimensionElementUri(dimension, observation) {
-        return observation.get(dimension.get('@id')).first();
     }
 }
 

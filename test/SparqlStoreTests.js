@@ -104,7 +104,7 @@ test(new SparqlStore(defaultTestCube), [
         message: 'should retrieve dimensions'
     },
     {
-        assert: store => assert.isFulfilled(store.getMeasure({'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dataset' }, {'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dsd'})).then(measures => {
+        assert: store => assert.isFulfilled(store.getMeasures({'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dataset' }, {'@id': 'http://example.cubeviz.org/compare/mortalityEurope/dsd'})).then(measures => {
             assert.typeOf(measures, 'array');
             assert.lengthOf(measures, 1);
             assertType('http://purl.org/linked-data/cube#MeasureProperty', measures[0]['@type']);
@@ -191,7 +191,7 @@ test(new SparqlStore(defaultTestCube), [
                 assert.property(result, 'defaultLanguage');
                 assert.property(result, 'dataset');
                 assert.property(result, 'dataStructureDefinition');
-                assert.property(result, 'defaultMeasureProperty');
+                assert.property(result, 'measures');
                 assert.property(result, 'dimensions');
                 assert.property(result, 'attributes');
                 assert.property(result, 'dimensionElements');
@@ -200,7 +200,7 @@ test(new SparqlStore(defaultTestCube), [
                 assert.typeOf(result.defaultLanguage, 'string');
                 assert.typeOf(result.dataset, 'object');
                 assert.typeOf(result.dataStructureDefinition, 'object');
-                assert.typeOf(result.defaultMeasureProperty, 'object');
+                assert.typeOf(result.measures, 'array');
                 assert.typeOf(result.dimensions, 'array');
                 assert.typeOf(result.attributes, 'array');
                 assert.typeOf(result.dimensionElements, 'object');

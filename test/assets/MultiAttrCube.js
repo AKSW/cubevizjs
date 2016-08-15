@@ -46,19 +46,21 @@ const dataStructureDefinition =
   ]
 };
 
-const defaultMeasureProperty =
-{
-  "@id": "http://example.cubeviz.org/compare/mortalityEurope/value",
-  "@type": [
-    "http://purl.org/linked-data/cube#MeasureProperty"
-  ],
-  "http://www.w3.org/2000/01/rdf-schema#label": [
+const measures =
+[
     {
-      "@value": "deaths (CS)",
-      "@language": "en"
+      "@id": "http://example.cubeviz.org/compare/mortalityEurope/value",
+      "@type": [
+        "http://purl.org/linked-data/cube#MeasureProperty"
+      ],
+      "http://www.w3.org/2000/01/rdf-schema#label": [
+        {
+          "@value": "deaths (CS)",
+          "@language": "en"
+        }
+      ]
     }
-  ]
-};
+];
 
 const dimensions =
 [
@@ -274,7 +276,7 @@ const dc = new DataCube({
     defaultLanguage: 'en',
     dataset,
     dataStructureDefinition,
-    defaultMeasureProperty,
+    measures,
     dimensions,
     attributes,
     attributesElements,

@@ -43,24 +43,33 @@ const testContext = {
 
 const Contexts = Immutable.fromJS([testContext]);
 
+function containsDimEl(dimEl, dimEls) {
+    return dimEls.find(dEl => dEl.get('@id') === dimEl.get('@id')) !== undefined;
+}
+
 // Discards every observation point not in dimensions
-// dimensionsMap: {dimension: dim, dimEls: [...]}
-function selectObservations(dimensionsMap, measure, dataCube) {
-    return dataCube.getAllObservations()
-        .filter(o => dimensionsMap.every((dimEls, dimUri) => {
-            return dimEls.some(dimEl => DataCube.observationContainsDimEl(dimUri, dimEl, o));
+function selectObservations(dimensionsElements, measure, attribute, attrEl, dataCube) {
+    return dataCube.observations
+        .filter(o => dimensionsElements.every((dimEls, dimUri) => {
+            return dimEls.some(dimEl => {
+                const dim = dataCube.getDimensionFromUri(dimUri);
+                const dimensionEls = dataCube.getDimensionElementsFromObservation(o, List([dim]));
+                return containsDimEl(dimEl, dimensionEls);
+            });
         }))
-        .filter(o => DataCube.getMeasure(measure, o))
         .filter(o => {
-            const attr = dataCube.getDefaultAttribute();
-            const attrEl = dataCube.getDefaultAttributeElement();
-            if (attrEl && attr) {
-                const attrUri = DataCube.getUri(attr);
-                const attrElUri = DataCube.getUri(attrEl);
-                const observationAttrEl = DataCube.getUri(o.get(attrUri).first());
-                return observationAttrEl === attrElUri;
-            }
-            return true; //no attributes at allD
+            const measureEls = dataCube.getMeasureElementsFromObservation(o, List([measure]));
+            return measureEls.size > 0;
+        })
+        .filter(o => {
+            if (!attribute)
+                return true;
+
+            const attributeEls = dataCube.getAttributeElementsFromObservation(o, List([attribute]));
+            if (attributeEls.size === 0)
+                return false;
+
+            return attributeEls.find(aEl => aEl.get('@id') === attrEl.get('@id'));
         });
 }
 
@@ -78,9 +87,16 @@ function selectDimensions(dimEls, dataCube) {
 }
 
 export function createDataCube(selections, dataCube) {
+
+    const defaultMeasure = dataCube.measures.first();
+    const defaultAttribute = (dataCube.attributes.size > 0) ? dataCube.attributes.first() : null;
+    const defaultAttrEl = (dataCube.attributes.size > 0)
+        ? dataCube.attributesElements.get(defaultAttribute.get('@id')).first()
+        : null;
+
     const dimensions = selectDimensions(selections, dataCube);
     const dimensionsMap = dataCube.assignDimEls(selections, dimensions);
-    const observations = selectObservations(dimensionsMap, dataCube.defaultMeasureProperty, dataCube);
+    const observations = selectObservations(dimensionsMap, defaultMeasure, defaultAttribute, defaultAttrEl, dataCube);
 
     const dc = dataCube.createDataCube(selections, dimensions, observations);
     return dc;

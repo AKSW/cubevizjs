@@ -91,24 +91,24 @@ function createHeatmap(dim1, dim2, slice, dc) {
 }
 
 function createPieChart(dim, remainder, slice, dc) {
+    const defaultMeasure = slice.measures.first();
 
     const sum = slice.observations.reduce((s, o) => {
-        const m = slice.getMeasure(o);
+        const m = slice.getMeasureElementsFromObservation(o, List([defaultMeasure])).first();
         const val = toNumber(DataCube.getValue(m));
         return s + val;
     }, 0);
 
     const data = slice.observations.map(o => {
-        const dimElUri = DataCube.getDimensionElementUri(dim, o);
-        const dimEl = dc.getDimensionElement(DataCube.getUri(dimElUri));
-        const restDimEls = dc.getDimElsFromObservation(o).filter(dEl => DataCube.getUri(dEl) !== DataCube.getUri(dimEl));
+        const dimEl = slice.getDimensionElementsFromObservation(o, List([dim])).first();
+        const restDimEls = dc.getDimensionElementsFromObservation(o).filter(dEl => DataCube.getUri(dEl) !== DataCube.getUri(dimEl));
         const restDimElsStr = '(' + restDimEls.reduce((str, restDimEl) => {
             return (str === '')
                 ? str + DataCube.getValue(dc.getLabel(restDimEl))
                 : ' ,' + str + DataCube.getValue(dc.getLabel(restDimEl));
         }, '') + ')';
 
-        const m = slice.getMeasure(o);
+        const m = slice.getMeasureElementsFromObservation(o, List([defaultMeasure])).first();
         const val = toNumber(DataCube.getValue(m));
         return {
             name: DataCube.getValue(slice.getLabel(dimEl)) + ' ' + restDimElsStr,

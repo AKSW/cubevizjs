@@ -158,7 +158,7 @@ class SparqlStore {
             const p =
                 [
                     this.getDimensions(this.result.dataset, dsd[0]),
-                    this.getMeasure(this.result.dataset, dsd[0]),
+                    this.getMeasures(this.result.dataset, dsd[0]),
                     this.getAttributes(this.result.dataset, dsd[0]),
                 ];
             return Promise.all(p);
@@ -171,9 +171,8 @@ class SparqlStore {
             console.log('Found ' + res[1].length + ' measure(s)');
             console.log('Found ' + res[2].length + ' attribute(s)');
 
-            this.result.defaultMeasureProperty = res[1][0];
-            this.result.measures = res[1];
             this.result.dimensions = res[0];
+            this.result.measures = res[1];
             this.result.attributes = res[2];
 
             const dimElPromises = res[0].map(dim => this.getDimElements(dim, this.result.dataset));
@@ -229,7 +228,7 @@ class SparqlStore {
             .then(this.parse);
     }
 
-    getMeasure(ds, dsd) {
+    getMeasures(ds, dsd) {
         return this.execute(this.componentQuery(ds['@id'], dsd['@id'], 'http://purl.org/linked-data/cube#measure'))
             .then(this.parse);
     }
