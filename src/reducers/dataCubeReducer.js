@@ -11,7 +11,8 @@ import {
     NEW_CUBEVIZ_CHART_NAMES,
     CHANGED_SELECTED_CHART_IDX,
     CHANGED_SELECTED_CHART,
-    CHANGED_SELECTED_CHART_REACT
+    CHANGED_SELECTED_CHART_REACT,
+    RESET_ALL_DATA_CUBE_STATE
 } from '../actions/dataCubeActions.js';
 
 const initialState = Map({
@@ -46,6 +47,8 @@ function dataCubeReducer(state = initialState, action) {
         return state.set('selectedChart', action.payload);
     case CHANGED_SELECTED_CHART_REACT:
         return state.set('selectedChartReact', action.payload);
+    case RESET_ALL_DATA_CUBE_STATE:
+        return initialState;
     default:
         return state;
     }

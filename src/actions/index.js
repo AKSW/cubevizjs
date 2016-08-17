@@ -2,7 +2,7 @@
 /*eslint no-console: 0*/
 /*eslint no-debugger: 0*/
 import {createAction} from 'redux-actions';
-import {createNewDataCube} from './dataCubeActions.js';
+import {createNewDataCube, resetAllDataCubeState} from './dataCubeActions.js';
 import imprt, {IMPORT_TYPE_FILE_UPLOAD} from '../api/import';
 import SparqlStore from '../api/SparqlStore.js';
 import RemoteStore from '../api/RemoteStore.js';
@@ -64,6 +64,7 @@ export function doImport(importType, value) {
                 dispatch(showGlobalPopover(true, 'Importing Data'));
                 return importData(store);
             }).then(data => {
+                dispatch(resetAllDataCubeState());
                 dispatch(showGlobalPopover(true, 'Creating Data Cube'));
                 dispatch(createNewDataCube(data));
                 dispatch(showGlobalPopover(false, ''));

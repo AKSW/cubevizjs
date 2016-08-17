@@ -21,6 +21,8 @@ export const CHANGED_SELECTED_CHART_IDX = 'CHANGED_SELECTED_CHART_IDX';
 export const CHANGED_SELECTED_CHART = 'CHANGED_SELECTED_CHART';
 export const CHANGED_SELECTED_CHART_REACT = 'CHANGED_SELECTED_CHART_REACT';
 
+export const RESET_ALL_DATA_CUBE_STATE = 'RESET_ALL_DATA_CUBE_STATE';
+
 export const newDataCube = createAction(NEW_DATA_CUBE);
 export const newSelectableComponents = createAction(NEW_SELECTABLE_COMPONENTS);
 export const selectedComponentsChanged = createAction(SELECTED_COMPONENTS_CHANGED);
@@ -31,6 +33,8 @@ export const newCubeVizChartNames = createAction(NEW_CUBEVIZ_CHART_NAMES);
 export const changedSelectedChartIdx = createAction(CHANGED_SELECTED_CHART_IDX);
 export const changedSelectedChart = createAction(CHANGED_SELECTED_CHART);
 export const changedSelectedChartReact = createAction(CHANGED_SELECTED_CHART_REACT);
+
+export const resetAllDataCubeState = createAction(RESET_ALL_DATA_CUBE_STATE);
 
 function createSelectableComponents(dc) {
     return dc.assignedDimEls.map((dimEls, dimUri) => {
