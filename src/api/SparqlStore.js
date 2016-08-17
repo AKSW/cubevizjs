@@ -256,7 +256,7 @@ class SparqlStore {
     execVerification(ic) {
         return this.execute(ic.query)
             .then(res => {
-                const result = (typeof res === 'string') ? (res === 'true') : res;
+                const result = (typeof res === 'string') ? (res !== 'false') : res;
 
                 if (result === true) {
                     console.log(ic.name + ': failed 😥');

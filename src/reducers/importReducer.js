@@ -1,11 +1,11 @@
 /*eslint func-style: 0*/
 
-import {fromJS} from 'immutable';
+import {Map} from 'immutable';
 import {CHANGE_IMPORT_SETTINGS} from '../actions';
 import {IMPORT_TYPE_DEFAULT} from '../api/import';
 import DefaultDataCube from '../assets/DefaultDataCube';
 
-const initialImportState = fromJS({
+const initialImportState = Map({
     importType: IMPORT_TYPE_DEFAULT,
     value: DefaultDataCube
 });

@@ -4,7 +4,7 @@
 
 // import {combineReducers} from 'redux;
 import {combineReducers} from 'redux';
-import {fromJS, Map} from 'immutable';
+import {Map} from 'immutable';
 
 import importReducer from './importReducer';
 import dataCubeReducer from './dataCubeReducer';
@@ -12,11 +12,10 @@ import {
     SHOW_GLOBAL_POPOVER,
     SHOW_SETTINGS_MODAL,
     HIDE_SETTINGS_MODAL,
-    CHANGE_SELECTED_COMPONENTS
 } from '../actions';
 
 
-const initialMainState = fromJS({
+const initialMainState = Map({
     showPopover: false,
     popoverTitle: ''
 });
@@ -32,7 +31,7 @@ export function mainReducer(state = initialMainState, action) {
     }
 }
 
-const initialSettingsState = fromJS({
+const initialSettingsState = Map({
     modalType: null,
     anchorEl: null,
 });
@@ -52,24 +51,10 @@ export function settingsReducer(state = initialSettingsState, action) {
     }
 }
 
-const initialSelectionState = Map({
-    selectedComponents: {} //Maps {dim1: dimEls, dim2: dimEls}
-});
-
-export function selectionReducer(state = initialSelectionState, action) {
-    switch (action.type) {
-    case CHANGE_SELECTED_COMPONENTS:
-        return state.set('selectedComponents', action.payload);
-    default:
-        return state;
-    }
-}
-
 const rootReducer = combineReducers({
     mainReducer,
     settingsReducer,
     importReducer,
-    selectionReducer,
     dataCubeReducer
 });
 

@@ -5,6 +5,7 @@
 
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
+import {fromJS} from 'immutable';
 
 import {hideSettingsModal} from '../actions';
 import {changeSelectedComponents} from '../actions/dataCubeActions.js';
@@ -14,9 +15,14 @@ import MultipleList from '../components/lists/MultipleList.jsx';
 
 class DataSelection extends Component {
 
+    clearEmptySelections(selections) {
+        return fromJS(selections).filter(selectedEls => selectedEls.size > 0).toJS();
+    }
+
     onAccept(selections) {
+        const cleared = this.clearEmptySelections(selections);
         this.props.dispatch(hideSettingsModal());
-        this.props.dispatch(changeSelectedComponents(selections));
+        this.props.dispatch(changeSelectedComponents(cleared));
     }
 
     render() {
@@ -42,9 +48,9 @@ DataSelection.propTypes = {
 
 
 function mapStateToProps(state) {
-    const {dataCubeReducer, selectionReducer} = state;
+    const {dataCubeReducer} = state;
     return {
-        selectedComponents: selectionReducer.get('selectedComponents'),
+        selectedComponents: dataCubeReducer.get('selectedComponents').toJS(),
         allComponents: (dataCubeReducer.get('dataCube'))
             ? dataCubeReducer.get('selectableComponents')
             : []

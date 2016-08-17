@@ -1,25 +1,29 @@
 /*eslint func-style: 0*/
 /*eslint complexity: 0*/
 
-import {fromJS, List} from 'immutable';
+import {List, Map} from 'immutable';
 import {
     NEW_DATA_CUBE,
     NEW_SELECTABLE_COMPONENTS,
+    SELECTED_COMPONENTS_CHANGED,
     NEW_SLICE,
     NEW_CUBEVIZ_CHARTS,
     NEW_CUBEVIZ_CHART_NAMES,
     CHANGED_SELECTED_CHART_IDX,
-    CHANGED_SELECTED_CHART
+    CHANGED_SELECTED_CHART,
+    CHANGED_SELECTED_CHART_REACT
 } from '../actions/dataCubeActions.js';
 
-const initialState = fromJS({
+const initialState = Map({
     dataCube: null,
     selectableComponents: null,
+    selectedComponents: Map(), //Maps {dim1: dimEls, dim2: dimEls}
     slice: null, //Could easy be changed to store sliceS
     cubeVizCharts: List(),
     selectableChartsNames: List(), //Array of strings
     selectedChart: null,
-    selectedChartIdx: 0
+    selectedChartIdx: 0,
+    selectedChartReact: null
 });
 
 function dataCubeReducer(state = initialState, action) {
@@ -28,6 +32,8 @@ function dataCubeReducer(state = initialState, action) {
         return state.set('dataCube', action.payload);
     case NEW_SELECTABLE_COMPONENTS:
         return state.set('selectableComponents', action.payload);
+    case SELECTED_COMPONENTS_CHANGED:
+        return state.set('selectedComponents', action.payload);
     case NEW_SLICE:
         return state.set('slice', action.payload);
     case NEW_CUBEVIZ_CHARTS:
@@ -38,6 +44,8 @@ function dataCubeReducer(state = initialState, action) {
         return state.set('selectedChartIdx', action.payload);
     case CHANGED_SELECTED_CHART:
         return state.set('selectedChart', action.payload);
+    case CHANGED_SELECTED_CHART_REACT:
+        return state.set('selectedChartReact', action.payload);
     default:
         return state;
     }
