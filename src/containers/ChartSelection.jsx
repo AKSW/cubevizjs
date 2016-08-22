@@ -3,44 +3,26 @@
 /*eslint no-console: 0*/
 /*eslint func-style: 0*/
 
-import React, {Component, PropTypes} from 'react';
+import React from 'react';
 import {connect} from 'react-redux';
 
 import {changeSelectedChart} from '../actions/dataCubeActions.js';
 
-import List from '../components/lists/List.jsx';
+import Selection from './Selection.jsx';
 
-class ChartSelection extends Component {
+class ChartSelection extends Selection {
 
-    onChange(index) {
-        this.props.dispatch(changeSelectedChart(index));
-    }
-
-    render() {
-        return (
-            <List
-                multiple={false}
-                label="Charts"
-                list={this.props.charts}
-                value={this.props.index}
-                onChange={this.onChange.bind(this)}/>
-        );
+    action(index) {
+        return changeSelectedChart(index);
     }
 }
-
-ChartSelection.propTypes = {
-    charts: PropTypes.arrayOf(
-        PropTypes.string.isRequired
-    ).isRequired,
-    index: PropTypes.number.isRequired,
-    dispatch: PropTypes.func.isRequired
-};
 
 function mapStateToProps(state) {
     const {dataCubeReducer} = state;
     return {
-        charts: dataCubeReducer.get('selectableChartsNames').toJS(),
-        index: dataCubeReducer.get('selectedChartIdx')
+        list: dataCubeReducer.get('selectableChartsNames').toJS(),
+        index: dataCubeReducer.get('selectedChartIdx'),
+        label: 'Chart'
     };
 }
 

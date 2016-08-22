@@ -15,12 +15,18 @@ import {showSettingsModal, hideSettingsModal} from '../actions';
 
 import Import from './Import.jsx';
 import DataSelection from './DataSelection.jsx';
+import DataSetSelection from './DataSetSelection.jsx';
+import AttributeSelection from './AttributeSelection.jsx';
 import ChartSelection from './ChartSelection.jsx';
+import MeasureSelection from './MeasureSelection.jsx';
 
 const modalComponents = {
     import: <Import />,
+    dataSetSelection: <DataSetSelection />,
     dataSelection: <DataSelection />,
-    chartSelection: <ChartSelection />
+    attributeSelection: <AttributeSelection />,
+    chartSelection: <ChartSelection />,
+    measureSelection: <MeasureSelection />
 };
 
 const styles = {
@@ -49,7 +55,19 @@ class Settings extends Component {
                     primary={true}
                     onTouchTap={this.handleTouchTap.bind(this, 'import')}/>
                   <RaisedButton
-                    label="Select Data"
+                    label="Datasets"
+                    primary={true}
+                    onTouchTap={this.handleTouchTap.bind(this, 'dataSetSelection')}/>
+                  <RaisedButton
+                    label="Measures"
+                    primary={true}
+                    onTouchTap={this.handleTouchTap.bind(this, 'measureSelection')}/>
+                  <RaisedButton
+                    label="Attributes"
+                    primary={true}
+                    onTouchTap={this.handleTouchTap.bind(this, 'attributeSelection')}/>
+                  <RaisedButton
+                    label="Dimensions"
                     primary={true}
                     onTouchTap={this.handleTouchTap.bind(this, 'dataSelection')}/>
                   <RaisedButton

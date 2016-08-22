@@ -115,6 +115,10 @@ class DataCube extends Loggable {
         return DataCube.getLabel(obj, this.defaultLanguage);
     }
 
+    getComponentFromUri(components, uri) {
+        return components.find(comp => comp.get('@id') === uri);
+    }
+
     getMeasureElementsFromObservation(ob, measures = this.measures) {
         const res = measures.map(comp => {
             const value = this.getComponentElementFromObservation(ob, comp);

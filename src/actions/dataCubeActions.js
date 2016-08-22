@@ -38,14 +38,18 @@ export const changedSelectedChartReact = createAction(CHANGED_SELECTED_CHART_REA
 
 export const resetAllDataCubeState = createAction(RESET_ALL_DATA_CUBE_STATE);
 
-function createSelectableComponents(dc) {
-    return dc.assignedDimEls.map((dimEls, dimUri) => {
-        const dim = dc.getDimensionFromUri(dimUri);
+function createSelectableComponentElements(components, componentsMap, dc) {
+    return componentsMap.map((compEls, compUri) => {
+        const comp = dc.getComponentFromUri(components, compUri);
         return Map({
-            header: DataCube.getValue(dc.getLabel(dim)),
-            elements: dimEls.map(dimEl => DataCube.getValue(dc.getLabel(dimEl)))
+            header: DataCube.getValue(dc.getLabel(comp)),
+            elements: compEls.map(compEl => DataCube.getValue(dc.getLabel(compEl)))
         });
     }).toList().toJS();
+}
+
+function createSelectableComponents(components, dc) {
+    return components.map(comp => DataCube.getValue(dc.getLabel(comp))).toJS();
 }
 
 function getAllComponents(dataCube) {
@@ -76,9 +80,17 @@ export function createNewDataCube(data) {
     return dispatch => {
         const dataCube = new DataCube(data);
         dataCube.setLogger({logFct: addNewLineToLogBox, dispatch});
-        const components = createSelectableComponents(dataCube);
+
+        const dimComponentElements = createSelectableComponentElements(
+            dataCube.dimensions, dataCube.assignedDimEls, dataCube
+        );
+        const attrComponentElements = createSelectableComponentElements(
+            dataCube.attributes, dataCube.attributesElements, dataCube
+        );
+        const measureComponents = createSelectableComponents(dataCube.measures, dataCube);
+
         dispatch(newDataCube(dataCube));
-        dispatch(newSelectableComponents(components));
+        dispatch(newSelectableComponents({dimComponentElements, attrComponentElements, measureComponents}));
     };
 }
 
