@@ -11,7 +11,9 @@ import {handleConfiguration} from '../actions';
 
 import Settings from './Settings.jsx';
 import Chart from './Chart.jsx';
+import LogBox from './LogBox.jsx';
 import Popover from 'material-ui/Popover';
+
 import CircularProgress from 'material-ui/CircularProgress';
 
 const contentStyle = {
@@ -42,6 +44,11 @@ class Main extends Component {
                   <Row>
                       <Col md={12}>
                           <Chart />
+                      </Col>
+                  </Row>
+                  <Row>
+                      <Col md={12}>
+                          <LogBox />
                       </Col>
                   </Row>
                 </Grid>

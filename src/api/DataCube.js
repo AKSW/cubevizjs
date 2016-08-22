@@ -7,8 +7,9 @@
 
 import * as Constants from '../Constants.js';
 import Immutable, {fromJS, Map, List} from 'immutable';
+import Loggable from './Loggable.js';
 
-class DataCube {
+class DataCube extends Loggable {
 
 
     /**
@@ -29,8 +30,9 @@ class DataCube {
      */
 
     constructor(data) {
-        if (!data) return;
+        super();
 
+        if (!data) return;
         this.defaultLanguage = data.defaultLanguage;
         this.dataset = fromJS(data.dataset);
         this.dataStructureDefinition = fromJS(data.dataStructureDefinition);
@@ -41,29 +43,7 @@ class DataCube {
         this.attributes = fromJS(data.attributes);
         this.attributesElements = fromJS(data.attributesElements);
         this.observations = fromJS(data.observations);
-        this.log();
     }
-
-    log() {
-        console.log('\nIn-memory dataCube created');
-        console.log('\n');
-        console.log('DefaultLanguage: ' + this.defaultLanguage);
-        console.log('Dataset:');
-        console.log(this.dataset.toJS());
-        console.log('Data structure definition:');
-        console.log(this.dataStructureDefinition.toJS());
-        console.log('Dimension(s):');
-        console.log(this.dimensions.toJS());
-        console.log('Measure(s)');
-        console.log(this.measures.toJS());
-        console.log('All dimension elements: ');
-        console.log(this.getAllDimensionElements().toJS());
-        console.log('All attribute elements: ');
-        console.log(this.attributesElements.toJS());
-        console.log('Observations: ');
-        console.log(this.observations.toJS());
-    }
-
 
     /**
      * createDataCube - Creates new data cube from selected data.

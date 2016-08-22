@@ -12,7 +12,9 @@ import {promises, jsonld} from 'jsonld';
 import Immutable from 'immutable';
 import * as Queries from '../ICQueries.js';
 
-class SparqlStore {
+import Loggable from './Loggable.js';
+
+class SparqlStore extends Loggable {
 
     allTriplesQuery() {
         return 'CONSTRUCT { ?s ?p ?o } ' +
@@ -75,6 +77,8 @@ class SparqlStore {
     }
 
     constructor(triple) {
+        super();
+
         this.triple = triple;
         this.internalStore = null;
         this.result = {};
@@ -102,7 +106,7 @@ class SparqlStore {
     }
 
     execute(query) {
-        console.log(query);
+        this.log('SparqlStore Query:\n' + query);
         return new Promise((fulfill, reject) => {
             this.internalStore.execute(
                 query, (err, res) => {
@@ -147,14 +151,14 @@ class SparqlStore {
         return this.getDatasets()
         .then(ds => {
             if (ds.length === 0) return Promise.reject(new Error('NO DATASET FOUND VALIDATION ERROR'));
-            console.log('Found ' + ds.length + ' Datasets, selected first.');
+            this.log('SparqlStore found ' + ds.length + ' Datasets, selected first.');
             this.result.dataset = ds[0];
             return this.getDsd(ds[0]);
         })
         .then(dsd => {
             if (dsd.length === 0) return Promise.reject(new Error('NO DSD FOUND VALIDATION ERROR'));
             this.result.dataStructureDefinition = dsd[0];
-            console.log('Found ' + dsd.length + ' DSD, selected first.');
+            this.log('SparqlStore found ' + dsd.length + ' DSD, selected first.');
             const p =
                 [
                     this.getDimensions(this.result.dataset, dsd[0]),
@@ -167,9 +171,9 @@ class SparqlStore {
             if (res[1].length === 0) return Promise.reject(new Error('NO MEASURE FOUND VALIDATION ERROR'));
             if (res[0].length === 0) return Promise.reject(new Error('NO DIMENSIONS FOUND VALIDATION ERROR'));
 
-            console.log('Found ' + res[0].length + ' dimension(s)');
-            console.log('Found ' + res[1].length + ' measure(s)');
-            console.log('Found ' + res[2].length + ' attribute(s)');
+            this.log('SparqlStore found ' + res[0].length + ' dimension(s)');
+            this.log('SparqlStore found ' + res[1].length + ' measure(s)');
+            this.log('SparqlStore found ' + res[2].length + ' attribute(s)');
 
             this.result.dimensions = res[0];
             this.result.measures = res[1];
@@ -183,6 +187,8 @@ class SparqlStore {
 
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO DIMENSION ELEMENTS FOUND VALIDATION ERROR'));
+
+            this.log('SparqlStore found ' + temp.flatten(1).size + ' dimension element(s)');
             this.result.dimensionElements = this.mapComponentElementsToComponentTypes(temp, this.result.dimensions);
 
             const attrElPromises = this.result.attributes.map(attr => this.getAttrElements(attr, this.result.dataset));
@@ -198,6 +204,8 @@ class SparqlStore {
 
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO ATTRIBUTE ELEMENTS FOUND VALIDATION ERROR'));
+
+            this.log('SparqlStore found ' + temp.flatten(1).size + ' attribute element(s)');
             this.result.attributesElements = this.mapComponentElementsToComponentTypes(temp, this.result.attributes);
             return this.getObservations(this.result.dataset);
         })
@@ -205,6 +213,7 @@ class SparqlStore {
             if (obs.length === 0) return Promise.reject(new Error('NO OBSERVATIONS FOUND VALIDATION ERROR'));
             this.result.observations = obs;
 
+            this.log('SparqlStore found ' + obs.length + ' observation(s)');
             const p = this.result.attributes
                 .map(attr => this.getAttrElements(attr, this.result.dataset));
             return Promise.resolve(this.result);
@@ -259,12 +268,12 @@ class SparqlStore {
                 const result = (typeof res === 'string') ? (res !== 'false') : res;
 
                 if (result === true) {
-                    console.log(ic.name + ': failed 😥');
-                    console.log(ic.disc);
-                    console.log('See http://www.w3.org/TR/vocab-data-cube/ for further details');
+                    this.log(ic.name + ': failed 😥');
+                    this.log(ic.disc);
+                    this.log('See http://www.w3.org/TR/vocab-data-cube/ for further details');
                 } else {
-                    console.log(ic.name + ': fulfilled 😃');
-                    console.log(ic.disc);
+                    this.log(ic.name + ': fulfilled 😃');
+                    this.log(ic.disc);
                 }
             });
     }
@@ -286,7 +295,7 @@ class SparqlStore {
             // this.execVerification(Queries.IC17) not possible, not supported rdf store feature
         ])
         .then(_ => this, e => {
-            console.log(e);
+            this.log(e);
             return this;
         });
     }

@@ -18,6 +18,9 @@ export const CHANGE_DATASET = 'CHANGE_DATASET';
 export const CHANGE_MEASURE = 'CHANGE_MEASURE';
 export const CHANGE_CHART = 'CHANGE_CHART';
 
+export const CHANGE_LOG_BOX_VISIBILITY = 'CHANGE_LOG_BOX_VISIBILITY';
+export const ADD_NEW_LINE_TO_LOG_BOX = 'ADD_NEW_LINE_TO_LOG_BOX';
+
 
 export const showGlobalPopover = createAction(SHOW_GLOBAL_POPOVER, (show, title) => ({show, title}));
 
@@ -29,6 +32,9 @@ export const changeImportSettings = createAction(CHANGE_IMPORT_SETTINGS, (import
         return {importType, value: value.name};
     return {importType, value};
 });
+
+export const changeLogBoxVisibility = createAction(CHANGE_LOG_BOX_VISIBILITY);
+export const addNewLineToLogBox = createAction(ADD_NEW_LINE_TO_LOG_BOX);
 
 export const changeDataSet = createAction(CHANGE_DATASET);
 export const changeMeasure = createAction(CHANGE_MEASURE);
@@ -58,6 +64,7 @@ export function doImport(importType, value) {
                 return createRdfStore(result);
             })
             .then(store => {
+                store.setLogger({logFct: addNewLineToLogBox, dispatch});
                 return store.verify();
             })
             .then(store => {
@@ -70,7 +77,7 @@ export function doImport(importType, value) {
                 dispatch(showGlobalPopover(false, ''));
             })
             .catch(err => {
-                console.log(err);
+                dispatch(addNewLineToLogBox('Erro while importing : ' + err));
                 dispatch(showGlobalPopover(false, ''));
             });
     };

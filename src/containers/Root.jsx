@@ -1,9 +1,11 @@
 /*eslint no-debugger: 0*/
 /*eslint no-console: 0*/
+/*eslint func-style: 0*/
 
-import React, {Component} from 'react';
+import React, {Component, PropTypes} from 'react';
 import {Provider} from 'react-redux';
 import {createStore, applyMiddleware} from 'redux';
+import createLogger from 'redux-logger';
 import thunkMiddleware from 'redux-thunk';
 import rootReducer from '../reducers';
 
@@ -13,11 +15,23 @@ import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 
 import MainContainer from './Main.jsx';
 
+function mapImmutableToPlain(reducersObj) {
+    return Object.keys(reducersObj).reduce(function(previous, current) {
+        const mapped = (reducersObj[current].toJS) ? reducersObj[current].toJS() : reducersObj[current];
+        previous[current] = mapped;
+        return previous;
+    }, {});
+}
+
 const AppbarStyles = () => getMuiTheme(baseTheme);
 
-const store = createStore(rootReducer, applyMiddleware(thunkMiddleware));
+const logger = createLogger({duration: true, stateTransformer: state => mapImmutableToPlain(state)});
+const store = createStore(rootReducer, applyMiddleware(thunkMiddleware, logger));
 
-export default class Root extends Component {
+class Root extends Component {
+    getChildContext() {
+        return {muiTheme: getMuiTheme(baseTheme)};
+    }
     render() {
         return (
             <MuiThemeProvider muiTheme={AppbarStyles()}>
@@ -28,3 +42,9 @@ export default class Root extends Component {
         );
     }
 }
+
+Root.childContextTypes = {
+    muiTheme: PropTypes.object.isRequired,
+};
+
+export default Root;

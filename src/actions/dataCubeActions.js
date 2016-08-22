@@ -9,6 +9,8 @@ import * as cubeViz from '../api/cubeViz.js';
 import {convert} from '../api/convert.js';
 import DataCube from '../api/DataCube.js';
 
+import {addNewLineToLogBox} from './index.js';
+
 export const NEW_DATA_CUBE = 'NEW_DATA_CUBE';
 export const NEW_SELECTABLE_COMPONENTS = 'NEW_SELECTABLE_COMPONENTS';
 export const SELECTED_COMPONENTS_CHANGED = 'SELECTED_COMPONENTS_CHANGED';
@@ -73,6 +75,7 @@ function getNamesforCharts(charts) {
 export function createNewDataCube(data) {
     return dispatch => {
         const dataCube = new DataCube(data);
+        dataCube.setLogger({logFct: addNewLineToLogBox, dispatch});
         const components = createSelectableComponents(dataCube);
         dispatch(newDataCube(dataCube));
         dispatch(newSelectableComponents(components));
@@ -105,7 +108,7 @@ export function changeSelectedComponents(selections) {
         const selectedComponents = getComponentsFromSelection(selections, getAllComponents(dataCube));
         const slice = cubeViz.createDataCube(selectedComponents, dataCube);
         const charts = cubeViz.determineCharts(null, slice);
-        console.log(charts.toJS());
+        dispatch(addNewLineToLogBox(JSON.stringify(charts.toJS(), null)));
 
         dispatch(selectedComponentsChanged(Map(selections)));
         const satisfied = charts.filter(c => c.get('isSatisfied'));

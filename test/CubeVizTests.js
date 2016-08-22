@@ -39,7 +39,6 @@ describe('CubeViz tests', function() {
         ];
 
         const dc = CubeViz.createDataCube(fromJS(selection), MultiAttrCube);
-        console.log(dc.observations.toJS());
         assert.isTrue(dc.observations.size === 1);
         assert.isTrue(dc.observations
             .get(0)

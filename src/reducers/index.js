@@ -1,6 +1,7 @@
 /*eslint func-style: 0*/
 /*eslint no-debugger: 0*/
 /*eslint no-console: 0*/
+/*eslint complexity: 0*/
 
 // import {combineReducers} from 'redux;
 import {combineReducers} from 'redux';
@@ -12,12 +13,16 @@ import {
     SHOW_GLOBAL_POPOVER,
     SHOW_SETTINGS_MODAL,
     HIDE_SETTINGS_MODAL,
+    ADD_NEW_LINE_TO_LOG_BOX,
+    CHANGE_LOG_BOX_VISIBILITY
 } from '../actions';
 
 
 const initialMainState = Map({
     showPopover: false,
-    popoverTitle: ''
+    popoverTitle: '',
+    logBoxText: '',
+    logBoxVisible: false
 });
 
 export function mainReducer(state = initialMainState, action) {
@@ -26,6 +31,10 @@ export function mainReducer(state = initialMainState, action) {
         return state
             .set('showPopover', action.payload.show)
             .set('popoverTitle', action.payload.title);
+    case ADD_NEW_LINE_TO_LOG_BOX:
+        return state.set('logBoxText', state.get('logBoxText').concat('\n' + action.payload + '\n'));
+    case CHANGE_LOG_BOX_VISIBILITY:
+        return state.set('logBoxVisible', action.payload);
     default:
         return state;
     }
