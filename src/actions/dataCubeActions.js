@@ -54,7 +54,7 @@ function createSelectableComponents(components, dc) {
 
 function getAllComponents(dataCube) {
     return dataCube.assignedDimEls.map((dimEls, dimUri) => {
-        const dim = dataCube.getDimensionFromUri(dimUri);
+        const dim = dataCube.getComponentFromUri(dataCube.dimensions, dimUri);
         return Map({dim, dimEls});
     }).toList();
 }

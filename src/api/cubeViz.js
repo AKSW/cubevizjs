@@ -52,7 +52,7 @@ function selectObservations(dimensionsElements, measure, attribute, attrEl, data
     return dataCube.observations
         .filter(o => dimensionsElements.every((dimEls, dimUri) => {
             return dimEls.some(dimEl => {
-                const dim = dataCube.getDimensionFromUri(dimUri);
+                const dim = dataCube.getComponentFromUri(dataCube.dimensions, dimUri);
                 const dimensionEls = dataCube.getDimensionElementsFromObservation(o, List([dim]));
                 return containsDimEl(dimEl, dimensionEls);
             });
