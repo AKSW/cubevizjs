@@ -7,11 +7,9 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 
-import Toolbar from 'material-ui/lib/toolbar/toolbar';
-import ToolbarGroup from 'material-ui/lib/toolbar/toolbar-group';
-import ToolbarTitle from 'material-ui/lib/toolbar/toolbar-title';
-import RaisedButton from 'material-ui/lib/raised-button';
-import Popover from 'material-ui/lib/popover/popover';
+import {Toolbar, ToolbarGroup, ToolbarTitle} from 'material-ui/Toolbar';
+import RaisedButton from 'material-ui/RaisedButton';
+import Popover from 'material-ui/Popover';
 
 import {showSettingsModal, hideSettingsModal} from '../actions';
 
@@ -44,7 +42,7 @@ class Settings extends Component {
     render() {
         return (
           <Toolbar>
-              <ToolbarGroup float="left">
+              <ToolbarGroup>
                   <ToolbarTitle text="CubeViz" />
                   <RaisedButton
                     label="Import Source"

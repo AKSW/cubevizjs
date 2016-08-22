@@ -7,10 +7,10 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 
-import TextField from 'material-ui/lib/text-field';
-import Divider from 'material-ui/lib/divider';
-import SelectField from 'material-ui/lib/select-field';
-import MenuItem from 'material-ui/lib/menus/menu-item';
+import TextField from 'material-ui/TextField';
+import Divider from 'material-ui/Divider';
+import SelectField from 'material-ui/SelectField';
+import MenuItem from 'material-ui/MenuItem';
 import FileInput from 'react-file-input';
 
 import {doImport} from '../actions';
@@ -21,7 +21,8 @@ class Import extends Component {
         this.request('default', value);
     }
     handleCustomEPChange(event) {
-        this.request('endpoint', event.currentTarget.value);
+        if (event.keyCode === 13)
+            this.request('endpoint', event.currentTarget.value);
     }
     handleFileChange(event) {
         this.request('fileUpload', event.target.files[0]);
@@ -45,7 +46,7 @@ class Import extends Component {
                         ? this.props.value
                         : 'Sparql endpoint or RDF file'
                     }
-                onEnterKeyDown={this.handleCustomEPChange.bind(this)}/>
+                onKeyDown={this.handleCustomEPChange.bind(this)}/>
             <br/><br/>
             <form>
                 <FileInput placeholder= {

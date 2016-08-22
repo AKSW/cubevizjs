@@ -11,8 +11,8 @@ import {handleConfiguration} from '../actions';
 
 import Settings from './Settings.jsx';
 import Chart from './Chart.jsx';
-import Popover from 'material-ui/lib/popover/popover';
-import CircularProgress from 'material-ui/lib/circular-progress';
+import Popover from 'material-ui/Popover';
+import CircularProgress from 'material-ui/CircularProgress';
 
 const contentStyle = {
     marginTop: '100px',
