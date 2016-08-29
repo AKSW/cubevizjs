@@ -11,9 +11,9 @@ class ExpandableTextBox extends React.Component {
         return (
             <Accordion
                 style={{
-                    backgroundColor: this.context.muiTheme.appBar.color,
+                    backgroundColor: '#e8e8e8',
                     fontFamily: this.context.muiTheme.fontFamily,
-                    padding: '5px'
+                    padding: '1px 5px 1px 5px'
                 }}
                 onChange={this.onChange.bind(this)}
                 activeItems={this.props.open ? [0] : []}>
