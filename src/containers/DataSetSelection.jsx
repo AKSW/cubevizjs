@@ -5,21 +5,24 @@
 
 import React from 'react';
 import {connect} from 'react-redux';
-
+import DataCube from '../api/DataCube.js';
 import Selection from './Selection.jsx';
+
+import {dataSetSelectionChanged} from '../actions';
 
 class DataSetSelection extends Selection {
 
     action(index) {
-        // return changeSelectedChart(index);
+        return dataSetSelectionChanged(index);
     }
 }
 
 function mapStateToProps(state) {
-    const {dataCubeReducer} = state;
+    const {importReducer} = state;
     return {
-        list: [],
-        index: 0,
+        list: importReducer.get('dataSets')
+            .map(ds => DataCube.getValue(DataCube.getLabel(ds, 'en'))).toJS(),
+        index: importReducer.get('dataSetIndex'),
         label: 'Dataset'
     };
 }

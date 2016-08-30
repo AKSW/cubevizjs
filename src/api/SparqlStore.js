@@ -145,20 +145,28 @@ class SparqlStore extends Loggable {
      * import - Imports and validates all nessecary components
      * from a dataCube. (e.g. dataset, dsd ...)
      *
+     * @param  {type} dataset description
      * @return {Promise} Returns the promise of a json with all data.
      */
-    import() {
-        return this.getDatasets()
-        .then(ds => {
-            if (ds.length === 0) return Promise.reject(new Error('NO DATASET FOUND VALIDATION ERROR'));
-            this.log('SparqlStore found ' + ds.length + ' Datasets, selected first.');
-            this.result.dataset = ds[0];
-            return this.getDsd(ds[0]);
-        })
+    import(dataset) {
+
+        if (dataset)
+            this.result.dataset = dataset;
+
+        const promise = (dataset
+            ? this.getDsd(dataset)
+            : this.getDatasets()
+                .then(ds => {
+                    if (ds.length === 0) return Promise.reject(new Error('NO DATASET FOUND VALIDATION ERROR'));
+                    this.log(this.constructor.name + ' found ' + ds.length + ' Datasets, selected first.');
+                    this.result.dataset = ds[0];
+                    return this.getDsd(ds[0]);
+                }));
+        return promise
         .then(dsd => {
             if (dsd.length === 0) return Promise.reject(new Error('NO DSD FOUND VALIDATION ERROR'));
             this.result.dataStructureDefinition = dsd[0];
-            this.log('SparqlStore found ' + dsd.length + ' DSD, selected first.');
+            this.log(this.constructor.name + ' found ' + dsd.length + ' DSD, selected first.');
             const p =
                 [
                     this.getDimensions(this.result.dataset, dsd[0]),
@@ -171,9 +179,9 @@ class SparqlStore extends Loggable {
             if (res[1].length === 0) return Promise.reject(new Error('NO MEASURE FOUND VALIDATION ERROR'));
             if (res[0].length === 0) return Promise.reject(new Error('NO DIMENSIONS FOUND VALIDATION ERROR'));
 
-            this.log('SparqlStore found ' + res[0].length + ' dimension(s)');
-            this.log('SparqlStore found ' + res[1].length + ' measure(s)');
-            this.log('SparqlStore found ' + res[2].length + ' attribute(s)');
+            this.log(this.constructor.name + ' found ' + res[0].length + ' dimension(s)');
+            this.log(this.constructor.name + ' found ' + res[1].length + ' measure(s)');
+            this.log(this.constructor.name + ' found ' + res[2].length + ' attribute(s)');
 
             this.result.dimensions = res[0];
             this.result.measures = res[1];
@@ -188,7 +196,7 @@ class SparqlStore extends Loggable {
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO DIMENSION ELEMENTS FOUND VALIDATION ERROR'));
 
-            this.log('SparqlStore found ' + temp.flatten(1).size + ' dimension element(s)');
+            this.log(this.constructor.name + ' found ' + temp.flatten(1).size + ' dimension element(s)');
             this.result.dimensionElements = this.mapComponentElementsToComponentTypes(temp, this.result.dimensions);
 
             const attrElPromises = this.result.attributes.map(attr => this.getAttrElements(attr, this.result.dataset));
@@ -205,7 +213,7 @@ class SparqlStore extends Loggable {
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO ATTRIBUTE ELEMENTS FOUND VALIDATION ERROR'));
 
-            this.log('SparqlStore found ' + temp.flatten(1).size + ' attribute element(s)');
+            this.log(this.constructor.name + ' found ' + temp.flatten(1).size + ' attribute element(s)');
             this.result.attributesElements = this.mapComponentElementsToComponentTypes(temp, this.result.attributes);
             return this.getObservations(this.result.dataset);
         })
@@ -213,7 +221,7 @@ class SparqlStore extends Loggable {
             if (obs.length === 0) return Promise.reject(new Error('NO OBSERVATIONS FOUND VALIDATION ERROR'));
             this.result.observations = obs;
 
-            this.log('SparqlStore found ' + obs.length + ' observation(s)');
+            this.log(this.constructor.name + ' found ' + obs.length + ' observation(s)');
             const p = this.result.attributes
                 .map(attr => this.getAttrElements(attr, this.result.dataset));
             return Promise.resolve(this.result);

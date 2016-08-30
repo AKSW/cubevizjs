@@ -16,10 +16,10 @@ import baseTheme from 'material-ui/styles/baseThemes/lightBaseTheme';
 import MainContainer from './Main.jsx';
 
 function mapImmutableToPlain(reducersObj) {
-    return Object.keys(reducersObj).reduce(function(previous, current) {
+    return Object.keys(reducersObj).reduce(function(obj, current) {
         const mapped = (reducersObj[current].toJS) ? reducersObj[current].toJS() : reducersObj[current];
-        previous[current] = mapped;
-        return previous;
+        obj[current] = mapped;
+        return obj;
     }, {});
 }
 

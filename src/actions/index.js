@@ -1,6 +1,7 @@
 /*eslint func-style: 0*/
 /*eslint no-console: 0*/
 /*eslint no-debugger: 0*/
+import {fromJS} from 'immutable';
 import {createAction} from 'redux-actions';
 import {createNewDataCube, resetAllDataCubeState} from './dataCubeActions.js';
 import imprt, {IMPORT_TYPE_FILE_UPLOAD} from '../api/import';
@@ -14,13 +15,15 @@ export const HIDE_SETTINGS_MODAL = 'HIDE_SETTINGS_MODAL';
 
 export const CHANGE_IMPORT_SETTINGS = 'CHANGE_IMPORT_SETTINGS';
 
-export const CHANGE_DATASET = 'CHANGE_DATASET';
+export const CHANGE_RDF_STORE = 'CHANGE_RDF_STORE';
+
+export const CHANGE_DATASETS = 'CHANGE_DATASETS';
+export const CHANGE_DATASET_INDEX = 'CHANGE_DATASET_INDEX';
 export const CHANGE_MEASURE = 'CHANGE_MEASURE';
 export const CHANGE_CHART = 'CHANGE_CHART';
 
 export const CHANGE_LOG_BOX_VISIBILITY = 'CHANGE_LOG_BOX_VISIBILITY';
 export const ADD_NEW_LINE_TO_LOG_BOX = 'ADD_NEW_LINE_TO_LOG_BOX';
-
 
 export const showGlobalPopover = createAction(SHOW_GLOBAL_POPOVER, (show, title) => ({show, title}));
 
@@ -33,10 +36,13 @@ export const changeImportSettings = createAction(CHANGE_IMPORT_SETTINGS, (import
     return {importType, value};
 });
 
+export const changeRdfStore = createAction(CHANGE_RDF_STORE);
+
 export const changeLogBoxVisibility = createAction(CHANGE_LOG_BOX_VISIBILITY);
 export const addNewLineToLogBox = createAction(ADD_NEW_LINE_TO_LOG_BOX);
 
-export const changeDataSet = createAction(CHANGE_DATASET);
+export const changeDataSets = createAction(CHANGE_DATASETS);
+export const changeDataSetIndex = createAction(CHANGE_DATASET_INDEX);
 export const changeMeasure = createAction(CHANGE_MEASURE);
 export const changeChart = createAction(CHANGE_CHART);
 
@@ -50,9 +56,27 @@ export function createRdfStore({dataType, value}) {
     return store.create();
 }
 
-export function importData(store) {
-    return store.load()
-        .then(s => s.import());
+export function listDataSets(store) {
+    return store.getDatasets().then(dataSets => ({dataSets, store}));
+}
+
+export function dataSetSelectionChanged(index) {
+    return (dispatch, getState) => {
+        const {importReducer} = getState();
+        const store = importReducer.get('rdfStore');
+        const ds = importReducer.getIn(['dataSets', index]).toJS();
+        return store.import(ds).
+            then(data => {
+                dispatch(resetAllDataCubeState());
+                dispatch(showGlobalPopover(true, 'Creating Data Cube'));
+                dispatch(createNewDataCube(data));
+                dispatch(changeDataSetIndex(index));
+                dispatch(showGlobalPopover(false, ''));
+            }).catch(err => {
+                console.error(err);
+                dispatch(showGlobalPopover(false, ''));
+            });
+    };
 }
 
 export function doImport(importType, value) {
@@ -65,19 +89,26 @@ export function doImport(importType, value) {
             })
             .then(store => {
                 store.setLogger({logFct: addNewLineToLogBox, dispatch});
-                return store.verify();
+                return store.load().then(s => s.verify()).then(s => listDataSets(s));
             })
-            .then(store => {
+            .then(({dataSets, store}) => {
+                dispatch(changeDataSets(fromJS(dataSets)));
+                dispatch(changeRdfStore(store));
+                dispatch(showGlobalPopover(false, ''));
+                return Promise.resolve({ds: dataSets[0], store});
+            })
+            .then(({ds, store}) => {
                 dispatch(showGlobalPopover(true, 'Importing Data'));
-                return importData(store);
+                return store.import(ds);
             }).then(data => {
+
                 dispatch(resetAllDataCubeState());
                 dispatch(showGlobalPopover(true, 'Creating Data Cube'));
                 dispatch(createNewDataCube(data));
                 dispatch(showGlobalPopover(false, ''));
             })
             .catch(err => {
-                dispatch(addNewLineToLogBox('Erro while importing : ' + err));
+                console.error(err);
                 dispatch(showGlobalPopover(false, ''));
             });
     };
