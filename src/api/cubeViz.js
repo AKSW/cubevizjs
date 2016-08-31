@@ -86,19 +86,15 @@ function selectDimensions(dimEls, dataCube) {
     }, Immutable.List());
 }
 
-export function createDataCube(selections, dataCube) {
+export function createDataCube(selectedMeasure, selectedAttrElement, selectedDimElements, dataCube) {
 
-    const defaultMeasure = dataCube.measures.first();
-    const defaultAttribute = (dataCube.attributes.size > 0) ? dataCube.attributes.first() : null;
-    const defaultAttrEl = (dataCube.attributes.size > 0)
-        ? dataCube.attributesElements.get(defaultAttribute.get('@id')).first()
-        : null;
+    const attribute = dataCube.getAttribute(selectedAttrElement);
 
-    const dimensions = selectDimensions(selections, dataCube);
-    const dimensionsMap = dataCube.assignDimEls(selections, dimensions);
-    const observations = selectObservations(dimensionsMap, defaultMeasure, defaultAttribute, defaultAttrEl, dataCube);
+    const dimensions = selectDimensions(selectedDimElements, dataCube);
+    const dimensionsMap = dataCube.assignDimEls(selectedDimElements, dimensions);
+    const observations = selectObservations(dimensionsMap, selectedMeasure, attribute, selectedAttrElement, dataCube);
 
-    const dc = dataCube.createDataCube(selections, dimensions, observations);
+    const dc = dataCube.createDataCube(selectedDimElements, dimensions, observations);
     return dc;
 }
 

@@ -19,8 +19,6 @@ export const CHANGE_RDF_STORE = 'CHANGE_RDF_STORE';
 
 export const CHANGE_DATASETS = 'CHANGE_DATASETS';
 export const CHANGE_DATASET_INDEX = 'CHANGE_DATASET_INDEX';
-export const CHANGE_MEASURE = 'CHANGE_MEASURE';
-export const CHANGE_CHART = 'CHANGE_CHART';
 
 export const CHANGE_LOG_BOX_VISIBILITY = 'CHANGE_LOG_BOX_VISIBILITY';
 export const ADD_NEW_LINE_TO_LOG_BOX = 'ADD_NEW_LINE_TO_LOG_BOX';
@@ -43,8 +41,6 @@ export const addNewLineToLogBox = createAction(ADD_NEW_LINE_TO_LOG_BOX);
 
 export const changeDataSets = createAction(CHANGE_DATASETS);
 export const changeDataSetIndex = createAction(CHANGE_DATASET_INDEX);
-export const changeMeasure = createAction(CHANGE_MEASURE);
-export const changeChart = createAction(CHANGE_CHART);
 
 export function createRdfStore({dataType, value}) {
     let store;

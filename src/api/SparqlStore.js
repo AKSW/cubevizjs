@@ -106,7 +106,7 @@ class SparqlStore extends Loggable {
     }
 
     execute(query) {
-        this.log('SparqlStore Query:\n' + query);
+        this.log(this.constructor.name + ' Query:\n' + query);
         return new Promise((fulfill, reject) => {
             this.internalStore.execute(
                 query, (err, res) => {

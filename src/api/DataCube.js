@@ -85,6 +85,14 @@ class DataCube extends Loggable {
         return this.getComponentFromUri(this.dimensions, dimUri);
     }
 
+    getAttribute(attrEl) {
+        if (this.attributes.size === 0 || !attrEl)
+            return null;
+        const attrUri =
+            this.attributesElements.findKey(attrEls => attrEls.find(el => el.get('@id') === attrEl.get('@id')));
+        return this.getComponentFromUri(this.attributes, attrUri);
+    }
+
     getDimensionElement(uri) {
         return this.getAllDimensionElements().find(dimEl => dimEl.get('@id') === uri);
     }

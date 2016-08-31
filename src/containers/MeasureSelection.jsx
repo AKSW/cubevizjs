@@ -7,11 +7,12 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import Selection from './Selection.jsx';
+import {changeSelectedComponentIndex} from '../actions/dataCubeActions.js';
 
 class MeasureSelection extends Selection {
 
     action(index) {
-        // return changeSelectedChart(index);
+        return changeSelectedComponentIndex('measureComponents', index);
     }
 }
 
@@ -19,7 +20,7 @@ function mapStateToProps(state) {
     const {dataCubeReducer} = state;
     return {
         list: dataCubeReducer.get('selectableComponents').measureComponents,
-        index: 0,
+        index: dataCubeReducer.getIn(['selectedComponentsIndex', 'measureComponents']),
         label: 'Measures'
     };
 }

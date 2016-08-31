@@ -32,9 +32,9 @@ class Main extends Component {
         return (
             <div id="cubevizapp" className="cubevizapp">
                 <Grid>
-                  <Row>
-                      <Col md={12}><Settings /></Col>
-                  </Row>
+                <Row>
+                    <Settings />
+                </Row>
                   <Row>
                       <Col md={12}>
                           <span>Demo application,

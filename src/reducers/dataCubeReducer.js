@@ -5,26 +5,26 @@ import {List, Map} from 'immutable';
 import {
     NEW_DATA_CUBE,
     NEW_SELECTABLE_COMPONENTS,
-    SELECTED_COMPONENTS_CHANGED,
     NEW_SLICE,
     NEW_CUBEVIZ_CHARTS,
     NEW_CUBEVIZ_CHART_NAMES,
     CHANGED_SELECTED_CHART_IDX,
     CHANGED_SELECTED_CHART,
     CHANGED_SELECTED_CHART_REACT,
-    RESET_ALL_DATA_CUBE_STATE
+    RESET_ALL_DATA_CUBE_STATE,
+    CHANGE_SELECTED_COMPONENT_INDEX
 } from '../actions/dataCubeActions.js';
 
 const initialState = Map({
     dataCube: null,
-    selectableComponents: null,
-    selectedComponents: Map(), //Maps {dim1: dimEls, dim2: dimEls}
+    selectableComponents: Map({dimComponentElements: null, attrComponentElements: null, measureComponents: null}),
+    selectedComponentsIndex: Map({dimComponentElements: {}, attrComponentElements: {}, measureComponents: 0}),
     slice: null, //Could easy be changed to store sliceS
     cubeVizCharts: List(),
     selectableChartsNames: List(), //Array of strings
     selectedChart: null,
     selectedChartIdx: 0,
-    selectedChartReact: null
+    selectedChartReact: null,
 });
 
 function dataCubeReducer(state = initialState, action) {
@@ -33,8 +33,6 @@ function dataCubeReducer(state = initialState, action) {
         return state.set('dataCube', action.payload);
     case NEW_SELECTABLE_COMPONENTS:
         return state.set('selectableComponents', action.payload);
-    case SELECTED_COMPONENTS_CHANGED:
-        return state.set('selectedComponents', action.payload);
     case NEW_SLICE:
         return state.set('slice', action.payload);
     case NEW_CUBEVIZ_CHARTS:
@@ -49,6 +47,8 @@ function dataCubeReducer(state = initialState, action) {
         return state.set('selectedChartReact', action.payload);
     case RESET_ALL_DATA_CUBE_STATE:
         return initialState;
+    case CHANGE_SELECTED_COMPONENT_INDEX:
+        return state.setIn(['selectedComponentsIndex', action.payload.key], action.payload.selection);
     default:
         return state;
     }

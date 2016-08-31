@@ -6,21 +6,21 @@
 import React from 'react';
 import {connect} from 'react-redux';
 
-// import {changeSelectedComponents} from '../actions/dataCubeActions.js';
+import {changeSelectedComponentIndex} from '../actions/dataCubeActions.js';
 
 import MultiSelection from './MultiSelection.jsx';
 
 class AttributeSelection extends MultiSelection {
 
     action(selection) {
-        // return changeSelectedComponents(selection);
+        return changeSelectedComponentIndex('attrComponentElements', selection);
     }
 }
 
 function mapStateToProps(state) {
     const {dataCubeReducer} = state;
     return {
-        selectedComponents: [],
+        selectedComponents: dataCubeReducer.getIn(['selectedComponentsIndex', 'attrComponentElements']),
         allComponents: (dataCubeReducer.get('dataCube'))
             ? dataCubeReducer.get('selectableComponents').attrComponentElements
             : []

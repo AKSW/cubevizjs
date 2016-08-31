@@ -23,6 +23,7 @@ class RemoteStore extends SparqlStore {
     }
 
     execute(query) {
+        this.log(this.constructor.name + ' Query:\n' + query);
         return new Promise((fulfill, reject) => {
             const ajax = new Ajax({
                 url: this.url,

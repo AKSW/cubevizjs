@@ -15,7 +15,7 @@ const List = React.createClass({
                 indexes: this.refs.input.getValue()
             });
         } else {
-            this.props.onChange(this.refs.input.getValue());
+            this.props.onChange(parseInt(this.refs.input.getValue(), 10));
         }
 
         this.setState({value: this.refs.input.getValue()});

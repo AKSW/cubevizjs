@@ -7,11 +7,12 @@
 import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 
-import {Toolbar, ToolbarGroup, ToolbarTitle} from 'material-ui/Toolbar';
+import {Toolbar, ToolbarGroup, ToolbarTitle, ToolbarSeparator} from 'material-ui/Toolbar';
 import RaisedButton from 'material-ui/RaisedButton';
 import Popover from 'material-ui/Popover';
 
 import {showSettingsModal, hideSettingsModal} from '../actions';
+import {handleAccept} from '../actions/dataCubeActions.js';
 
 import Import from './Import.jsx';
 import DataSelection from './DataSelection.jsx';
@@ -38,7 +39,10 @@ const styles = {
 class Settings extends Component {
 
     handleTouchTap(tag, event) {
-        this.props.dispatch(showSettingsModal(tag, event.currentTarget));//TODO Dont save complete dom el
+        if (tag === 'accept')
+            this.props.dispatch(handleAccept());
+        else
+            this.props.dispatch(showSettingsModal(tag, event.currentTarget));
     }
 
     handleCloseRequest() {
@@ -48,10 +52,9 @@ class Settings extends Component {
     render() {
         return (
           <Toolbar>
-              <ToolbarGroup>
-                  <ToolbarTitle text="CubeViz" />
+              <ToolbarGroup firstChild={true}>
                   <RaisedButton
-                    label="Import Source"
+                    label="Import"
                     primary={true}
                     onTouchTap={this.handleTouchTap.bind(this, 'import')}/>
                   <RaisedButton
@@ -70,11 +73,16 @@ class Settings extends Component {
                     label="Dimensions"
                     primary={true}
                     onTouchTap={this.handleTouchTap.bind(this, 'dataSelection')}/>
-                  <RaisedButton
-                    label="Charts"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'chartSelection')}/>
-              </ToolbarGroup>
+                    <RaisedButton
+                      label="OK"
+                      secondary={true}
+                      onTouchTap={this.handleTouchTap.bind(this, 'accept')}/>
+                    <ToolbarSeparator />
+                    <RaisedButton
+                      label="Charts"
+                      primary={true}
+                      onTouchTap={this.handleTouchTap.bind(this, 'chartSelection')}/>
+                </ToolbarGroup>
               <Popover
                  open={(this.props.modalType) ? true : false}
                  anchorEl={(this.props.modalType) ? this.props.anchorEl : null}

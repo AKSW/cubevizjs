@@ -23,7 +23,7 @@ describe('CubeViz tests', function() {
     });
 
     it('should return data cube with observations which contain only one attribute', function() {
-        const selection = [
+        const dimSelection = [
           {
             "@id": "http://example.cubeviz.org/compare/mortalityEurope/Germany",
             "@type": [
@@ -38,7 +38,29 @@ describe('CubeViz tests', function() {
           }
         ];
 
-        const dc = CubeViz.createDataCube(fromJS(selection), MultiAttrCube);
+        const measureSelection =
+        {
+          "@id": "http://example.cubeviz.org/compare/mortalityEurope/value",
+          "@type": [
+            "http://purl.org/linked-data/cube#MeasureProperty"
+          ],
+          "http://www.w3.org/2000/01/rdf-schema#label": [
+            {
+              "@value": "deaths (CS)",
+              "@language": "en"
+            }
+          ]
+      };
+
+        const attrElSelection =
+        {
+            '@id': 'http://example.cubeviz.org/compare/mortalityEurope/unit1/el1',
+            '@type': [
+                'http://example.cubeviz.org/compare/mortalityEurope/unit1'
+            ]
+        };
+
+        const dc = CubeViz.createDataCube(fromJS(measureSelection), fromJS(attrElSelection), fromJS(dimSelection), MultiAttrCube);
         assert.isTrue(dc.observations.size === 1);
         assert.isTrue(dc.observations
             .get(0)
