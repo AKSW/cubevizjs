@@ -7,7 +7,7 @@ import {createAction} from 'redux-actions';
 import {Map, List, fromJS} from 'immutable';
 
 import * as cubeViz from '../api/cubeViz.js';
-import {convert} from '../api/convert.js';
+import convert from '../api/convert/convert.js';
 import DataCube from '../api/DataCube.js';
 
 import {addNewLineToLogBox} from './index.js';
@@ -17,6 +17,8 @@ export const NEW_SELECTABLE_COMPONENTS = 'NEW_SELECTABLE_COMPONENTS';
 export const NEW_SLICE = 'NEW_SLICE';
 export const NEW_CUBEVIZ_CHARTS = 'NEW_CUBEVIZ_CHARTS';
 export const NEW_CUBEVIZ_CHART_NAMES = 'NEW_CUBEVIZ_CHART_NAMES';
+
+export const NEW_SELECTED_COMPONENTS = 'NEW_SELECTED_COMPONENTS';
 
 export const CHANGED_SELECTED_CHART_IDX = 'CHANGED_SELECTED_CHART_IDX';
 export const CHANGED_SELECTED_CHART = 'CHANGED_SELECTED_CHART';
@@ -31,6 +33,8 @@ export const newSelectableComponents = createAction(NEW_SELECTABLE_COMPONENTS);
 export const newSlice = createAction(NEW_SLICE);
 export const newCubeVizCharts = createAction(NEW_CUBEVIZ_CHARTS);
 export const newCubeVizChartNames = createAction(NEW_CUBEVIZ_CHART_NAMES);
+
+export const newSelectedComponents = createAction(NEW_SELECTED_COMPONENTS);
 
 export const changedSelectedChartIdx = createAction(CHANGED_SELECTED_CHART_IDX);
 export const changedSelectedChart = createAction(CHANGED_SELECTED_CHART);
@@ -105,6 +109,7 @@ export function changeSelectedChart(index) {
         const chart = charts.get(idx);
         const chartReact = convert(
             chart,
+            dataCubeReducer.get('selectedComponents'),
             dataCubeReducer.get('slice'),
             dataCubeReducer.get('dataCube'));
         dispatch(changedSelectedChartReact(chartReact));
@@ -165,7 +170,13 @@ export function handleAccept() {
             dispatch(newSlice(slice));
             dispatch(newCubeVizCharts(satisfied));
             dispatch(newCubeVizChartNames(getNamesforCharts(satisfied)));
-
+            dispatch(newSelectedComponents(Map(
+                {
+                    dimComponentElements: selectedDimElements,
+                    attrComponentElement: (selectedAttrElements.size > 0) ? selectedAttrElements.first() : null,
+                    measureComponent: selectedMeasure
+                }
+            )));
             dispatch(changeSelectedChart(0));
         }
     };
