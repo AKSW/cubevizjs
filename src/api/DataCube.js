@@ -142,7 +142,9 @@ class DataCube extends Loggable {
     }
 
     getComponentElementFromObservation(ob, comp) {
-        return ob.get(comp.get('@id')).first();
+        if (ob.get(comp.get('@id')))
+            return ob.get(comp.get('@id')).first();
+        return undefined;
     }
 
     getComponentsElementFromObservation(ob, componentElements, components) {

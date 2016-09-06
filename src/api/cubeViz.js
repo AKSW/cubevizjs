@@ -17,15 +17,15 @@ const comparison = {
         const rules = List([new PieChartRule(), new HeatmapRule()]);
         const charts = rules.map(rule => {
 
-            //TODO implement singleElementDimensions and multiElementDimensions method
-
             return Map({
                 complex: 'comparison',
                 name: rule.getName(),
                 score: rule.getScore(dataCube),
                 isSatisfied: rule.isSatisfiedBy(dataCube),
                 singleElementDimensions: rule.getSingleElementDimensions(dataCube),
-                multiElementDimensions: rule.getMultiElementDimensions(dataCube)
+                multiElementDimensions: rule.getMultiElementDimensions(dataCube),
+                satisfied: rule.getSatisfiedRules(dataCube).map(r => r.spec).toJS(),
+                notSatisfied: rule.getNotsatisfiedRules(dataCube).map(r => r.spec).toJS()
             });
         });
 
@@ -59,7 +59,11 @@ function selectObservations(dimensionsElements, measure, attribute, attrEl, data
         }))
         .filter(o => {
             const measureEls = dataCube.getMeasureElementsFromObservation(o, List([measure]));
-            return measureEls.size > 0;
+            if (measureEls
+                && measureEls.size > 0
+                && measureEls.every(m => m !== undefined))
+                return true;
+            return false;
         })
         .filter(o => {
             if (!attribute)

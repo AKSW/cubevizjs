@@ -49,11 +49,11 @@ describe('Heatmap rule tests', function() {
         assert.strictEqual(r.getMultiElementDimensions(cube2).size, 0);
     });
 
-    it('should been satisfied with cube3 (low score)', function() {
+    it('should not been satisfied with cube3 (just one SED)', function() {
         const r = new HeatmapRule();
-        assert.isTrue(r.isSatisfiedBy(cube3));
-        assert.strictEqual(r.getScore(cube3), 3);
-        assert.strictEqual(r.getSingleElementDimensions(cube3).size, 1);
+        assert.isFalse(r.isSatisfiedBy(cube3));
+        assert.strictEqual(r.getScore(cube3), 0);
+        assert.strictEqual(r.getSingleElementDimensions(cube3).size, 0);
         assert.strictEqual(r.getMultiElementDimensions(cube3).size, 0);
     });
 });

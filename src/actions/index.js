@@ -61,6 +61,7 @@ export function dataSetSelectionChanged(index) {
         const {importReducer} = getState();
         const store = importReducer.get('rdfStore');
         const ds = importReducer.getIn(['dataSets', index]).toJS();
+        dispatch(showGlobalPopover(true, 'Importing Data'));
         return store.import(ds).
             then(data => {
                 dispatch(resetAllDataCubeState());

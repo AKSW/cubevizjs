@@ -4,15 +4,16 @@
   "description": "No description yet",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --compilers js:babel-core/register -R spec test/*",
+    "test": "mocha-webpack --webpack-config webpack.config-test.js \"test/*\"",
     "lint": "eslint src/*",
     "start": "gulp",
-    "build": "npm run lint && npm test && gulp build"
+    "build": "npm run lint && npm run test && gulp build"
   },
   "author": "Georges Alkhouri",
   "license": "",
   "dependencies": {
     "highcharts": "^4.2.5",
+    "highcharts-heatmap": "^0.1.2",
     "immutable": "^3.8.1",
     "isomorphic-fetch": "^2.2.1",
     "jsonld": "^0.4.11",
@@ -51,7 +52,9 @@
     "gulp-babel": "^6.1.2",
     "gulp-util": "^3.0.7",
     "mocha": "^3.0.0",
+    "mocha-webpack": "^0.6.0",
     "webpack": "^1.13.1",
-    "webpack-dev-server": "^1.14.1"
+    "webpack-dev-server": "^1.14.1",
+    "webpack-node-externals": "^1.3.3"
   }
 }
