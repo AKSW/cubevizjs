@@ -3,7 +3,7 @@
 
 import React, {PropTypes} from 'react';
 import {Grid, Row, Col} from 'react-bootstrap';
-import RaisedButton from 'material-ui/RaisedButton';
+import {Button} from 'react-bootstrap';
 
 import List from './List.jsx';
 
@@ -32,9 +32,9 @@ const MultipleList = React.createClass({
                 </Row>
                 <Row>
                     <Col>
-                        <RaisedButton label="Ok"
-                        primary={true}
-                        onTouchTap={this.props.onAccept.bind(this, this.props.selectedValues)}/>
+                        <Button
+                        bsStyle="primary"
+                        onClick={this.props.onAccept.bind(this, this.props.selectedValues)}>Ok</Button>
                     </Col>
                 </Row>
             </Grid>

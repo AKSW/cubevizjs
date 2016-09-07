@@ -47,6 +47,7 @@ class Main extends Component {
                       </Col>
                   </Row>
                   <Row>
+                      <div style={{marginTop: '100px'}}/>
                       <Col md={12}>
                           <LogBox />
                       </Col>

@@ -21,6 +21,8 @@ import AttributeSelection from './AttributeSelection.jsx';
 import ChartSelection from './ChartSelection.jsx';
 import MeasureSelection from './MeasureSelection.jsx';
 
+import {Button, ButtonGroup, ButtonToolbar} from 'react-bootstrap';
+
 const modalComponents = {
     import: <Import />,
     dataSetSelection: <DataSetSelection />,
@@ -51,38 +53,20 @@ class Settings extends Component {
 
     render() {
         return (
-          <Toolbar>
-              <ToolbarGroup firstChild={true}>
-                  <RaisedButton
-                    label="Import"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'import')}/>
-                  <RaisedButton
-                    label="Datasets"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'dataSetSelection')}/>
-                  <RaisedButton
-                    label="Measures"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'measureSelection')}/>
-                  <RaisedButton
-                    label="Attributes"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'attributeSelection')}/>
-                  <RaisedButton
-                    label="Dimensions"
-                    primary={true}
-                    onTouchTap={this.handleTouchTap.bind(this, 'dataSelection')}/>
-                    <RaisedButton
-                      label="OK"
-                      secondary={true}
-                      onTouchTap={this.handleTouchTap.bind(this, 'accept')}/>
-                    <ToolbarSeparator />
-                    <RaisedButton
-                      label="Charts"
-                      primary={true}
-                      onTouchTap={this.handleTouchTap.bind(this, 'chartSelection')}/>
-                </ToolbarGroup>
+            <div>
+            <ButtonToolbar>
+              <ButtonGroup bsSize="large">
+                  <Button onClick={this.handleTouchTap.bind(this, 'import')}>Import</Button>
+                  <Button onClick={this.handleTouchTap.bind(this, 'dataSetSelection')}>Datasets</Button>
+                  <Button onClick={this.handleTouchTap.bind(this, 'measureSelection')}>Measures</Button>
+                  <Button onClick={this.handleTouchTap.bind(this, 'attributeSelection')}>Attributes</Button>
+                  <Button onClick={this.handleTouchTap.bind(this, 'dataSelection')}>Dimensions</Button>
+                  <Button bsStyle="primary" onClick={this.handleTouchTap.bind(this, 'accept')}>OK</Button>
+              </ButtonGroup>
+              <ButtonGroup bsSize="large">
+                  <Button onClick={this.handleTouchTap.bind(this, 'chartSelection')}>Charts</Button>
+              </ButtonGroup>
+            </ButtonToolbar>
               <Popover
                  open={(this.props.modalType) ? true : false}
                  anchorEl={(this.props.modalType) ? this.props.anchorEl : null}
@@ -93,7 +77,7 @@ class Settings extends Component {
                     {(this.props.modalType) ? modalComponents[this.props.modalType] : null}
                  </div>
               </Popover>
-          </Toolbar>
+            </div>
         );
     }
 }
