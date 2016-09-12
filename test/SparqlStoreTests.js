@@ -9,7 +9,7 @@ import noDimsCube from './assets/NoDimsCube.js';
 import noMeasureCube from './assets/NoMeasureCube.js';
 import noObservationsCube from './assets/NoObservationsCube.js';
 import defaultTestCube from './assets/DefaultDataCube.js';
-
+import measureDimCube from './assets/MeasureDimCube.js';
 import SparqlStore from '../src/api/SparqlStore.js'
 
 function assertType(expectedType, types) {
@@ -209,3 +209,14 @@ test(new SparqlStore(defaultTestCube), [
             message: 'should return complete result with correct types'
         },
     ], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);
+
+test(new SparqlStore(measureDimCube), [
+            {
+                assert: store => assert.isFulfilled(store.import()).then(result => {
+
+                    assert.lengthOf(result.measures, 2);
+                    assert.lengthOf(result.dimensions, 2);
+            }),
+                message: 'should return complete result with multiple measures from measure dimension'
+            },
+        ], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);

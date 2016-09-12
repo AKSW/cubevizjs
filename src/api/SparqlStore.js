@@ -9,7 +9,7 @@
 import Promise from 'promise';
 import RdfStore from 'rdfstore';
 import {promises, jsonld} from 'jsonld';
-import Immutable from 'immutable';
+import Immutable, {fromJS, Map} from 'immutable';
 import * as Queries from '../ICQueries.js';
 
 import Loggable from './Loggable.js';
@@ -88,10 +88,10 @@ class SparqlStore extends Loggable {
     mapComponentElementsToComponentTypes(componentElements, componentTypes) {
         return componentElements
             .reduce((map, dimEl, idx) => {
-                const dimUri = Immutable.fromJS(componentTypes)
+                const dimUri = fromJS(componentTypes)
                     .getIn([idx, '@id']);
                 return map.set(dimUri, dimEl);
-            }, Immutable.Map()).toJS();
+            }, Map()).toJS();
     }
 
     /**
@@ -191,13 +191,24 @@ class SparqlStore extends Loggable {
             return Promise.all(dimElPromises);
         })
         .then(dimEls => {
-            const temp = Immutable.fromJS(dimEls);
+            const temp = fromJS(dimEls);
 
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO DIMENSION ELEMENTS FOUND VALIDATION ERROR'));
 
-            this.log(this.constructor.name + ' found ' + temp.flatten(1).size + ' dimension element(s)');
-            this.result.dimensionElements = this.mapComponentElementsToComponentTypes(temp, this.result.dimensions);
+            const tuple = temp.map((dimEl, idx) => [dimEl.size > 0, idx, dimEl]);
+            const notEmpty = tuple.filter(t => t[0]).map(t => t[2]);
+
+            // removing dimensions which doesn't containing dimension elements
+            const tempDimensions = fromJS(this.result.dimensions).
+                filter((dim, idx) => tuple.get(idx)[0]);
+            this.result.dimensions = tempDimensions.toJS();
+
+            this.log(
+                this.constructor.name + ' found ' + notEmpty.size + ' valid dimension(s) with a total count of ' +
+                notEmpty.flatten(1).size + ' dimension element(s)'
+            );
+            this.result.dimensionElements = this.mapComponentElementsToComponentTypes(notEmpty, this.result.dimensions);
 
             const attrElPromises = this.result.attributes.map(attr => this.getAttrElements(attr, this.result.dataset));
             return Promise.all(attrElPromises);
@@ -208,7 +219,7 @@ class SparqlStore extends Loggable {
                 return this.getObservations(this.result.dataset);
             }
 
-            const temp = Immutable.fromJS(attrEls);
+            const temp = fromJS(attrEls);
 
             if (temp.flatten(1).size === 0)
                 return Promise.reject(new Error('NO ATTRIBUTE ELEMENTS FOUND VALIDATION ERROR'));
