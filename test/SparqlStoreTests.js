@@ -205,6 +205,21 @@ test(new SparqlStore(defaultTestCube), [
                 assert.typeOf(result.attributes, 'array');
                 assert.typeOf(result.dimensionElements, 'object');
                 assert.typeOf(result.observations, 'array');
+
+                assert.strictEqual(result.defaultLanguage, 'en');
+                assert.strictEqual(result.dataset['@id'], 'http://example.cubeviz.org/compare/mortalityEurope/dataset');
+                assert.strictEqual(result.dataStructureDefinition['@id'], 'http://example.cubeviz.org/compare/mortalityEurope/dsd');
+                assert.strictEqual(result.measures.length, 1);
+                assert.strictEqual(result.dimensions.length, 2);
+                assert.strictEqual(result.attributes.length, 1);
+
+                assert.property(result.dimensionElements, 'http://example.cubeviz.org/compare/mortalityEurope/country');
+                assert.property(result.dimensionElements, 'http://example.cubeviz.org/compare/mortalityEurope/year');
+
+                assert.strictEqual(result.dimensionElements['http://example.cubeviz.org/compare/mortalityEurope/country'].length, 2);
+                assert.strictEqual(result.dimensionElements['http://example.cubeviz.org/compare/mortalityEurope/year'].length, 13);
+
+                assert.strictEqual(result.observations.length, 26);
             }),
             message: 'should return complete result with correct types'
         },
