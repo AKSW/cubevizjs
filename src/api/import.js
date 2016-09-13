@@ -47,6 +47,8 @@ const getImport = {
     fileUpload(v) {
         if (v.size / 1000000 > 15.0)
             throw new Error('Currently CubeViz cannot handle files bigger than 15 MB.');
+        if (!v.type.match('text.*') && v.type !== '') // '', because not all rdf mime types are recognized
+            throw new Error('Wrong file type. Only text files are supported.');
 
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -56,7 +58,7 @@ const getImport = {
             };
             reader.onerror = (err) => reject(err);
 
-            const data = reader.readAsText(v);//TODO check if v is a text
+            const data = reader.readAsText(v);
         });
     },
 

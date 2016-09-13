@@ -48,4 +48,8 @@ export default class ContainingObservationsSpec extends ProcessingSpec {
         this.isSatisfied = this.invalidDimEls.size === 0;
         return this.isSatisfied;
     }
+
+    toString() {
+        return 'containing min of (' + this.min + ') observeration(s) for every dimension element';
+    }
 }

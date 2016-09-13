@@ -163,8 +163,18 @@ export function handleAccept() {
             dc);
 
         const charts = cubeViz.determineCharts(null, slice);
-        dispatch(addNewLineToLogBox(JSON.stringify(charts.toJS(), null)));
 
+        dispatch(addNewLineToLogBox('Selected ' + slice.observations.size + ' Observation(s)'));
+
+        charts.forEach(c => {
+            dispatch(addNewLineToLogBox(c.get('name')));
+            dispatch(addNewLineToLogBox('Satisfied rules:'));
+            dispatch(addNewLineToLogBox(c.get('satisfied').map(r => ' ' + r.toString() + ' ')));
+            dispatch(addNewLineToLogBox('Not satisfied rules:'));
+            dispatch(addNewLineToLogBox(c.get('notSatisfied').map(r => ' ' + r.toString() + ' ')));
+        });
+
+        //FIXME check if all mandetory rules are satisfied
         const satisfied = charts.filter(c => c.get('isSatisfied'));
         if (satisfied.size > 0) {
             dispatch(newSlice(slice));

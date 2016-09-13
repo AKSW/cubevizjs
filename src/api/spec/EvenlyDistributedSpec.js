@@ -26,4 +26,8 @@ export default class EvenlyDistributedSpec extends CompositeSpecification {
             .every(u => u);
         return isEvenlyDistributed;
     }
+
+    toString() {
+        return 'evenly distributed';
+    }
 }

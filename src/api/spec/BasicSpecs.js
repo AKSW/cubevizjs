@@ -42,6 +42,10 @@ export class SingleElementDimensionSpec extends CompositeSpecification {
         const dims = this.dimensionsConstraint(this.constraint(), dc);
         return dims.size === this.num;
     }
+
+    toString() {
+        return 'single element dimension (' + this.num + ')';
+    }
 }
 export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
 
@@ -65,6 +69,10 @@ export class MultiElementDimensionSpec extends SingleElementDimensionSpec {
         const dims = this.dimensionsConstraint(this.constraint(), dc);
         return dims.size === this.num;
     }
+
+    toString() {
+        return 'multi element dimension (' + this.num + ')';
+    }
 }
 
 export class ObservationsRangeSpec extends CompositeSpecification {
@@ -83,6 +91,10 @@ export class ObservationsRangeSpec extends CompositeSpecification {
      */
     isSatisfiedBy(dc) {
         return (dc.observations.size >= this.a && dc.observations.size <= this.b);
+    }
+
+    toString() {
+        return 'observation range (' + this.a + ', ' + this.b + ')';
     }
 }
 

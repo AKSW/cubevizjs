@@ -120,7 +120,7 @@ export function determineCharts(context, dc) {
     const charts = ctx.get('complexes')
         .map(complex => complex.get('eval')(dc))
         .reduce((res, chartlist) => {
-            //TODO implement replacement with higher scored rules
+            //TODO implement replacement with higher scored duplicant rules
             return res.push(chartlist)
                 .flatten(1)
                 .sortBy(chrt => chrt.get('score'))

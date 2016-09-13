@@ -33,7 +33,7 @@
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.1.0",
     "simple-ajax": "^2.5.1",
-    "ts-specification": "^2.0.0",
+    "ts-specification": "^2.2.1",
     "underscore": "^1.8.3"
   },
   "devDependencies": {
