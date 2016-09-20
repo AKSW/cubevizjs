@@ -41,7 +41,7 @@ export default class ContainingObservationsSpec extends ProcessingSpec {
     isSatisfiedBy(dc) {
 
         this.invalidDimEls = dc.getAllDimensionElements().filter(dimEl => {
-            const obs = dc.getObservationsContainingDimEl(dimEl);
+            const obs = dc.getObservationsContainingDimEls(List([dimEl]));
             return obs.size < this.min;
         });
 

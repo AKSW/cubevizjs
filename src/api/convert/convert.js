@@ -5,6 +5,8 @@
 
 import Heatmap from './HighCharts/Heatmap.js';
 import PieChart from './HighCharts/PieChart.js';
+import ColumnChart from './HighCharts/ColumnChart.js';
+import GroupedColumnChart from './HighCharts/GroupedColumnChart.js';
 
 /**
  * convert - Converts a cubeViz result object into a react chart class.
@@ -19,7 +21,9 @@ import PieChart from './HighCharts/PieChart.js';
 function convert(cubeVizResult, selectedComponents, slice, dc) {
     const charts = {
         cvHeatmap: new Heatmap(cubeVizResult, selectedComponents, slice, dc),
-        cvPieChart: new PieChart(cubeVizResult, selectedComponents, slice, dc)
+        cvPieChart: new PieChart(cubeVizResult, selectedComponents, slice, dc),
+        cvColumnChart: new ColumnChart(cubeVizResult, selectedComponents, slice, dc),
+        cvGroupedColumnChart: new GroupedColumnChart(cubeVizResult, selectedComponents, slice, dc)
     };
 
     if (!charts[cubeVizResult.get('name')])

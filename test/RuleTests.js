@@ -2,6 +2,7 @@ import {assert} from 'chai';
 
 import HeatmapRule from '../src/api/rules/HeatmapRule.js';
 import PieChartRule from '../src/api/rules/PieChartRule.js'
+import ColumnChartRule from '../src/api/rules/ColumnChartRule.js'
 
 import DataCube from '../src/api/DataCube.js';
 import SparqlStore from '../src/api/SparqlStore.js';
@@ -101,4 +102,15 @@ describe('Pie chart rule tests', function() {
         assert.strictEqual(r.getMultiElementDimensions(cube5).size, 0);
     });
 
+});
+
+describe('Column chart rule tests', function() {
+    it('should not been satisfied by emtpy data cube.', function() {
+        const dc = DataCube.empty();
+        const r = new ColumnChartRule();
+        assert.isFalse(r.isSatisfiedBy(dc));
+        assert.strictEqual(r.getScore(dc), 0);
+        assert.strictEqual(r.getSingleElementDimensions(dc).size, 0);
+        assert.strictEqual(r.getMultiElementDimensions(dc).size, 0);
+    });
 });

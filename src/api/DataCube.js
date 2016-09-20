@@ -101,13 +101,15 @@ class DataCube extends Loggable {
         return this.assignedDimEls.get(dim.get('@id'));
     }
 
-    getObservationsContainingDimEl(dimEl) {
+    getObservationsContainingDimEls(dimEls) {
         return this.observations.filter(o => {
-            const dimUri = DataCube.getUri(this.getDimension(dimEl));
-            const objects = o.get(dimUri);
-            if (objects)
-                return objects.find(obj => obj.get('@id') === dimEl.get('@id')) !== undefined;
-            return false;
+            return dimEls.every(dimEl => {
+                const dimUri = DataCube.getUri(this.getDimension(dimEl));
+                const objects = o.get(dimUri);
+                if (objects)
+                    return objects.find(obj => obj.get('@id') === dimEl.get('@id')) !== undefined;
+                return false;
+            });
         });
     }
 

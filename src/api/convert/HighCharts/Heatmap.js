@@ -29,10 +29,7 @@ class Heatmap extends Chart {
         return _inner(...arrays, [[]]);
     }
 
-    createAxis(dimEls) {
-        return dimEls.map(dimEl => DataCube.getValue(DataCube.getLabel(dimEl)));
-    }
-
+    //FIXME wrong index order of dimension elements for missing dimension elements in observations
     createHeatmap(dim1, dim2, slice, dc) {
 
         const selectedMeasure = this.selectedComponents.get('measureComponent');

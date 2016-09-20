@@ -33,6 +33,19 @@ class Chart {
         return val;
     }
 
+    createYAxis() {
+        const selectedAttrEl = this.selectedComponents.get('attrComponentElement');
+        const yAxisTest = selectedAttrEl
+        ? 'Value in ' + DataCube.getValue(DataCube.getLabel(selectedAttrEl))
+        : 'Value';
+
+        return {
+            title: {
+                text: yAxisTest
+            }
+        };
+    }
+
     createTitle(dims) {
         const selectedMeasure = this.selectedComponents.get('measureComponent');
         const selectedAttrEl = this.selectedComponents.get('attrComponentElement');
@@ -52,6 +65,10 @@ class Chart {
             dimsString + ' ' +
             attrElString;
         return title;
+    }
+
+    createAxis(dimEls) {
+        return dimEls.map(dimEl => DataCube.getValue(DataCube.getLabel(dimEl)));
     }
 
     render() {

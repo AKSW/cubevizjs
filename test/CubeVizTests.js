@@ -17,9 +17,11 @@ describe('CubeViz tests', function() {
     it('should return a chart result list', function() {
         const res = CubeViz.determineCharts(null, cube1).toJS();
         assert.isNotNull(res);
-        assert.strictEqual(res.length, 2);
-        assert.strictEqual(res[0].name, 'cvPieChart');
-        assert.strictEqual(res[1].name, 'cvHeatmap');
+        assert.strictEqual(res.length, 4);
+        assert.strictEqual(res[0].name, 'cvColumnChart');
+        assert.strictEqual(res[1].name, 'cvPieChart');
+        assert.strictEqual(res[2].name, 'cvHeatmap');
+        assert.strictEqual(res[3].name, 'cvGroupedColumnChart')
     });
 
     it('should return data cube with observations which contain only one attribute', function() {
