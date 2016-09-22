@@ -12,12 +12,19 @@ import React from 'react';
 
 export default class GroupedColumnChart extends Chart {
 
+    sortDimension(dims) {
+        return dims.sortBy(dim => this.slice.getDimensionElements(dim).size).reverse();
+    }
+
     createChart(dims) {
 
         const defaultMeasure = this.selectedComponents.get('measureComponent');
+        const sortedDims = this.sortDimension(dims);
 
-        const dimElsCategories = this.slice.getDimensionElements(dims.first());
-        const title = this.createTitle(dims);
+        const dimElsCategories = this.slice.getDimensionElements(sortedDims.first());
+        const dimElsSeries = this.slice.getDimensionElements(sortedDims.get(1));
+
+        const title = this.createTitle(sortedDims);
 
         const config = this.createDefaultConfig('column', title);
 
@@ -25,8 +32,6 @@ export default class GroupedColumnChart extends Chart {
             categories: dimElsCategories.map(dimEl => DataCube.getValue(DataCube.getLabel(dimEl))).toJS()
         };
         config.yAxis = this.createYAxis();
-
-        const dimElsSeries = this.slice.getDimensionElements(dims.get(1));
 
         config.series = dimElsSeries.map(dimElSeries => {
             const name = DataCube.getValue(DataCube.getLabel(dimElSeries));

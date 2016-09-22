@@ -9,7 +9,7 @@ import {SingleElementDimensionSpec, MultiElementDimensionSpec, ObservationsRange
 import ContainingObservationsSpec from '../spec/ContainingObservationsSpec.js';
 import EvenlyDistributedSpec from '../spec/EvenlyDistributedSpec.js';
 
-export default class GroupedColumnChartRule extends Rule {
+export default class StackedGroupedColumnChartRule extends Rule {
 
     constructor() {
         super(
@@ -17,7 +17,25 @@ export default class GroupedColumnChartRule extends Rule {
                 mandatory: List([
                     List([
                         {
-                            spec: new MultiElementDimensionSpec(2),
+                            spec: new MultiElementDimensionSpec(3).and(new SingleElementDimensionSpec(0)),
+                            score: 3,
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
+                        },
+                        {
+                            spec: new MultiElementDimensionSpec(2).and(new SingleElementDimensionSpec(1)),
+                            score: 3,
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
+                        },
+                        {
+                            spec: new MultiElementDimensionSpec(1).and(new SingleElementDimensionSpec(2)),
+                            score: 3,
+                            singleElementDimensions: new SingleElementDimensionSpec(),
+                            multiElementDimensions: new MultiElementDimensionSpec()
+                        },
+                        {
+                            spec: new MultiElementDimensionSpec(0).and(new SingleElementDimensionSpec(3)),
                             score: 3,
                             singleElementDimensions: new SingleElementDimensionSpec(),
                             multiElementDimensions: new MultiElementDimensionSpec()
@@ -43,6 +61,6 @@ export default class GroupedColumnChartRule extends Rule {
     }
 
     getName() {
-        return 'cvGroupedColumnChart';
+        return 'cvStackedGroupedColumnChart';
     }
 }

@@ -152,11 +152,16 @@ class DataCube extends Loggable {
     getComponentsElementFromObservation(ob, componentElements, components) {
         if (!components)
             return List();
-        return components.map(comp => {
+        const compElFromObs = components.map(comp => {
             const elUri = this.getComponentElementFromObservation(ob, comp);
+
+            if (!elUri)
+                return undefined;
             const elements = this.getComponentElements(componentElements, comp);
             return elements.find(el => el.get('@id') === elUri.get('@id'));
         });
+
+        return compElFromObs.filter(el => el !== undefined);
     }
 
     getComponentElements(els, comp) {

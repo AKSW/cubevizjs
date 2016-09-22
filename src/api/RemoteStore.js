@@ -19,6 +19,8 @@ class RemoteStore extends SparqlStore {
     }
 
     parse(graph) {
+        //FIXME Retrieved observations do not contain all predicates with their objects! (Dimension Types)
+        // Found in following cube: czso-unemployment-rate-ohneBlankNode.nt
         return promises.fromRDF(graph, {format: 'application/nquads'});
     }
 

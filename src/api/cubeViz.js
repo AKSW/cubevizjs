@@ -11,6 +11,7 @@ import HeatmapRule from './rules/HeatmapRule.js';
 import PieChartRule from './rules/PieChartRule.js';
 import ColumnChartRule from './rules/ColumnChartRule.js';
 import GroupedColumnChartRule from './rules/GroupedColumnChartRule.js';
+import StackedGroupedColumnChartRule from './rules/StackedGroupedColumnChartRule.js';
 import DataCube from './DataCube.js';
 
 const comparison = {
@@ -20,7 +21,9 @@ const comparison = {
             new PieChartRule(),
             new HeatmapRule(),
             new ColumnChartRule(),
-            new GroupedColumnChartRule()]);
+            new GroupedColumnChartRule(),
+            //new StackedGroupedColumnChartRule()
+        ]);
 
         const charts = rules.map(rule => {
 
