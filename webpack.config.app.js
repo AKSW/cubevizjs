@@ -7,6 +7,7 @@ const PATHS = {
 
 module.exports = {
     context: path.resolve(__dirname),
+    devtool: 'cheap-module-source-map',
     entry: './src/App.jsx',
     output: {
         path: PATHS.dist,
