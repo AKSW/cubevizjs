@@ -4,10 +4,10 @@
   "description": "No description yet",
   "main": "index.js",
   "scripts": {
-    "test": "mocha-webpack --webpack-config webpack.config-test.js \"test/*\"",
+    "test": "npm run lint && mocha-webpack --webpack-config webpack.config-test.js \"test/*\"",
     "lint": "eslint src/*",
     "start": "gulp",
-    "build": "npm run lint && npm run test && gulp build"
+    "build": "gulp build"
   },
   "author": "Georges Alkhouri",
   "license": "",
