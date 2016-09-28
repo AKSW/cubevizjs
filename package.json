@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && mocha-webpack --webpack-config webpack.config-test.js \"test/*\"",
+    "test-watch" : "npm run lint && mocha-webpack --webpack-config webpack.config-test.js --watch \"test/*\"",
     "lint": "eslint src/*",
     "start": "gulp",
     "build": "gulp build"
