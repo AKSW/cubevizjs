@@ -235,3 +235,31 @@ test(new SparqlStore(measureDimCube), [
                 message: 'should return complete result with multiple measures from measure dimension'
             },
         ], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);
+
+describe('Triple format loading tests for ' + SparqlStore.name, function() {
+
+    it('should successfully load N-Triples triple', function() {
+        const store = new SparqlStore('<a> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://www.w3.org/2002/07/owl#Ontology> .');
+        return assert.isFulfilled(store.create().then(s => s.load()));
+    });
+
+    it('should successfully load Turtle triple', function() {
+        const store = new SparqlStore('<a> a <http://www.w3.org/2002/07/owl#Ontology> .');
+        return assert.isFulfilled(store.create().then(s => s.load()));
+    });
+
+    it('should successfully load N-Quads triple', function() {
+        const store = new SparqlStore('<http://one.example/subject1> <http://one.example/predicate1> <http://one.example/object1> <http://example.org/graph3> .');
+        return assert.isFulfilled(store.create().then(s => s.load()));
+    });
+
+    it('should successfully load TriG triple', function() {
+        const store = new SparqlStore('<http://a/G1> { <http://a/M> a <http://a/P> . }');
+        return assert.isFulfilled(store.create().then(s => s.load()));
+    });
+
+    it('should not load TriG triple', function() {
+        const store = new SparqlStore('<http://a/G1> {abcdef <http://a/M> a <http://a/P> . }');
+        return assert.isRejected(store.create().then(s => s.load()));
+    });
+});
