@@ -1,5 +1,6 @@
 
 var gulp = require('gulp');
+var git = require('gulp-git');
 var babel = require('gulp-babel');
 var gutil = require('gulp-util');
 var webpack = require('webpack');
@@ -9,7 +10,7 @@ var WebpackDevServer = require('webpack-dev-server');
 
 gulp.task('default', ['server']);
 
-gulp.task('build', function(callback) {
+gulp.task('build', ['hash'], function(callback) {
 
   var myConfig = Object.create(webpackAppConfig);
   myConfig.plugins = [
@@ -29,7 +30,9 @@ gulp.task('build', function(callback) {
         }),
         new webpack.DefinePlugin({
           'process.env': {
-             NODE_ENV: JSON.stringify('production')
+             NODE_ENV: JSON.stringify('production'),
+             'GIT_HASH': JSON.stringify(gitHash),
+             'GIT_LINK': JSON.stringify('https://github.com/AKSW/cubevizjs/commit/' + gitHash)
            }
         })
   ];
@@ -45,9 +48,30 @@ gulp.task('build', function(callback) {
   });
 });
 
+var gitHash;
+
+gulp.task('hash', function(cb) {
+    git.revParse({args:'--short HEAD'}, function (err, hash) {
+        if (err)
+            return cb(err);
+        gitHash = hash;
+        cb();
+    });
+});
+
 gulp.task('server', function(callback) {
-	// modify some webpack config options
+
 	var myConfig = Object.create(webpackConfig);
+    myConfig.plugins = [
+        new webpack.DefinePlugin({
+            'process.env':{
+                'NODE_ENV': JSON.stringify('development'),
+                'GIT_HASH': JSON.stringify('DEVELOPMENT'),
+                'GIT_LINK': JSON.stringify('https://github.com/AKSW/cubevizjs/')
+            }
+        })
+    ]
+
 	// Start a webpack-dev-server
 	new WebpackDevServer(webpack(myConfig), {
         contentBase: myConfig.devServer.contentBase,
@@ -64,6 +88,6 @@ gulp.task('server', function(callback) {
         }
     }).listen(8080, 'localhost', function(err) {
 		if(err) throw new gutil.PluginError('webpack-dev-server', err);
-		gutil.log('[webpack-dev-server]', 'http://localhost:8080/webpack-dev-server/index.html');
+		gutil.log('[webpack-dev-server]', 'http://localhost:8080/');
 	});
 });

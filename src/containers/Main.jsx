@@ -37,8 +37,10 @@ class Main extends Component {
                 </Row>
                   <Row>
                       <Col md={12}>
-                          <span>Demo application,
-                              please use the console for detailed output.</span>
+                          <span>
+                            Demo application, please use the console for detailed output.
+                            Build commit: <a href={process.env.GIT_LINK}>{process.env.GIT_HASH}</a>
+                          </span>
                       </Col>
                   </Row>
                   <Row>
