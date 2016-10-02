@@ -22,7 +22,7 @@ const comparison = {
             new HeatmapRule(),
             new ColumnChartRule(),
             new GroupedColumnChartRule(),
-            //new StackedGroupedColumnChartRule()
+            new StackedGroupedColumnChartRule()
         ]);
 
         const charts = rules.map(rule => {
@@ -57,13 +57,14 @@ function containsDimEl(dimEl, dimEls) {
     return dimEls.find(dEl => dEl.get('@id') === dimEl.get('@id')) !== undefined;
 }
 
-// Discards every observation point not in dimensions
+// Discards every observation points not in dimensionElement selecion
 function selectObservations(dimensionsElements, measure, attribute, attrEl, dataCube) {
     return dataCube.observations
         .filter(o => dimensionsElements.every((dimEls, dimUri) => {
             return dimEls.some(dimEl => {
                 const dim = dataCube.getComponentFromUri(dataCube.dimensions, dimUri);
                 const dimensionEls = dataCube.getDimensionElementsFromObservation(o, List([dim]));
+
                 return containsDimEl(dimEl, dimensionEls);
             });
         }))
@@ -100,15 +101,53 @@ function selectDimensions(dimEls, dataCube) {
     }, Immutable.List());
 }
 
+function fillDimensions(dimensions, selectedDimElements, dc) {
+
+    const missingDimensions = dc.dimensions.filter(dim => {
+        return dimensions.find(d => DataCube.getUri(d) === DataCube.getUri(dim)) === undefined;
+    });
+
+    const missingDimEls = missingDimensions
+        .flatMap(dim => dc.getDimensionElements(dim));
+        // .filter(dimEl => dc.getObservationsContainingDimEls(List([dimEl])).size > 0);
+
+    const filledDimensions = dimensions.concat(missingDimensions);
+    const filledDimEls = selectedDimElements.concat(missingDimEls);
+
+    // const dimensionsMap = dc.assignDimEls(filledDimEls, filledDimensions);
+    // console.log(JSON.stringify(dimensionsMap.toJS()));
+
+    // dimensionsMap
+    //     .filter((dimEls, dimUri) => {})
+    //     .filter(o => dimensionsElements.every((dimEls, dimUri) => {
+    //         return dimEls.some(dimEl => {
+    //             const dim = dataCube.getComponentFromUri(dataCube.dimensions, dimUri);
+    //             const dimensionEls = dataCube.getDimensionElementsFromObservation(o, List([dim]));
+    //
+    //             return containsDimEl(dimEl, dimensionEls);
+    //         });
+    //     }))
+
+    return {filledDimensions, filledDimEls};
+}
+
 export function createDataCube(selectedMeasure, selectedAttrElement, selectedDimElements, dataCube) {
 
     const attribute = dataCube.getAttribute(selectedAttrElement);
 
-    const dimensions = selectDimensions(selectedDimElements, dataCube);
-    const dimensionsMap = dataCube.assignDimEls(selectedDimElements, dimensions);
+    let dimensionElements = selectedDimElements;
+    let dimensions = selectDimensions(dimensionElements, dataCube);
+
+    if (dimensions.size < dataCube.dimensions.size) {
+        const {filledDimensions, filledDimEls} = fillDimensions(dimensions, dimensionElements, dataCube);
+        dimensions = filledDimensions;
+        dimensionElements = filledDimEls;
+    }
+
+    const dimensionsMap = dataCube.assignDimEls(dimensionElements, dimensions);
     const observations = selectObservations(dimensionsMap, selectedMeasure, attribute, selectedAttrElement, dataCube);
 
-    const dc = dataCube.createDataCube(selectedDimElements, dimensions, observations);
+    const dc = dataCube.createDataCube(dimensionElements, dimensions, observations);
     return dc;
 }
 
