@@ -91,7 +91,6 @@ export function doImport(importType, value) {
             .then(({dataSets, store}) => {
                 dispatch(changeDataSets(fromJS(dataSets)));
                 dispatch(changeRdfStore(store));
-                dispatch(showGlobalPopover(false, ''));
                 return Promise.resolve({ds: dataSets[0], store});
             })
             .then(({ds, store}) => {
