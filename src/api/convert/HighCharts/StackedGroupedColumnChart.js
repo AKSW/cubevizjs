@@ -13,13 +13,17 @@ import React from 'react';
 export default class StackedGroupedColumnChart extends Chart {
 
     createChart(dims) {
+
+        return 'Grouped stacked column chart coming soon.';
+
         // const defaultMeasure = this.selectedComponents.get('measureComponent');
+        // const sortedDims = this.sortDimension(dims);
         //
-        // const dimElsCategories = this.slice.getDimensionElements(dims.first());
-        // const dimElsSeries = this.slice.getDimensionElements(dims.get(1));
-        // const dimElsStacked = this.slice.getDimensionElements(dims.get(2));
+        // const dimElsCategories = this.slice.getDimensionElements(sortedDims.first());
+        // const dimElsSeries = this.slice.getDimensionElements(sortedDims.get(1));
+        // const dimElsStacked = this.slice.getDimensionElements(sortedDims.get(2));
         //
-        // const title = this.createTitle(dims);
+        // const title = this.createTitle(sortedDims);
         //
         // const config = this.createDefaultConfig('column', title);
         //

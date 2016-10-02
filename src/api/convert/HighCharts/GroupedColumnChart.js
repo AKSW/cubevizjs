@@ -12,10 +12,6 @@ import React from 'react';
 
 export default class GroupedColumnChart extends Chart {
 
-    sortDimension(dims) {
-        return dims.sortBy(dim => this.slice.getDimensionElements(dim).size).reverse();
-    }
-
     createChart(dims) {
 
         const defaultMeasure = this.selectedComponents.get('measureComponent');

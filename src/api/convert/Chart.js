@@ -25,6 +25,10 @@ class Chart {
         this.dc = dc;
     }
 
+    sortDimension(dims) {
+        return dims.sortBy(dim => this.slice.getDimensionElements(dim).size).reverse();
+    }
+
     toNumber(val) {
         if (typeof val !== 'number') {
             console.log('Converting.js: Forcing value to be a number.');
