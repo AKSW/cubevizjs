@@ -9,6 +9,26 @@ CubeViz is utilizing the RDF DataCube vocabulary which is the state-of-the-art i
 
 This document tries to give an overview about CubeViz.js and some of its features.
 
+Getting Started
+---------------
+
+To start developing just clone the repository and download all necessary dependencies. 
+```
+npm install
+```
+After that start the Webpack server and open your browser at `http://localhost:8080/`.
+```
+npm start
+```
+Webpack will automaticly build a new bundle file if the source code will be changed. 
+To build a production bundle of CubeViz.js just run
+```
+npm run build
+```
+and Webpack will build a bundle to the `dist` folder.  
+
+If you just want to use CubeViz.js you could find further instructions on the [demo page](http://cubevizjs.demo.aksw.org). To use the latest release version link to `dist/cubeviz.min.js` in the master branch and respectively to develop branch if you want to use the current development version.
+
 Features
 --------
 
