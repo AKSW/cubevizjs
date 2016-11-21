@@ -11,6 +11,7 @@ import noObservationsCube from './assets/NoObservationsCube.js';
 import defaultTestCube from './assets/DefaultDataCube.js';
 import measureDimCube from './assets/MeasureDimCube.js';
 import SparqlStore from '../src/api/SparqlStore.js'
+import attrOnMeasureCube  from './assets/AttrOnMeasureCube.js'
 
 function assertType(expectedType, types) {
     const type = types.find(t => t === expectedType);
@@ -224,6 +225,17 @@ test(new SparqlStore(defaultTestCube), [
             message: 'should return complete result with correct types'
         },
     ], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);
+
+test(new SparqlStore(attrOnMeasureCube), [
+    {
+        assert: store => assert.isFulfilled(store.import()).then(result => {
+            assert.isNotNull(result);
+            assert.strictEqual(result.measures.length, 1);
+            assert.strictEqual(result.attributes.length, 1);
+        }),
+        message: 'should return complete result with attribute attached on measure'
+    }
+], { beforeEach: store => store.create().then(s => s.load()) }, 'Tests for the import result for ' + SparqlStore.name);
 
 test(new SparqlStore(measureDimCube), [
             {

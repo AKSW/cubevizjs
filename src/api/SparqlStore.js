@@ -187,6 +187,16 @@ class SparqlStore extends Loggable {
             this.result.measures = res[1];
             this.result.attributes = res[2];
 
+            if (res[2].length === 0) {
+                return this.getAttributesFromMeasures(this.result.measures, this.result.dsd, this.result.ds).then(measuresAndAttributes => {
+                    //TODO link attr with appropriate measures
+                    this.result.attributes = fromJS(measuresAndAttributes[1]).flatten(1).toJS();
+
+                    const dimElPromises = this.result.dimensions.map(dim => this.getDimElements(dim, this.result.dataset));
+                    return Promise.all(dimElPromises);
+                });
+            }
+
             const dimElPromises = res[0].map(dim => this.getDimElements(dim, this.result.dataset));
             return Promise.all(dimElPromises);
         })
@@ -236,6 +246,14 @@ class SparqlStore extends Loggable {
             const p = this.result.attributes
                 .map(attr => this.getAttrElements(attr, this.result.dataset));
             return Promise.resolve(this.result);
+        });
+    }
+
+    getAttributesFromMeasures(measures, dsd, ds) {
+        const query = (m) => 'CONSTRUCT { ?attr ?p ?o . } WHERE { <' + m + '> <http://purl.org/linked-data/cube#attribute> ?attr . ?attr ?p ?o . }';
+        const queries = measures.map(obj => this.execute(query(obj['@id'])).then(this.parse));
+        return Promise.all(queries).then(res => {
+            return [measures, res];
         });
     }
 
