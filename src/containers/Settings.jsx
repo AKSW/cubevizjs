@@ -42,7 +42,7 @@ class Settings extends Component {
 
     handleTouchTap(tag, event) {
         if (tag === 'accept')
-            this.props.dispatch(handleAccept());
+            this.props.dispatch(handleAccept({}));
         else
             this.props.dispatch(showSettingsModal(tag, event.currentTarget));
     }

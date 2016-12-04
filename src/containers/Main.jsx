@@ -74,9 +74,16 @@ Main.propTypes = {
     showPopover: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     config: PropTypes.shape({
-        ui_container: PropTypes.string,
+        ui_container: PropTypes.string.isRequired,
         data_source: PropTypes.shape({
             value: PropTypes.string.isRequired
+        }).isRequired,
+        ui_configuration: PropTypes.shape({
+            show_ui_elements: PropTypes.bool,
+            measure: PropTypes.string,
+            attribute: PropTypes.string,
+            dimension_elements: PropTypes.arrayOf(PropTypes.string),
+            chart_name: PropTypes.string
         })
     }).isRequired
 };

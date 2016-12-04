@@ -135,17 +135,19 @@ function getSelectedComponents(dataCubeReducer, dc) {
 }
 
 function isValid(selectedMeasure, selectedAttrElements, selectedDimElements, dc) {
-    if (!selectedMeasure
-    || selectedDimElements.size === 0)
-        return false;
+    if (!selectedMeasure)
+        return [false, 'No measure selected'];
+
+    if (selectedDimElements.size === 0)
+        return [false, 'No dimension elements selected'];
 
     if (selectedAttrElements.size === 0
     && dc.attributes.size > 0)
-        return false;
-    return true;
+        return [false, 'No attribute selected'];
+    return [true];
 }
 
-export function handleAccept() {
+export function handleAccept({chartIndex = 0, chartName = ''}) {
     return (dispatch, getState) => {
         const {dataCubeReducer} = getState();
 
@@ -153,8 +155,11 @@ export function handleAccept() {
         const {selectedMeasure, selectedAttrElements, selectedDimElements} =
             getSelectedComponents(dataCubeReducer, dc);
 
-        if (!isValid(selectedMeasure, selectedAttrElements, selectedDimElements, dc))
+        const result = isValid(selectedMeasure, selectedAttrElements, selectedDimElements, dc);
+        if (!result[0]) {
+            dispatch(addNewLineToLogBox('Error: ' + result[1]));
             return;
+        }
 
         const slice = cubeViz.createDataCube(
             selectedMeasure,
@@ -176,7 +181,17 @@ export function handleAccept() {
 
         //FIXME check if all mandetory rules are satisfied
         const satisfied = charts.filter(c => c.get('isSatisfied'));
-        if (satisfied.size > 0) {
+
+        // if chart name is set, tries to find a roughly match from satisfied
+        // chart names. If no match is found tries to select given chart index or first chart
+        // if no chart index is provided.
+        let index = -1;
+        if (chartName !== '')
+            index = satisfied.findIndex(sat => sat.get('name').match(new RegExp(chartName, 'i')) !== null);
+        if (index === -1)
+            index = chartIndex;
+
+        if (satisfied.size > index) {
             dispatch(newSlice(slice));
             dispatch(newCubeVizCharts(satisfied));
             dispatch(newCubeVizChartNames(getNamesforCharts(satisfied)));
@@ -187,7 +202,7 @@ export function handleAccept() {
                     measureComponent: selectedMeasure
                 }
             )));
-            dispatch(changeSelectedChart(0));
+            dispatch(changeSelectedChart(chartIndex));
         }
     };
 }

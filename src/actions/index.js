@@ -1,12 +1,18 @@
 /*eslint func-style: 0*/
 /*eslint no-console: 0*/
 /*eslint no-debugger: 0*/
-import {fromJS} from 'immutable';
+/*eslint complexity: 0*/
+import {fromJS, Map} from 'immutable';
 import {createAction} from 'redux-actions';
-import {createNewDataCube, resetAllDataCubeState} from './dataCubeActions.js';
+import {createNewDataCube,
+    resetAllDataCubeState,
+    changeSelectedComponentIndex,
+    handleAccept} from './dataCubeActions.js';
 import imprt, {IMPORT_TYPE_FILE_UPLOAD} from '../api/import';
 import SparqlStore from '../api/SparqlStore.js';
 import RemoteStore from '../api/RemoteStore.js';
+
+import {mapUriToindex, mapUrisToindexes} from '../api/util/dataCubeUtil.js';
 
 export const SHOW_GLOBAL_POPOVER = 'SHOW_GLOBAL_POPOVER';
 
@@ -76,46 +82,123 @@ export function dataSetSelectionChanged(index) {
     };
 }
 
+function importPromise(importType, value, dispatch) {
+    return imprt({importType, value})
+        .then(result => {
+            dispatch(changeImportSettings(importType, value));
+            dispatch(showGlobalPopover(true, 'Creating RDF Store'));
+            return createRdfStore(result);
+        })
+        .then(store => {
+            store.setLogger({logFct: addNewLineToLogBox, dispatch});
+            return store.load().then(s => s.verify()).then(s => listDataSets(s));
+        })
+        .then(({dataSets, store}) => {
+            dispatch(changeDataSets(fromJS(dataSets)));
+            dispatch(changeRdfStore(store));
+            return Promise.resolve({ds: dataSets[0], store});
+        })
+        .then(({ds, store}) => {
+            dispatch(showGlobalPopover(true, 'Importing Data'));
+            return store.import(ds);
+        }).then(data => {
+
+            dispatch(resetAllDataCubeState());
+            dispatch(showGlobalPopover(true, 'Creating Data Cube'));
+            dispatch(createNewDataCube(data));
+            dispatch(showGlobalPopover(false, ''));
+        })
+        .catch(err => {
+            console.error(err);
+            dispatch(showGlobalPopover(false, ''));
+        });
+}
+
 export function doImport(importType, value) {
     return dispatch => {
-        return imprt({importType, value})
-            .then(result => {
-                dispatch(changeImportSettings(importType, value));
-                dispatch(showGlobalPopover(true, 'Creating RDF Store'));
-                return createRdfStore(result);
-            })
-            .then(store => {
-                store.setLogger({logFct: addNewLineToLogBox, dispatch});
-                return store.load().then(s => s.verify()).then(s => listDataSets(s));
-            })
-            .then(({dataSets, store}) => {
-                dispatch(changeDataSets(fromJS(dataSets)));
-                dispatch(changeRdfStore(store));
-                return Promise.resolve({ds: dataSets[0], store});
-            })
-            .then(({ds, store}) => {
-                dispatch(showGlobalPopover(true, 'Importing Data'));
-                return store.import(ds);
-            }).then(data => {
+        return importPromise(importType, value, dispatch);
+    };
+}
 
-                dispatch(resetAllDataCubeState());
-                dispatch(showGlobalPopover(true, 'Creating Data Cube'));
-                dispatch(createNewDataCube(data));
-                dispatch(showGlobalPopover(false, ''));
+function preSelectMeasure(uiConfig, dc) {
+    const measureIndex = (uiConfig && 'measure' in uiConfig) ? mapUriToindex(uiConfig.measure, dc.measures) : 0;
+    return measureIndex;
+}
+
+function preSelectAttribute(uiConfig, dc) {
+    const attributeIndexes = (uiConfig && 'attribute' in uiConfig)
+            ? mapUrisToindexes([uiConfig.attribute], dc.attributesElements)
+            : {0: ['0']};
+    return attributeIndexes;
+}
+
+function preSelectionDimEls(uiConfig, dc) {
+
+    function createDimensionSelection(dc) {
+        return dc.dimensions.reduce((obj, dim, idx) => {
+            return obj.set(idx, dc.getDimensionElements(dim).map((_, i) => i.toString()).toJS());
+        }, Map()).toJS();
+    }
+
+    const dimensionIndexes = (uiConfig && 'dimension_elements' in uiConfig)
+        ? mapUrisToindexes(uiConfig.dimension_elements, dc.assignedDimEls)
+        : createDimensionSelection(dc);
+    return dimensionIndexes;
+}
+
+
+/**
+ * preSelection - Handels pre selection from user or automatic pre selection without showing a chart.
+ *
+ * @param  {type} importPromise        Import promise
+ * @param  {type} uiConfig             UI config from user
+ * @param  {type} shouldAccept = false If true accepts and handels the pre selection to immediately show chart
+ * @returns {type}                      description
+ */
+export function preSelection(importPromise, uiConfig, shouldAccept = false) {
+    return (dispatch, getState) => {
+        return importPromise
+            .then(() => {
+                const {dataCubeReducer} = getState();
+                const dc = dataCubeReducer.get('dataCube');
+
+                const measureIndex = preSelectMeasure(uiConfig, dc);
+                const attributeIndexes = preSelectAttribute(uiConfig, dc);
+                const dimensionIndexes = preSelectionDimEls(uiConfig, dc);
+
+                if (measureIndex !== -1)
+                    dispatch(changeSelectedComponentIndex('measureComponents', measureIndex));
+                if (dc.attributes.size > 0)
+                    dispatch(changeSelectedComponentIndex('attrComponentElements', attributeIndexes));
+                dispatch(changeSelectedComponentIndex('dimComponentElements', dimensionIndexes));
+
+                if (shouldAccept) {
+                    const chartName = (uiConfig && 'chart_name' in uiConfig) ? uiConfig.chart_name : '';
+                    dispatch(handleAccept({chartName}));
+                }
             })
             .catch(err => {
                 console.error(err);
-                dispatch(showGlobalPopover(false, ''));
             });
     };
 }
 
 export function handleConfiguration(config) {
     return dispatch => {
-        if (config.data_source &&
-            config.data_source.value)
-            dispatch(doImport('endpoint', config.data_source.value));
-        else
+        if (config && 'data_source' in config && 'value' in config.data_source) {
+
+            let shouldAccept = false;
+            if ('ui_configuration' in config)
+                shouldAccept = true;
+
+            dispatch(preSelection(
+                importPromise('endpoint', config.data_source.value, dispatch),
+                config.ui_configuration,
+                shouldAccept
+            ));
+        }
+        else {
             dispatch(doImport('default', 'default'));
+        }
     };
 }
