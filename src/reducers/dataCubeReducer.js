@@ -19,7 +19,7 @@ import {
 const initialState = Map({
     dataCube: null,
     selectableComponents: Map({dimComponentElements: null, attrComponentElements: null, measureComponents: null}),
-    selectedComponentsIndex: Map({dimComponentElements: {}, attrComponentElements: {}, measureComponents: 0}),
+    selectedComponentsIndex: Map({dimComponentElements: {}, attrComponentElements: {}, measureComponents: {}}),
     selectedComponents: Map({dimComponentElements: null, attrComponentElement: null, measureComponent: null}),
     slice: null, //Could easy be changed to store sliceS
     cubeVizCharts: List(),
@@ -52,7 +52,7 @@ function dataCubeReducer(state = initialState, action) {
             dataCube: null,
             selectableComponents:
                 Map({dimComponentElements: null, attrComponentElements: null, measureComponents: null}),
-            selectedComponentsIndex: Map({dimComponentElements: {}, attrComponentElements: {}, measureComponents: 0}),
+            selectedComponentsIndex: Map({dimComponentElements: {}, attrComponentElements: {}, measureComponents: {}}),
             selectedComponents: Map({dimComponentElements: null, attrComponentElement: null, measureComponent: null}),
             slice: null, //Could easy be changed to store sliceS
             cubeVizCharts: List(),
