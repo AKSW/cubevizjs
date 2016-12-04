@@ -147,6 +147,26 @@ function isValid(selectedMeasure, selectedAttrElements, selectedDimElements, dc)
     return [true];
 }
 
+
+/**
+ * determineChartIndex - If chart name is set, tries to find a roughly match from satisfied
+ * chart names. If no match is found tries to select given chart index or first chart
+ * if no chart index is provided.
+ *
+ * @param  {type} chartIndex description
+ * @param  {type} chartName  description
+ * @param  {type} satisfied  description
+ * @returns {type}            description
+ */
+function determineChartIndex(chartIndex, chartName, satisfied) {
+    let index = -1;
+    if (chartName !== '')
+        index = satisfied.findIndex(sat => sat.get('name').match(new RegExp(chartName, 'i')) !== null);
+    if (index === -1)
+        index = chartIndex;
+    return index;
+}
+
 export function handleAccept({chartIndex = 0, chartName = ''}) {
     return (dispatch, getState) => {
         const {dataCubeReducer} = getState();
@@ -182,15 +202,7 @@ export function handleAccept({chartIndex = 0, chartName = ''}) {
         //FIXME check if all mandetory rules are satisfied
         const satisfied = charts.filter(c => c.get('isSatisfied'));
 
-        // if chart name is set, tries to find a roughly match from satisfied
-        // chart names. If no match is found tries to select given chart index or first chart
-        // if no chart index is provided.
-        let index = -1;
-        if (chartName !== '')
-            index = satisfied.findIndex(sat => sat.get('name').match(new RegExp(chartName, 'i')) !== null);
-        if (index === -1)
-            index = chartIndex;
-
+        const index = determineChartIndex(chartIndex, chartName, satisfied);
         if (satisfied.size > index) {
             dispatch(newSlice(slice));
             dispatch(newCubeVizCharts(satisfied));

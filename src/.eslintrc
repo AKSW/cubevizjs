@@ -130,7 +130,7 @@
     "react/no-multi-comp": 1,
     "react/react-in-jsx-scope": 1,
     "react/self-closing-comp": 1,
-    "react/wrap-multilines": 1,
+    "react/jsx-wrap-multilines": 0,
     # ES6
     "prefer-const": 2,
     "object-shorthand": [2, "always"],
