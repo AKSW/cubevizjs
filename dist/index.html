@@ -16,17 +16,17 @@
     <script src="cubeviz.min.js"></script>
     <script>
         var configuration = {
-            ui_container: 'react',
-            data_source: {
-                value: 'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3'
+            data_configuration: {
+                source: 'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3',
+                //measure: 'http://purl.org/linked-data/sdmx/2009/measure#obsValue',
+                //attribute: 'http://elpo.stat.gov.rs/lod2/RS-DIC/esa95-unit/RT_GDP',
+                //dimension_elements: ['http://elpo.stat.gov.rs/lod2/RS-DIC/geo/RS', 'http://elpo.stat.gov.rs/lod2/RS-DIC/time/Y2005', 'http://elpo.stat.gov.rs/lod2/RS-DIC/time/Y2006'],
             },
-            // ui_configuration: {
-            //     show_ui_elements: false,
-            //     measure: 'http://purl.org/linked-data/sdmx/2009/measure#obsValue',
-            //     attribute: 'http://elpo.stat.gov.rs/lod2/RS-DIC/esa95-unit/RT_GDP',
-            //     dimension_elements: ['http://elpo.stat.gov.rs/lod2/RS-DIC/geo/RS', 'http://elpo.stat.gov.rs/lod2/RS-DIC/time/Y2005', 'http://elpo.stat.gov.rs/lod2/RS-DIC/time/Y2006'],
-            //     chart_name: 'heatmap'
-            // }
+            ui_configuration: {
+                ui_container: 'react',
+                //show_ui_elements: false,
+                //chart_name: 'heatmap'
+            }
         };
 
         var cubeViz = new CubeViz.default(configuration);

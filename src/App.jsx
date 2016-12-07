@@ -10,7 +10,17 @@ class CubeViz {
     }
 
     run() {
-        ReactDOM.render(<Root config={this.config}/>, document.getElementById(this.config.ui_container));
+
+        if (this.config
+            && 'ui_configuration' in this.config
+            && 'ui_container' in this.config.ui_configuration) {
+            ReactDOM.render(<Root config={this.config}/>, document.getElementById(
+                this.config.ui_configuration.ui_container
+            ));
+        }
+        else {
+            throw new Error('Configuration error.');
+        }
     }
 }
 

@@ -2,7 +2,7 @@
 /*eslint no-console: 0*/
 /*eslint func-style: 0*/
 /*eslint camelcase: 0*/
-
+/*eslint complexity: 0*/
 import React, {Component, PropTypes} from 'react';
 import {Grid, Row, Col} from 'react-bootstrap';
 import {connect} from 'react-redux';
@@ -32,28 +32,30 @@ class Main extends Component {
         return (
             <div id="cubevizapp" className="cubevizapp">
                 <Grid>
-                <Row>
-                    <Settings />
-                </Row>
-                  <Row>
-                      <Col md={12}>
-                          <span>
-                            Demo application, please use the console for detailed output.
-                            Build commit: <a href={process.env.GIT_LINK}>{process.env.GIT_HASH}</a>
-                          </span>
-                      </Col>
-                  </Row>
+                { this.props.show ? <Row> <Settings /> </Row> : null }
+                { this.props.show
+                    ? <Row>
+                        <Col md={12}>
+                            <span>
+                              Demo application, please use the console for detailed output.
+                              Build commit: <a href={process.env.GIT_LINK}>{process.env.GIT_HASH}</a>
+                            </span>
+                        </Col>
+                    </Row>
+                    : null }
                   <Row>
                       <Col md={12}>
                           <Chart />
                       </Col>
                   </Row>
-                  <Row>
-                      <div style={{marginTop: '100px'}}/>
-                      <Col md={12}>
-                          <LogBox />
-                      </Col>
-                  </Row>
+                  { this.props.show
+                      ? <Row>
+                            <div style={{marginTop: '100px'}}/>
+                            <Col md={12}>
+                                <LogBox />
+                            </Col>
+                         </Row>
+                        : null }
                 </Grid>
                 <Popover
                     open={this.props.showPopover}
@@ -74,17 +76,17 @@ Main.propTypes = {
     showPopover: PropTypes.bool.isRequired,
     dispatch: PropTypes.func.isRequired,
     config: PropTypes.shape({
-        ui_container: PropTypes.string.isRequired,
-        data_source: PropTypes.shape({
-            value: PropTypes.string.isRequired
-        }).isRequired,
-        ui_configuration: PropTypes.shape({
-            show_ui_elements: PropTypes.bool,
+        data_configuration: PropTypes.shape({
+            source: PropTypes.string,
             measure: PropTypes.string,
             attribute: PropTypes.string,
             dimension_elements: PropTypes.arrayOf(PropTypes.string),
+        }),
+        ui_configuration: PropTypes.shape({
+            ui_container: PropTypes.string.isRequired,
+            show_ui_elements: PropTypes.bool,
             chart_name: PropTypes.string
-        })
+        }).isRequired
     }).isRequired
 };
 
@@ -92,7 +94,12 @@ function mapStateToProps(state) {
     const {mainReducer} = state;
     return {
         popoverTitle: mainReducer.get('popoverTitle'),
-        showPopover: mainReducer.get('showPopover')
+        showPopover: mainReducer.get('showPopover'),
+        show: (mainReducer.get('userConfiguration') &&
+            'ui_configuration' in mainReducer.get('userConfiguration') &&
+            'show_ui_elements' in mainReducer.get('userConfiguration').ui_configuration)
+            ? mainReducer.get('userConfiguration').ui_configuration.show_ui_elements
+            : true
     };
 }
 

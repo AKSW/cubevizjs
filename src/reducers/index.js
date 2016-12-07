@@ -14,7 +14,8 @@ import {
     SHOW_SETTINGS_MODAL,
     HIDE_SETTINGS_MODAL,
     ADD_NEW_LINE_TO_LOG_BOX,
-    CHANGE_LOG_BOX_VISIBILITY
+    CHANGE_LOG_BOX_VISIBILITY,
+    CHANGE_USER_CONFIG
 } from '../actions';
 
 
@@ -22,7 +23,8 @@ const initialMainState = Map({
     showPopover: false,
     popoverTitle: '',
     logBoxText: '',
-    logBoxVisible: false
+    logBoxVisible: false,
+    userConfiguration: {}
 });
 
 export function mainReducer(state = initialMainState, action) {
@@ -35,6 +37,8 @@ export function mainReducer(state = initialMainState, action) {
         return state.set('logBoxText', state.get('logBoxText').concat('\n' + action.payload + '\n'));
     case CHANGE_LOG_BOX_VISIBILITY:
         return state.set('logBoxVisible', action.payload);
+    case CHANGE_USER_CONFIG:
+        return state.set('userConfiguration', action.payload);
     default:
         return state;
     }

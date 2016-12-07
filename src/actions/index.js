@@ -2,6 +2,8 @@
 /*eslint no-console: 0*/
 /*eslint no-debugger: 0*/
 /*eslint complexity: 0*/
+/*eslint camelcase: 0*/
+import Yup from 'yup';
 import {fromJS, Map} from 'immutable';
 import {createAction} from 'redux-actions';
 import {createNewDataCube,
@@ -29,6 +31,8 @@ export const CHANGE_DATASET_INDEX = 'CHANGE_DATASET_INDEX';
 export const CHANGE_LOG_BOX_VISIBILITY = 'CHANGE_LOG_BOX_VISIBILITY';
 export const ADD_NEW_LINE_TO_LOG_BOX = 'ADD_NEW_LINE_TO_LOG_BOX';
 
+export const CHANGE_USER_CONFIG = 'CHANGE_USER_CONFIG';
+
 export const showGlobalPopover = createAction(SHOW_GLOBAL_POPOVER, (show, title) => ({show, title}));
 
 export const showSettingsModal = createAction(SHOW_SETTINGS_MODAL, (modalType, anchorEl) => ({modalType, anchorEl}));
@@ -44,6 +48,8 @@ export const changeRdfStore = createAction(CHANGE_RDF_STORE);
 
 export const changeLogBoxVisibility = createAction(CHANGE_LOG_BOX_VISIBILITY);
 export const addNewLineToLogBox = createAction(ADD_NEW_LINE_TO_LOG_BOX);
+
+export const changeUserConfig = createAction(CHANGE_USER_CONFIG);
 
 export const changeDataSets = createAction(CHANGE_DATASETS);
 export const changeDataSetIndex = createAction(CHANGE_DATASET_INDEX);
@@ -82,7 +88,7 @@ export function dataSetSelectionChanged(index) {
     };
 }
 
-function importPromise(importType, value, dispatch) {
+export function importPromise(importType, value, dispatch) {
     return imprt({importType, value})
         .then(result => {
             dispatch(changeImportSettings(importType, value));
@@ -148,23 +154,23 @@ function preSelectionDimEls(uiConfig, dc) {
 
 
 /**
- * preSelection - Handels pre selection from user or automatic pre selection without showing a chart.
+ * preSelection - Handels pre selection after import from user or handels automatic pre selection.
  *
  * @param  {type} importPromise        Import promise
- * @param  {type} uiConfig             UI config from user
+ * @param  {type} config               Config from user
  * @param  {type} shouldAccept = false If true accepts and handels the pre selection to immediately show chart
  * @returns {type}                      description
  */
-export function preSelection(importPromise, uiConfig, shouldAccept = false) {
+export function preSelection(importPromise, config, shouldAccept = false) {
     return (dispatch, getState) => {
         return importPromise
             .then(() => {
                 const {dataCubeReducer} = getState();
                 const dc = dataCubeReducer.get('dataCube');
 
-                const measureIndex = preSelectMeasure(uiConfig, dc);
-                const attributeIndexes = preSelectAttribute(uiConfig, dc);
-                const dimensionIndexes = preSelectionDimEls(uiConfig, dc);
+                const measureIndex = preSelectMeasure(config.data_configuration, dc);
+                const attributeIndexes = preSelectAttribute(config.data_configuration, dc);
+                const dimensionIndexes = preSelectionDimEls(config.data_configuration, dc);
 
                 if (measureIndex !== -1)
                     dispatch(changeSelectedComponentIndex('measureComponents', measureIndex));
@@ -173,7 +179,9 @@ export function preSelection(importPromise, uiConfig, shouldAccept = false) {
                 dispatch(changeSelectedComponentIndex('dimComponentElements', dimensionIndexes));
 
                 if (shouldAccept) {
-                    const chartName = (uiConfig && 'chart_name' in uiConfig) ? uiConfig.chart_name : '';
+                    const chartName = ('ui_configuration' in config && 'chart_name' in config.ui_configuration)
+                        ? config.ui_configuration.chart_name
+                        : '';
                     dispatch(handleAccept({chartName}));
                 }
             })
@@ -183,22 +191,45 @@ export function preSelection(importPromise, uiConfig, shouldAccept = false) {
     };
 }
 
+const schema = Yup.object().shape({
+    data_configuration: Yup.object().strict().shape({
+        source: Yup.string(),
+        measure: Yup.string(),
+        attribute: Yup.string(),
+        dimension_elements: Yup.array().of(Yup.string()),
+    }),
+    ui_configuration: Yup.object().shape({
+        ui_container: Yup.string().required(),
+        show_ui_elements: Yup.bool(),
+        chart_name: Yup.string()
+    }).required()
+}).required();
+
 export function handleConfiguration(config) {
     return dispatch => {
-        if (config && 'data_source' in config && 'value' in config.data_source) {
+        return schema.validate(config)
+            .then(() => {
 
-            let shouldAccept = false;
-            if ('ui_configuration' in config)
-                shouldAccept = true;
+                dispatch(changeUserConfig(config));
 
-            dispatch(preSelection(
-                importPromise('endpoint', config.data_source.value, dispatch),
-                config.ui_configuration,
-                shouldAccept
-            ));
-        }
-        else {
-            dispatch(doImport('default', 'default'));
-        }
+                if (config && 'data_configuration' in config && 'source' in config.data_configuration) {
+
+                    let shouldAccept = false;
+                    if ('ui_configuration' in config && 'show_ui_elements' in config.ui_configuration)
+                        shouldAccept = !config.ui_configuration.show_ui_elements;
+
+                    dispatch(preSelection(
+                        importPromise('endpoint', config.data_configuration.source, dispatch),
+                        config,
+                        shouldAccept
+                    ));
+                }
+                else {
+                    dispatch(doImport('default', 'default'));
+                }
+            })
+            .catch(err => {
+                console.log(err.errors.toString());
+            });
     };
 }

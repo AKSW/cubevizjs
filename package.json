@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run lint && mocha-webpack --webpack-config webpack.config-test.js \"test/*\"",
-    "test-watch" : "npm run lint && mocha-webpack --webpack-config webpack.config-test.js --watch \"test/*\"",
+    "test-watch": "npm run lint && mocha-webpack --webpack-config webpack.config-test.js --watch \"test/*\"",
     "lint": "eslint src/*",
     "start": "gulp",
     "build": "gulp build"
@@ -34,7 +34,8 @@
     "redux-thunk": "^2.1.0",
     "simple-ajax": "^2.5.1",
     "ts-specification": "^2.2.1",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "yup": "^0.21.2"
   },
   "devDependencies": {
     "babel-core": "^6.9.0",
