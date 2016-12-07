@@ -214,7 +214,7 @@ export function handleAccept({chartIndex = 0, chartName = ''}) {
                     measureComponent: selectedMeasure
                 }
             )));
-            dispatch(changeSelectedChart(chartIndex));
+            dispatch(changeSelectedChart(index));
         }
     };
 }

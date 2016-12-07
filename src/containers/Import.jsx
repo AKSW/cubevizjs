@@ -13,7 +13,7 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import FileInput from 'react-file-input';
 
-import {doImport} from '../actions';
+import {importPromise, preSelection} from '../actions';
 
 class Import extends Component {
 
@@ -28,7 +28,9 @@ class Import extends Component {
         this.request('fileUpload', event.target.files[0]);
     }
     request(importType, value) {
-        this.props.dispatch(doImport(importType, value));
+        this.props.dispatch(
+            preSelection(importPromise(importType, value, this.props.dispatch))
+        );
     }
 
     render() {
