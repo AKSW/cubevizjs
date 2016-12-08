@@ -5,9 +5,7 @@
 /*eslint complexity: 0*/
 
 import Chart from '../Chart.js';
-import ReactHighcharts from 'react-highcharts';
-import HighchartsHeatmap from 'highcharts-heatmap';
-HighchartsHeatmap(ReactHighcharts.Highcharts);
+import ReactHighcharts from 'react-highcharts/bundle/ReactHighmaps.js';
 import React from 'react';
 import {fromJS, List, Range} from 'immutable';
 import DataCube from '../../DataCube.js';
