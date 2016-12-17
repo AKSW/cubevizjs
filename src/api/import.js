@@ -6,11 +6,8 @@
 import immutable from 'immutable';
 import fetch from 'isomorphic-fetch';
 
-import DataCube from '../assets/DefaultDataCube.js';
-
 export const IMPORT_TYPE_FILE_UPLOAD = 'fileUpload';
 export const IMPORT_TYPE_ENDPOINT = 'endpoint';
-export const IMPORT_TYPE_DEFAULT = 'default';
 
 function request(url) {
     return fetch(url, {
@@ -61,10 +58,6 @@ const getImport = {
             const data = reader.readAsText(v);
         });
     },
-
-    default(_) {
-        return Promise.resolve({dataType: 'triple', value: DataCube});
-    }
 };
 
 export default function imprt({importType, value}) {

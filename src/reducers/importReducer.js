@@ -8,12 +8,10 @@ import {
     CHANGE_DATASETS,
     CHANGE_DATASET_INDEX
 } from '../actions';
-import {IMPORT_TYPE_DEFAULT} from '../api/import';
-import DefaultDataCube from '../assets/DefaultDataCube';
 
 const initialImportState = Map({
-    importType: IMPORT_TYPE_DEFAULT,
-    value: DefaultDataCube,
+    importType: null,
+    value: null,
     dataSets: null,
     dataSetIndex: 0,
     rdfStore: null

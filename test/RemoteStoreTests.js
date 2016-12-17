@@ -8,7 +8,7 @@ import noDsdCube from './assets/NoDsdCube.js';
 import noDimsCube from './assets/NoDimsCube.js';
 import noMeasureCube from './assets/NoMeasureCube.js';
 import noObservationsCube from './assets/NoObservationsCube.js';
-import defaultTestCube from '../src/assets/DefaultDataCube.js';
+import defaultTestCube from './assets/DefaultDataCube.js';
 
 import RemoteStore from '../src/api/RemoteStore.js';
 

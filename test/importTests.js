@@ -1,17 +1,13 @@
 import chai, {assert} from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 
-import imprt, {IMPORT_TYPE_FILE_UPLOAD, IMPORT_TYPE_ENDPOINT, IMPORT_TYPE_DEFAULT} from '../src/api/import.js';
+import imprt, {IMPORT_TYPE_FILE_UPLOAD, IMPORT_TYPE_ENDPOINT} from '../src/api/import.js';
 import cube from './assets/SatisfyHeatmapCube1.js'
 
 chai.use(chaiAsPromised);
 
 
 describe('Importing tests for file urls, files and endpoints', function() {
-
-    it('should return default data cube.', function() {
-        return assert.isFulfilled(imprt({importType: IMPORT_TYPE_DEFAULT}));
-    });
 
     it('should return triples as string (endpoint is file url)', function() {
         return assert.isFulfilled(imprt({

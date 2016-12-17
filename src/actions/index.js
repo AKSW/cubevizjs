@@ -225,7 +225,9 @@ export function handleConfiguration(config) {
                     ));
                 }
                 else {
-                    dispatch(doImport('default', 'default'));
+                    dispatch(doImport(
+                        'endpoint',
+                        'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3'));
                 }
             })
             .catch(err => {
