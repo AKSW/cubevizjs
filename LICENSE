@@ -1,6 +1,8 @@
 MIT License
 
-Copyright (c) 2016 Georges
+
+Copyright (c) 2016 AKSW (University of Leipzig)
+Main developer: Georges Alkhouri <georges.alkhouri@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +21,20 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+Usage of foreign software / libraries
+
+CubeViz.js uses the following foreign software libraries in a research and 
+educational context. For a detailed list of all foreign software / libraries
+see the package.json file.
+
+HighCharts JS
+
+In this context HighCharts JS is free to use under the terms of 
+Creative Commons Attribution-NonCommercial 3.0. 
+( http://shop.highsoft.com/highcharts.html#non-commercial )
+
+If you would like to use HighCharts in a commercial or governmental context, 
+please check the site http://shop.highsoft.com/highcharts.html#commercial 
+by yourself. 
+We, the creators of CubeViz, are not responsible for any illegal or unauthorized usage of HighCharts JS.
