@@ -115,8 +115,9 @@ export function importPromise(importType, value, dispatch) {
             dispatch(showGlobalPopover(false, ''));
         })
         .catch(err => {
-            console.error(err);
+            dispatch(addNewLineToLogBox(err.message));
             dispatch(showGlobalPopover(false, ''));
+            return Promise.reject(err);
         });
 }
 
@@ -191,8 +192,8 @@ export function preSelection(importPromise, config, shouldAccept = false) {
     };
 }
 
-const schema = Yup.object().shape({
-    data_configuration: Yup.object().strict().shape({
+const schema = Yup.object().strict().shape({
+    data_configuration: Yup.object().shape({
         source: Yup.string(),
         measure: Yup.string(),
         attribute: Yup.string(),
@@ -225,9 +226,13 @@ export function handleConfiguration(config) {
                     ));
                 }
                 else {
-                    dispatch(doImport(
-                        'endpoint',
-                        'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3'));
+                    dispatch(preSelection(
+                        importPromise(
+                            'endpoint',
+                            'https://raw.githubusercontent.com/AKSW/cubeviz.ontowiki/master/assets/serbia.n3',
+                            dispatch),
+                        config
+                    ));
                 }
             })
             .catch(err => {
