@@ -61,7 +61,7 @@ class SparqlStore extends Loggable {
             'WHERE { ' +
                 '<' + ds + '> <http://purl.org/linked-data/cube#structure> <' + dsd + '>  . ' +
                 '<' + dsd + '> <http://purl.org/linked-data/cube#component> ?comp . ' +
-                '?comp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#ComponentSpecification> .' +
+                /*'?comp <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://purl.org/linked-data/cube#ComponentSpecification> .' +*/
                 '?comp <' + componentType + '> ?comptype . ' +
                 '?comptype ?p ?o. ' +
             '}';
