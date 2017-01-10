@@ -12,20 +12,25 @@ This document tries to give an overview about CubeViz.js and some of its feature
 Getting Started
 ---------------
 
-To start developing just clone the repository and download all necessary dependencies. 
+To start developing just clone the repository and download all necessary dependencies.
+
 ```
 npm install
 ```
+
 After that start the Webpack server and open your browser at `http://localhost:8080/`.
+
 ```
 npm start
 ```
-Webpack will automaticly build a new bundle file if the source code will be changed. 
-To build a production bundle of CubeViz.js just run
+
+Webpack will automaticly build a new bundle file if the source code will be changed. To build a production bundle of CubeViz.js just run
+
 ```
 npm run build
 ```
-and Webpack will build a bundle to the `dist` folder.  
+
+and Webpack will build a bundle to the `dist` folder.
 
 If you just want to use CubeViz.js you could find further instructions on the [demo page](http://cubevizjs.demo.aksw.org). To use the latest release version link to `dist/cubeviz.min.js` in the master branch and respectively to develop branch if you want to use the current development version.
 
@@ -76,5 +81,4 @@ For importing data through an file URL or SPARQL endpoint from another domain (w
 Debugging
 ---------
 
-Because of the [Redux implementation](https://github.com/AKSW/cubevizjs/releases/tag/v0.2.0) CubeViz.js shows a new log statement every time the user or the application changes state. So the application behavior can be understood more easy.  
-For further understanding of the chart selection process the UI Log Box shows helpful logs.
+Because of the [Redux implementation](https://github.com/AKSW/cubevizjs/releases/tag/v0.2.0) CubeViz.js shows a new log statement every time the user or the application changes state. So the application behavior can be understood more easy. For further understanding of the chart selection process the UI Log Box shows helpful logs.
